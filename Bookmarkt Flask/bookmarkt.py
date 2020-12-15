@@ -1,5 +1,6 @@
 import flask
 from flask import request, jsonify
+from bookshelf import Bookshelf
 from book import Book
 
 app = flask.Flask(__name__)
@@ -13,8 +14,20 @@ def home():
 
 @app.route("/api/v1/resources/books/all", methods=["GET"])
 def api_all():
-    colourOfMagic = Book("0552171891")
+    book1 = Book("0552171891")
+    book2 = Book("9781473666948")
+    book3 = Book("9781408855652")
 
-    return jsonify(colourOfMagic.getData())
+    bookshelf = Bookshelf("test")
+
+    bookshelf.addBook(book1)
+    bookshelf.addBook(book2)
+    bookshelf.addBook(book3)
+
+    bookshelf.getBooks()
+
+
+
+    return jsonify(book1.getData())
 
 # app.run()

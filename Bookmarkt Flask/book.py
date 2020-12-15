@@ -38,3 +38,6 @@ class Book:
                 "pages": 200
             }
         ]
+
+    def __str__(self):
+        return self.title
