@@ -14,7 +14,6 @@ class Book:
     def __scrapeBookDataISBN(self):
 
         apiKey = "AIzaSyBu5i0kpWKfoJ0Juhg5lhpYCU5Xonodo8g"
-        isbn = "9780552166607"
         orderBy = "relevance"
 
         r = requests.get(
@@ -27,7 +26,7 @@ class Book:
             self.author = parsedJson["items"][0]["volumeInfo"]["authors"]
             self.description = parsedJson["items"][0]["volumeInfo"]["description"]
         else:
-            print(f"book not found with isbn: {isbn}")
+            print(f"book not found with isbn: {self.isbn}")
 
     def getData(self):
         return [
