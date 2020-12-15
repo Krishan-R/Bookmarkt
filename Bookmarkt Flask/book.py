@@ -8,6 +8,7 @@ class Book:
         self.title = ""
         self.author = ""
         self.description = ""
+        self.googleID = ""
 
         self.__scrapeBookDataISBN()
 
@@ -25,6 +26,7 @@ class Book:
             self.title = parsedJson["items"][0]["volumeInfo"]["title"]
             self.author = parsedJson["items"][0]["volumeInfo"]["authors"]
             self.description = parsedJson["items"][0]["volumeInfo"]["description"]
+            self.googleID = parsedJson["items"][0]["id"]
         else:
             print(f"book not found with isbn: {self.isbn}")
 
@@ -35,7 +37,8 @@ class Book:
                 "title": self.title,
                 "author": self.author,
                 "description": self.description,
-                "pages": 200
+                "pages": 200,
+                "googleID": self.googleID
             }
         ]
 
