@@ -1,0 +1,13 @@
+{
+  "error": {
+    "code": 503,
+    "message": "Service temporarily unavailable.",
+    "errors": [
+      {
+        "message": "Service temporarily unavailable.",
+        "domain": "global",
+        "reason": "backendFailed"
+      }
+    ]
+  }
+}
