@@ -12,7 +12,7 @@ class Bookshelf:
         self.name = bookshelfName
         self.bookList = []
 
-    def getBooks(self) -> list:
+    def getBooks(self):
         """retrieves all the books in the bookshelf
 
         :return: List of Book objects
@@ -26,3 +26,13 @@ class Bookshelf:
         :param book: Book Object to be added"""
 
         self.bookList.append(book)
+
+
+    def __add__(self, book):
+        """Adds a Book object to the bookshelf
+
+        :param book: Book Object to be added"""
+
+        self.addBook(book)
+
+        return self
