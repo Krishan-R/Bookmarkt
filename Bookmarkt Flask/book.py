@@ -2,7 +2,19 @@ import requests
 
 
 class Book:
+    """A Book class which stores relevant information about each individual book.
+
+    :params isbn: String containing ISBN of book
+    :params googleID: String containing Google Books ID of book
+
+    """
+
     def __init__(self, isbn="", googleID=""):
+        """
+        :param isbn: String containing ISBN of book
+        :param googleID: String containing Google Books ID of book
+        """
+
         self.isbn = isbn
         self.googleID = googleID
 
@@ -17,7 +29,9 @@ class Book:
         else:
             print("no isbn or google books ID provided, automatic scraping will not occur")
 
+
     def __scrapeBookDataISBN(self):
+        """Adds relevant book fields from information retrieved by searching ISBN on Google Books API"""
 
         if self.isbn is not None or self.isbn != "":
 
@@ -40,6 +54,7 @@ class Book:
             print("isbn empty")
 
     def __scrapeBookDataGoogleID(self):
+        """Adds relevant book fields from information retrieved by searching Google Books API on Google Books API"""
 
         if self.googleID is not None or self.googleID != "":
 
@@ -47,6 +62,9 @@ class Book:
 
             r = requests.get(
                 f"https://www.googleapis.com/books/v1/volumes/{self.googleID}&key={apiKey}")
+
+            r = requests.get(
+                f"https://www.googleapis.com/books/v1/volumes/{self.googleID}")
 
             parsedJson = r.json()
 
@@ -61,8 +79,12 @@ class Book:
         else:
             print("google ID empty")
 
+    def getData(self) -> list:
+        """retrieves information about the Book object
 
-    def getData(self):
+        :return: List containing JSON of book information
+        """
+
         return [
             {
                 "isbn": self.isbn,

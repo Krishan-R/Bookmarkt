@@ -14,20 +14,10 @@ def home():
 
 @app.route("/api/v1/resources/books/all", methods=["GET"])
 def api_all():
-    book1 = Book("0552171891")
-    book2 = Book("9781473666948")
-    book3 = Book("9781408855652")
-
-    bookshelf = Bookshelf("test")
-
-    bookshelf.addBook(book1)
-    bookshelf.addBook(book2)
-    bookshelf.addBook(book3)
-
-    bookshelf.getBooks()
+    harryPotter = Book(isbn="9781408855652")
 
 
 
-    return jsonify(book1.getData())
+    return jsonify(harryPotter.getData())
 
 # app.run()
