@@ -27,7 +27,6 @@ class Bookshelf:
 
         self.bookList.append(book)
 
-
     def __add__(self, book):
         """Adds a Book object to the bookshelf
 
@@ -36,3 +35,12 @@ class Bookshelf:
         self.addBook(book)
 
         return self
+
+    def copy(self, oldBookshelf):
+        """Copies a Bookshelf
+
+        :param oldBookshelf: Bookshelf to be copied
+        """
+
+        for book in oldBookshelf.getBooks():
+            self.addBook(book)
