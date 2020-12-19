@@ -37,10 +37,27 @@ class Bookshelf:
         return self
 
     def copy(self, oldBookshelf):
-        """Copies a Bookshelf
+        """Copies Book objects from a Bookshelf
 
         :param oldBookshelf: Bookshelf to be copied
         """
 
+        self.bookList = []
+
         for book in oldBookshelf.getBooks():
             self.addBook(book)
+
+    def copy(self):
+        """Returns a Bookshelf object with the same Books stored as the original object
+
+        :return: Bookshelf containing books
+        """
+
+        bookshelf = Bookshelf()
+
+        bookshelf.bookList = []
+
+        for book in self.getBooks():
+            bookshelf.addBook(book)
+
+        return bookshelf
