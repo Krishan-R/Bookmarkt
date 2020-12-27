@@ -1,13 +1,19 @@
 import requests
+from exts import db
 
 
-class Book:
+class Book(db.Model):
     """A Book class which stores relevant information about each individual book.
 
     :params isbn: String containing ISBN of book
     :params googleID: String containing Google Books ID of book
 
     """
+    isbn = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(50))
+    author = db.Column(db.String(50))
+    description = db.Column(db.String(2000))
+    googleID = db.Column(db.String(20))
 
     def __init__(self, isbn="", googleID=""):
         """
@@ -45,7 +51,7 @@ class Book:
 
             if parsedJson["totalItems"] > 0:
                 self.title = parsedJson["items"][0]["volumeInfo"]["title"]
-                self.author = parsedJson["items"][0]["volumeInfo"]["authors"]
+                self.author = parsedJson["items"][0]["volumeInfo"]["authors"][0]
                 self.description = parsedJson["items"][0]["volumeInfo"]["description"]
                 self.googleID = parsedJson["items"][0]["id"]
             else:
@@ -70,7 +76,7 @@ class Book:
 
             try:
                 self.title = parsedJson["volumeInfo"]["title"]
-                self.author = parsedJson["volumeInfo"]["authors"]
+                self.author = parsedJson["volumeInfo"]["authors"][0]
                 self.description = parsedJson["volumeInfo"]["description"]
                 self.isbn = parsedJson["volumeInfo"]["industryIdentifiers"][1]["identifier"]
             except KeyError:
@@ -96,5 +102,5 @@ class Book:
             }
         ]
 
-    def __str__(self):
-        return self.title
+    def __repr__(self):
+        return '<Book %r>' % self.title

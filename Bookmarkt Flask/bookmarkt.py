@@ -14,6 +14,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///'+file_path
 
 db.init_app(app)
 
+
 @app.route('/', methods=["GET"])
 def home():
 
@@ -22,13 +23,21 @@ def home():
     admin = User(username="admin", email="aksnasl")
     guest = User(username="guest", email="nnnnnf")
 
+    harryPotter = Book(isbn="9781408855652")
+    IT = Book(googleID="S85NCwAAQBAJ")
+
+    # db.session.add(harryPotter)
+    db.session.add(IT)
+
     db.session.add(admin)
     db.session.add(guest)
     db.session.commit()
 
     print(User.query.all())
+    print(Book.query.all())
 
     return "<h1>Home</h1>"
+
 
 @app.route('/Users', methods=["GET"])
 def users():
@@ -46,7 +55,8 @@ def users():
 
     return jsonify(jsonList)
 
-@app.route('/Users/dropTable', methods=["GET"])
+
+@app.route('/dropTable', methods=["GET"])
 def dropDatabase():
 
     db.drop_all()
@@ -55,10 +65,23 @@ def dropDatabase():
 
 
 @app.route("/api/v1/resources/books/all", methods=["GET"])
-def api_all():
-    harryPotter = Book(isbn="9781408855652")
+def allBooks():
 
-    return jsonify(harryPotter.getData())
+    jsonList = []
+    try:
+        for book in Book.query.all():
+            jsonList.append({
+                "isbn": book.isbn,
+                "title": book.title,
+                "description": book.description,
+                "author": book.author,
+                "googleID": book.googleID
+            })
+    except Exception as e:
+        print(e)
+        print("error occured")
+
+    return jsonify(jsonList)
 
 
 
