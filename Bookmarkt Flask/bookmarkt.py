@@ -3,15 +3,16 @@ from flask import request, jsonify
 from user import User
 from bookshelf import Bookshelf
 from book import Book
-from flask_sqlalchemy import SQLAlchemy
 import os
+from exts import db
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
 
-file_path = os.path.abspath(os.getcwd())+"\database.db"
+file_path = os.path.abspath(os.getcwd()) + "\database.db"
 app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///'+file_path
-db = SQLAlchemy(app)
+
+db.init_app(app)
 
 @app.route('/', methods=["GET"])
 def home():
@@ -33,13 +34,15 @@ def home():
 def users():
 
     jsonList = []
-
-    for user in User.query.all():
-        jsonList.append({
-            "id": user.id,
-            "username": user.username,
-            "email": user.email
-        })
+    try:
+        for user in User.query.all():
+            jsonList.append({
+                "id": user.id,
+                "username": user.username,
+                "email": user.email
+            })
+    except:
+        print("error occured")
 
     return jsonify(jsonList)
 
@@ -57,14 +60,7 @@ def api_all():
 
     return jsonify(harryPotter.getData())
 
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(15), nullable=False)
-    email = db.Column(db.String(50), nullable=False)
 
-    def __repr__(self):
-
-        return '<User %r>' % self.username
 
 
 
