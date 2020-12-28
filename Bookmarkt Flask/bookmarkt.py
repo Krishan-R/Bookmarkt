@@ -108,6 +108,18 @@ def getAllBookshelves(userID):
     return jsonify(jsonList)
 
 
+@app.route("/users/<userID>/bookshelf/new/<bookshelfName>", methods=["GET", "POST"])
+def addNewBookshelf(userID, bookshelfName):
+
+    newBookshelf = Bookshelf(bookshelfName, userID)
+    db.session.add(newBookshelf)
+    db.session.commit()
+
+    return "added new bookshelf"
+
+
+
+
 
 
 
