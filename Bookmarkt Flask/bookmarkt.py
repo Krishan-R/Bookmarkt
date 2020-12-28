@@ -45,8 +45,8 @@ def home():
     return "<h1>Home</h1>"
 
 
-@app.route('/users', methods=["GET"])
-def users():
+@app.route('/users/all', methods=["GET"])
+def getAllUsers():
 
     jsonList = []
     try:
@@ -60,6 +60,33 @@ def users():
         print("error occured")
 
     return jsonify(jsonList)
+
+
+@app.route('/users/<userID>', methods=["GET"])
+def getSpecificUser(userID):
+
+    jsonList = []
+    try:
+        for user in User.query.filter(User.id == userID):
+            jsonList.append({
+                "id": user.id,
+                "username": user.username,
+                "email": user.email
+            })
+    except:
+        print("error occured")
+
+    return jsonify(jsonList)
+
+
+@app.route('/users/add/<newUsername>', methods=["GET", "POST"])
+def addNewUser(newUsername):
+
+    newUser = User(username=newUsername, email="empty")
+    db.session.add(newUser)
+    db.session.commit()
+
+    return "added new User"
 
 
 @app.route('/dropTable', methods=["GET"])
