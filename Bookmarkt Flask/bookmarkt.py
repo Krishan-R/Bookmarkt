@@ -22,24 +22,30 @@ def home():
 
     admin = User(username="admin", email="aksnasl")
     guest = User(username="guest", email="nnnnnf")
-
-    harryPotter = Book(isbn="9781408855652")
-    IT = Book(googleID="S85NCwAAQBAJ")
-
-    # db.session.add(harryPotter)
-    db.session.add(IT)
-
     db.session.add(admin)
     db.session.add(guest)
     db.session.commit()
-
     print(User.query.all())
+
+    harryPotter = Book(isbn="9781408855652")
+    IT = Book(googleID="S85NCwAAQBAJ")
+    db.session.add(harryPotter)
+    db.session.add(IT)
+    db.session.commit()
     print(Book.query.all())
+
+    guestBookshelf = Bookshelf("guestBookshelf111", 2)
+    db.session.add(guestBookshelf)
+    db.session.commit()
+    print(Bookshelf.query.all())
+
+
+
 
     return "<h1>Home</h1>"
 
 
-@app.route('/Users', methods=["GET"])
+@app.route('/users', methods=["GET"])
 def users():
 
     jsonList = []
@@ -64,7 +70,7 @@ def dropDatabase():
     return "dropped table"
 
 
-@app.route("/api/v1/resources/books/all", methods=["GET"])
+@app.route("/books/all", methods=["GET"])
 def allBooks():
 
     jsonList = []
@@ -79,7 +85,25 @@ def allBooks():
             })
     except Exception as e:
         print(e)
-        print("error occured")
+        print("error occurred")
+
+    return jsonify(jsonList)
+
+
+@app.route("/users/<userID>/bookshelf/all", methods=["GET"])
+def getAllBookshelves(userID):
+
+    jsonList = []
+    try:
+        for bookshelf in Bookshelf.query.filter(Bookshelf.userID == userID):
+
+            jsonList.append({
+                "bookshelfID": bookshelf.bookshelfID,
+                "name": bookshelf.name,
+            })
+    except Exception as e:
+        print(e)
+        print("error occurred")
 
     return jsonify(jsonList)
 
