@@ -189,6 +189,42 @@ def addUserBook(userID):
     return "added new BookInstance"
 
 
+@app.route('/users/<userID>/books/<bookInstanceID>/edit', methods=["GET", "PUT"])
+def updateBookInstance(userID, bookInstanceID):
+
+    currentPage = request.args.get("currentPage", None)
+    completed = request.args.get("completed", None)
+    bookshelfID = request.args.get("bookshelfID", None)
+    bookInstance = BookInstance.query.filter(BookInstance.bookInstanceID == bookInstanceID).first()
+
+    if currentPage is not None:
+        try:
+            currentPage = int(currentPage)
+            bookInstance.currentPage = currentPage
+        except Exception as e:
+            print(e)
+            print("An Error has occurred")
+
+    if completed is not None and completed.lower() == "false":
+        completed = False
+        bookInstance.completed = completed
+    elif completed is not None and completed.lower() == "true":
+        completed = True
+        bookInstance.completed = completed
+
+    if bookshelfID is not None:
+        try:
+            bookshelfID = int(bookshelfID)
+            bookInstance.bookshelfID = bookshelfID
+        except Exception as e:
+            print(e)
+            print("An Error has occurred")
+
+    db.session.commit()
+
+    return f"Edited book instance {bookInstanceID}"
+
+
 @app.route("/bookinstance/delete/<bookInstanceID>")
 def deleteUserBook(bookInstanceID):
 
