@@ -383,6 +383,35 @@ def addBookToBookshelf(userID, bookshelfID, bookInstanceID):
     return f"added book {bookInstanceID} to bookshelf {bookshelfID}"
 
 
+@app.route("/authors/all", methods=["GET"])
+def getAllAuthors():
+
+    JsonList = []
+
+    for index, author in enumerate(Author.query.all()):
+
+        JsonList.append({
+            "authorData": {},
+            "books": []
+        })
+
+        JsonList[index]["authorData"] = {
+            "authorID": author.authorID,
+            "authorName": author.authorName,
+        }
+
+        for book in author.books:
+            JsonList[index]["Books"].append({
+                "isbn": book.isbn,
+                "title": book.title,
+                "description": book.description,
+                "author": book.authorName,
+                "googleID": book.googleID
+            })
+
+    return jsonify(JsonList)
+
+
 
 
 

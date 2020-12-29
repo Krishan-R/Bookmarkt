@@ -1,11 +1,6 @@
 from exts import db
 from authorToBook import AuthorToBook
 
-# AuthorToBook = db.Table("AuthorToBook",
-#                         db.Column("authorID", db.Integer, db.ForeignKey("Author.authorID")),
-#                         db.Column("isbn", db.Integer, db.ForeignKey("Book.isbn"))
-#                         )
-
 
 class Author(db.Model):
     """Author class to store information about book authors
