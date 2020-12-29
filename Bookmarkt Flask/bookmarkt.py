@@ -79,10 +79,13 @@ def getSpecificUser(userID):
     return jsonify(jsonList)
 
 
-@app.route('/users/add/<newUsername>', methods=["GET", "POST"])
-def addNewUser(newUsername):
+@app.route('/users/add', methods=["GET", "POST"])
+def addNewUser():
 
-    newUser = User(username=newUsername, email="empty")
+    newUsername = request.args.get("username", None)
+    email = request.args.get("email", None)
+
+    newUser = User(username=newUsername, email=email)
     db.session.add(newUser)
     db.session.commit()
 
