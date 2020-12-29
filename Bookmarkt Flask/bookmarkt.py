@@ -3,6 +3,7 @@ from flask import request, jsonify
 from user import User
 from bookshelf import Bookshelf
 from book import Book
+from bookInstance import BookInstance
 import os
 from exts import db
 
@@ -39,8 +40,12 @@ def home():
     db.session.commit()
     print(Bookshelf.query.all())
 
-
-
+    testBookInstanceHP = BookInstance("9781408855652", 1)
+    testBookInstanceIT = BookInstance("9781501142970", 1)
+    db.session.add(testBookInstanceHP)
+    db.session.add(testBookInstanceIT)
+    db.session.commit()
+    print(BookInstance.query.all())
 
     return "<h1>Home</h1>"
 
@@ -77,6 +82,26 @@ def getSpecificUser(userID):
         print("error occured")
 
     return jsonify(jsonList)
+
+
+@app.route('/users/<userID>/books/all', methods=["GET"])
+def getAllUserBooks(userID):
+
+    JsonList = []
+
+    for instance in BookInstance.query.filter(BookInstance.userID == userID):
+        for book in Book.query.filter(Book.isbn == instance.isbn):
+            JsonList.append({
+                "isbn": book.isbn,
+                "title": book.title,
+                "description": book.description,
+                "author": book.author,
+                "googleID": book.googleID,
+                "currentPage": instance.currentPage,
+                "completed": instance.completed
+            })
+
+    return jsonify(JsonList)
 
 
 @app.route('/users/add', methods=["GET", "POST"])
