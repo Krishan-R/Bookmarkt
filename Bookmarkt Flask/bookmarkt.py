@@ -89,17 +89,26 @@ def getAllUserBooks(userID):
 
     JsonList = []
 
-    for instance in BookInstance.query.filter(BookInstance.userID == userID):
+    for index, instance in enumerate(BookInstance.query.filter(BookInstance.userID == userID)):
+
+        JsonList.append({"userData": {},
+                         "bookData": {}})
+
+        JsonList[index]["userData"] = {
+            "isbn": instance.isbn,
+            "bookInstanceID": instance.bookInstanceID,
+            "currentPage": instance.currentPage,
+            "completed": instance.completed
+        }
+
         for book in Book.query.filter(Book.isbn == instance.isbn):
-            JsonList.append({
+            JsonList[index]["bookData"] = {
                 "isbn": book.isbn,
                 "title": book.title,
                 "description": book.description,
                 "author": book.author,
-                "googleID": book.googleID,
-                "currentPage": instance.currentPage,
-                "completed": instance.completed
-            })
+                "googleID": book.googleID
+            }
 
     return jsonify(JsonList)
 
