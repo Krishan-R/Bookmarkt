@@ -7,12 +7,13 @@ class BookInstance(db.Model):
     :param isbn: ISBN of book
     :param userID: ID of user"""
 
+    __tablename__ = "BookInstance"
     bookInstanceID = db.Column(db.Integer, primary_key=True)
-    isbn = db.Column(db.Integer, db.ForeignKey("book.isbn"), nullable=False)
+    isbn = db.Column(db.Integer, db.ForeignKey("Book.isbn"), nullable=False)
     book = db.relationship("Book", backref=db.backref("book_posts", lazy=True))
-    userID = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    userID = db.Column(db.Integer, db.ForeignKey("User.id"), nullable=False)
     user = db.relationship("User", backref=db.backref("user_posts", lazy=True))
-    bookshelfID = db.Column(db.Integer, db.ForeignKey("bookshelf.bookshelfID"))
+    bookshelfID = db.Column(db.Integer, db.ForeignKey("Bookshelf.bookshelfID"))
     bookshelf = db.relationship("Bookshelf", backref=db.backref("bookshelf_posts", lazy=True))
     completed = db.Column(db.Boolean, nullable=False)
     currentPage = db.Column(db.Integer, nullable=False)

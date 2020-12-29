@@ -1,5 +1,6 @@
 import requests
 from exts import db
+from author import Author, AuthorToBook
 
 
 class Book(db.Model):
@@ -9,9 +10,13 @@ class Book(db.Model):
     :params googleID: String containing Google Books ID of book
 
     """
+
+    __tablename__ = "Book"
     isbn = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(50))
-    author = db.Column(db.String(50))
+    # authorID = db.Column(db.Integer, db.ForeignKey("author.authorID"))
+    # author = db.relationship("Author", backref=db.backref("author_posts", lazy=True))
+    authorName = db.Column(db.String(50))
     description = db.Column(db.String(2000))
     googleID = db.Column(db.String(20))
 
@@ -25,7 +30,8 @@ class Book(db.Model):
         self.googleID = googleID
 
         self.title = ""
-        self.author = ""
+        self.authorName = ""
+        self.authorID = None
         self.description = ""
 
         if self.isbn != "":
@@ -47,17 +53,26 @@ class Book(db.Model):
             r = requests.get(
                 f"https://www.googleapis.com/books/v1/volumes?q=isbn:{self.isbn}&orderBy={orderBy}&key={apiKey}")
 
+            r = requests.get(
+                f"https://www.googleapis.com/books/v1/volumes?q=ISBN:{self.isbn}&orderBy={orderBy}&key={apiKey}")
+
             parsedJson = r.json()
 
             if parsedJson["totalItems"] > 0:
                 self.title = parsedJson["items"][0]["volumeInfo"]["title"]
-                self.author = parsedJson["items"][0]["volumeInfo"]["authors"][0]
+                self.authorName = parsedJson["items"][0]["volumeInfo"]["authors"][0]
                 self.description = parsedJson["items"][0]["volumeInfo"]["description"]
                 self.googleID = parsedJson["items"][0]["id"]
+
+                self.__addBookToAuthor()
+
             else:
                 print(f"book not found with isbn: {self.isbn}")
         else:
             print("isbn empty")
+
+
+
 
     def __scrapeBookDataGoogleID(self):
         """Adds relevant book fields from information retrieved by searching Google Books API on Google Books API"""
@@ -75,10 +90,12 @@ class Book(db.Model):
             parsedJson = r.json()
 
             try:
-                self.title = parsedJson["volumeInfo"]["title"]
-                self.author = parsedJson["volumeInfo"]["authors"][0]
-                self.description = parsedJson["volumeInfo"]["description"]
+                self.title = parsedJson["items"][0]["volumeInfo"]["title"]
+                self.authorName = parsedJson["items"][0]["volumeInfo"]["authors"][0]
+                self.description = parsedJson["items"][0]["volumeInfo"]["description"]
                 self.isbn = parsedJson["volumeInfo"]["industryIdentifiers"][1]["identifier"]
+
+                self.__addBookToAuthor()
             except KeyError:
                 print(f"book not found with google ID: {self.googleID}")
 
@@ -95,12 +112,24 @@ class Book(db.Model):
             {
                 "isbn": self.isbn,
                 "title": self.title,
-                "author": self.author,
+                "author": self.authorName,
                 "description": self.description,
                 "pages": 200,
                 "googleID": self.googleID
             }
         ]
+
+    def __addBookToAuthor(self):
+
+        if Author.query.filter(Author.authorName == self.authorName).count() == 0:
+            print(f"author ({self.authorName}) not in database")
+            newAuthor = Author(self.authorName)
+            db.session.add(newAuthor)
+            db.session.commit()
+
+        author = Author.query.filter(Author.authorName == self.authorName).first()
+        author.books.append(self)
+        db.session.commit()
 
     def __repr__(self):
         return '<Book %r>' % self.title

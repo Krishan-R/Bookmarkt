@@ -7,9 +7,10 @@ class Bookshelf(db.Model):
     :param bookshelfName: Name of the bookshelf
     """
 
+    __tablename__ = "Bookshelf"
     bookshelfID = db.Column(db.Integer, unique=True, primary_key=True)
     name = db.Column(db.String(50))
-    userID = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    userID = db.Column(db.Integer, db.ForeignKey("User.id"), nullable=False)
     user = db.relationship("User", backref=db.backref("posts", lazy=True))
 
     def __init__(self, bookshelfName="", userID=""):

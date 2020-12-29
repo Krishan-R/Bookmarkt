@@ -2,8 +2,11 @@ import flask
 from flask import request, jsonify
 from user import User
 from bookshelf import Bookshelf
+from author import Author
 from book import Book
 from bookInstance import BookInstance
+from authorToBook import AuthorToBook
+
 import os
 from exts import db
 
@@ -23,30 +26,36 @@ def home():
     db.create_all()
 
     admin = User(username="admin", email="aksnasl")
-    guest = User(username="guest", email="nnnnnf")
     db.session.add(admin)
-    db.session.add(guest)
     db.session.commit()
     print(User.query.all())
 
+    # StephenKing = Author("Stephen King")
+    # # StephenKing.books.append(IT)
+    # db.session.add(StephenKing)
+    # db.session.commit()
+
     # harryPotter = Book(isbn="9781408855652")
-    # IT = Book(googleID="S85NCwAAQBAJ")
-    # db.session.add(harryPotter)
-    # db.session.add(IT)
-    # db.session.commit()
-    # print(Book.query.all())
-    #
-    # guestBookshelf = Bookshelf("guestBookshelf111", 2)
-    # db.session.add(guestBookshelf)
-    # db.session.commit()
-    # print(Bookshelf.query.all())
-    #
-    # testBookInstanceHP = BookInstance("9781408855652", 1)
-    # testBookInstanceIT = BookInstance("9781501142970", 1)
-    # db.session.add(testBookInstanceHP)
-    # # db.session.add(testBookInstanceIT)
-    # db.session.commit()
-    # print(BookInstance.query.all())
+    IT = Book(isbn="9781501142970")
+    cujo = Book(isbn="9781444708127")
+    institute = Book(isbn="9781529355413")
+
+    db.session.add(IT)
+    db.session.add(institute)
+    db.session.add(cujo)
+    db.session.commit()
+    print(Book.query.all())
+
+    adminBookshelf = Bookshelf("adminBookshelf", 1)
+    db.session.add(adminBookshelf)
+    db.session.commit()
+    print(Bookshelf.query.all())
+
+    ITBookInstance = BookInstance("9781501142970", 1, bookshelfID=1)
+    db.session.add(ITBookInstance)
+    db.session.commit()
+
+
 
     return "<h1>Home</h1>"
 
@@ -109,7 +118,7 @@ def getAllUserBooks(userID):
                 "isbn": book.isbn,
                 "title": book.title,
                 "description": book.description,
-                "author": book.author,
+                "author": book.authorName,
                 "googleID": book.googleID
             }
 
@@ -140,7 +149,7 @@ def getAllBookInstances():
                 "isbn": book.isbn,
                 "title": book.title,
                 "description": book.description,
-                "author": book.author,
+                "author": book.authorName,
                 "googleID": book.googleID
             }
 
@@ -181,7 +190,8 @@ def addUserBook(userID):
     db.session.commit()
 
     # check to see if book data is in database
-    if Book.query.filter(Book.isbn == isbn).count() == 0 :
+    if Book.query.filter(Book.isbn == isbn).count() == 0:
+        print("book not found, trying to scrape")
         newBook = Book(isbn=isbn)
         db.session.add(newBook)
         db.session.commit()
@@ -293,7 +303,7 @@ def allBooks():
                 "isbn": book.isbn,
                 "title": book.title,
                 "description": book.description,
-                "author": book.author,
+                "author": book.authorName,
                 "googleID": book.googleID
             })
     except Exception as e:
@@ -357,7 +367,7 @@ def getBooksFromBookshelf(userID, bookshelfID):
                 "isbn": book.isbn,
                 "title": book.title,
                 "description": book.description,
-                "author": book.author,
+                "author": book.authorName,
                 "googleID": book.googleID
             }
 
