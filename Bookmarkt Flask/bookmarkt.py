@@ -131,6 +131,15 @@ def addUserBook(userID):
     return "added new BookInstance"
 
 
+@app.route("/users/<userID>/books/delete/<bookInstanceID>", methods=["GET", "POST"])
+def deleteUserBook(userID, bookInstanceID):
+
+    BookInstance.query.filter(BookInstance.bookInstanceID == bookInstanceID).delete()
+    db.session.commit()
+
+    return f"deleted book instance id {bookInstanceID}"
+
+
 @app.route('/users/add', methods=["GET", "POST"])
 def addNewUser():
 
