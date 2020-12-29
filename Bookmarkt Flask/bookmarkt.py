@@ -99,7 +99,38 @@ def getAllUserBooks(userID):
             "isbn": instance.isbn,
             "bookInstanceID": instance.bookInstanceID,
             "currentPage": instance.currentPage,
-            "completed": instance.completed
+            "completed": instance.completed,
+            "userID": instance.userID
+        }
+
+        for book in Book.query.filter(Book.isbn == instance.isbn):
+            JsonList[index]["bookData"] = {
+                "isbn": book.isbn,
+                "title": book.title,
+                "description": book.description,
+                "author": book.author,
+                "googleID": book.googleID
+            }
+
+    return jsonify(JsonList)
+
+
+@app.route("/bookinstance/all", methods=["GET"])
+def getAllBookInstances():
+
+    JsonList = []
+
+    for index, instance in enumerate(BookInstance.query.all()):
+
+        JsonList.append({"userData": {},
+                         "bookData": {}})
+
+        JsonList[index]["userData"] = {
+            "isbn": instance.isbn,
+            "bookInstanceID": instance.bookInstanceID,
+            "currentPage": instance.currentPage,
+            "completed": instance.completed,
+            "userID": instance.userID
         }
 
         for book in Book.query.filter(Book.isbn == instance.isbn):
@@ -148,11 +179,18 @@ def addUserBook(userID):
     return "added new BookInstance"
 
 
-@app.route("/users/<userID>/books/delete/<bookInstanceID>", methods=["GET", "POST"])
-def deleteUserBook(userID, bookInstanceID):
+@app.route("/bookinstance/delete/<bookInstanceID>")
+def deleteUserBook(bookInstanceID):
 
     BookInstance.query.filter(BookInstance.bookInstanceID == bookInstanceID).delete()
     db.session.commit()
+
+    return f"deleted book instance id {bookInstanceID}"
+
+
+@app.route("/users/<userID>/books/delete/<bookInstanceID>", methods=["GET", "POST"])
+def deleteUserBook2(userID, bookInstanceID):
+    deleteUserBook(bookInstanceID)
 
     return f"deleted book instance id {bookInstanceID}"
 
@@ -164,6 +202,7 @@ def deleteAllUserBook(userID):
     db.session.commit()
 
     return f"deleted all book instanced from user {userID}"
+
 
 @app.route('/users/add', methods=["GET", "POST"])
 def addNewUser():
