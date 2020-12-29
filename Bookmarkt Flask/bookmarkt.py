@@ -130,7 +130,7 @@ def addUserBook(userID):
     else:
         currentPage = 0
 
-    if completed.lower() == "false" or completed is None:
+    if completed is None or completed.lower() == "false":
         completed = False
     elif completed.lower() == "true":
         completed = True
