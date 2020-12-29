@@ -100,7 +100,8 @@ def getAllUserBooks(userID):
             "bookInstanceID": instance.bookInstanceID,
             "currentPage": instance.currentPage,
             "completed": instance.completed,
-            "userID": instance.userID
+            "userID": instance.userID,
+            "bookshelfID": instance.bookshelfID
         }
 
         for book in Book.query.filter(Book.isbn == instance.isbn):
@@ -130,7 +131,8 @@ def getAllBookInstances():
             "bookInstanceID": instance.bookInstanceID,
             "currentPage": instance.currentPage,
             "completed": instance.completed,
-            "userID": instance.userID
+            "userID": instance.userID,
+            "bookshelfID": instance.bookshelfID
         }
 
         for book in Book.query.filter(Book.isbn == instance.isbn):
@@ -151,6 +153,7 @@ def addUserBook(userID):
     isbn = request.args.get("isbn", None)
     currentPage = request.args.get("currentPage", None)
     completed = request.args.get("completed", None)
+    bookshelfID = request.args.get("bookshelfID", None)
 
     if currentPage is not None:
         try:
@@ -166,7 +169,14 @@ def addUserBook(userID):
     elif completed.lower() == "true":
         completed = True
 
-    newBookInstance = BookInstance(isbn, userID, completed=completed, currentPage=currentPage)
+    if bookshelfID is not None:
+        try:
+            bookshelfID = int(bookshelfID)
+        except Exception as e:
+            print(e)
+            print("An Error has occurred")
+
+    newBookInstance = BookInstance(isbn, userID, completed=completed, currentPage=currentPage, bookshelfID=bookshelfID)
     db.session.add(newBookInstance)
     db.session.commit()
 
@@ -275,8 +285,10 @@ def getAllBookshelves(userID):
     return jsonify(jsonList)
 
 
-@app.route("/users/<userID>/bookshelf/new/<bookshelfName>", methods=["GET", "POST"])
-def addNewBookshelf(userID, bookshelfName):
+@app.route("/users/<userID>/bookshelf/add", methods=["GET", "POST"])
+def addNewBookshelf(userID):
+
+    bookshelfName = request.args.get("isbn", "")
 
     newBookshelf = Bookshelf(bookshelfName, userID)
     db.session.add(newBookshelf)
@@ -284,6 +296,36 @@ def addNewBookshelf(userID, bookshelfName):
 
     return "added new bookshelf"
 
+
+@app.route("/users/<userID>/bookshelf/<bookshelfID>", methods=["GET"])
+def getBooksFromBookshelf(userID, bookshelfID):
+
+    JsonList = []
+
+    for index, instance in enumerate(BookInstance.query.filter(BookInstance.bookshelfID == bookshelfID)):
+
+        JsonList.append({"userData": {},
+                         "bookData": {}})
+
+        JsonList[index]["userData"] = {
+            "isbn": instance.isbn,
+            "bookInstanceID": instance.bookInstanceID,
+            "currentPage": instance.currentPage,
+            "completed": instance.completed,
+            "userID": instance.userID,
+            "bookshelfID": instance.bookshelfID
+        }
+
+        for book in Book.query.filter(Book.isbn == instance.isbn):
+            JsonList[index]["bookData"] = {
+                "isbn": book.isbn,
+                "title": book.title,
+                "description": book.description,
+                "author": book.author,
+                "googleID": book.googleID
+            }
+
+    return jsonify(JsonList)
 
 
 
