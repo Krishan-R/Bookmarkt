@@ -401,13 +401,40 @@ def getAllAuthors():
         }
 
         for book in author.books:
-            JsonList[index]["Books"].append({
+            JsonList[index]["books"].append({
                 "isbn": book.isbn,
                 "title": book.title,
                 "description": book.description,
                 "author": book.authorName,
                 "googleID": book.googleID
             })
+
+    return jsonify(JsonList)
+
+
+@app.route("/authors/<authorID>", methods=["GET"])
+def getSpecificAuthor(authorID):
+
+    author = Author.query.filter(Author.authorID == authorID).first()
+
+    JsonList = [{
+        "authorData": {},
+        "books": []
+    }]
+
+    JsonList[0]["authorData"] = {
+        "authorID": author.authorID,
+        "authorName": author.authorName,
+    }
+
+    for book in author.books:
+        JsonList[0]["books"].append({
+            "isbn": book.isbn,
+            "title": book.title,
+            "description": book.description,
+            "author": book.authorName,
+            "googleID": book.googleID
+        })
 
     return jsonify(JsonList)
 
