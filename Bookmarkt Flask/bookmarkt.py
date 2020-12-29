@@ -328,6 +328,13 @@ def getBooksFromBookshelf(userID, bookshelfID):
     return jsonify(JsonList)
 
 
+@app.route("/users/<userID>/bookshelf/<bookshelfID>/add/<bookInstanceID>", methods=["GET", "PUT"])
+def addBookToBookshelf(userID, bookshelfID, bookInstanceID):
+    bookInstance = BookInstance.query.filter(BookInstance.bookInstanceID == bookInstanceID).first()
+    bookInstance.bookshelfID = bookshelfID
+    db.session.commit()
+
+    return f"added book {bookInstanceID} to bookshelf {bookshelfID}"
 
 
 
