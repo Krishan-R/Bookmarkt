@@ -121,9 +121,6 @@ def addUserBook(userID):
     currentPage = request.args.get("currentPage", None)
     completed = request.args.get("completed", None)
 
-    print("currentPage", currentPage)
-    print("completed", completed)
-
     if currentPage is not None:
         try:
             currentPage = int(currentPage)
@@ -159,6 +156,14 @@ def deleteUserBook(userID, bookInstanceID):
 
     return f"deleted book instance id {bookInstanceID}"
 
+
+@app.route("/users/<userID>/books/delete/all", methods=["GET", "POST"])
+def deleteAllUserBook(userID):
+
+    BookInstance.query.filter(BookInstance.userID == userID).delete()
+    db.session.commit()
+
+    return f"deleted all book instanced from user {userID}"
 
 @app.route('/users/add', methods=["GET", "POST"])
 def addNewUser():
