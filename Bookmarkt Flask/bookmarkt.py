@@ -217,6 +217,18 @@ def addNewUser():
     return "added new User"
 
 
+@app.route("/users/<userID>/delete", methods=["GET", "POST"])
+def deleteUser(userID):
+
+    User.query.filter(User.id == userID).delete()
+    Bookshelf.query.filter(Bookshelf.userID == userID).delete()
+    BookInstance.query.filter(BookInstance.userID == userID).delete()
+
+    db.session.commit()
+
+    return f"deleted user {userID}"
+
+
 @app.route('/dropTable', methods=["GET"])
 def dropDatabase():
 
