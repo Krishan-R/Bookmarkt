@@ -19,6 +19,7 @@ db.init_app(app)
 @app.route('/', methods=["GET"])
 def home():
 
+    dropDatabase()
     db.create_all()
 
     admin = User(username="admin", email="aksnasl")
@@ -28,24 +29,24 @@ def home():
     db.session.commit()
     print(User.query.all())
 
-    harryPotter = Book(isbn="9781408855652")
-    IT = Book(googleID="S85NCwAAQBAJ")
-    db.session.add(harryPotter)
-    db.session.add(IT)
-    db.session.commit()
-    print(Book.query.all())
-
-    guestBookshelf = Bookshelf("guestBookshelf111", 2)
-    db.session.add(guestBookshelf)
-    db.session.commit()
-    print(Bookshelf.query.all())
-
-    testBookInstanceHP = BookInstance("9781408855652", 1)
-    testBookInstanceIT = BookInstance("9781501142970", 1)
-    db.session.add(testBookInstanceHP)
-    # db.session.add(testBookInstanceIT)
-    db.session.commit()
-    print(BookInstance.query.all())
+    # harryPotter = Book(isbn="9781408855652")
+    # IT = Book(googleID="S85NCwAAQBAJ")
+    # db.session.add(harryPotter)
+    # db.session.add(IT)
+    # db.session.commit()
+    # print(Book.query.all())
+    #
+    # guestBookshelf = Bookshelf("guestBookshelf111", 2)
+    # db.session.add(guestBookshelf)
+    # db.session.commit()
+    # print(Bookshelf.query.all())
+    #
+    # testBookInstanceHP = BookInstance("9781408855652", 1)
+    # testBookInstanceIT = BookInstance("9781501142970", 1)
+    # db.session.add(testBookInstanceHP)
+    # # db.session.add(testBookInstanceIT)
+    # db.session.commit()
+    # print(BookInstance.query.all())
 
     return "<h1>Home</h1>"
 
@@ -117,8 +118,27 @@ def getAllUserBooks(userID):
 def addUserBook(userID):
 
     isbn = request.args.get("isbn", None)
+    currentPage = request.args.get("currentPage", None)
+    completed = request.args.get("completed", None)
 
-    newBookInstance = BookInstance(isbn, userID)
+    print("currentPage", currentPage)
+    print("completed", completed)
+
+    if currentPage is not None:
+        try:
+            currentPage = int(currentPage)
+        except Exception as e:
+            print(e)
+            print("An Error has occurred")
+    else:
+        currentPage = 0
+
+    if completed.lower() == "false" or completed is None:
+        completed = False
+    elif completed.lower() == "true":
+        completed = True
+
+    newBookInstance = BookInstance(isbn, userID, completed=completed, currentPage=currentPage)
     db.session.add(newBookInstance)
     db.session.commit()
 

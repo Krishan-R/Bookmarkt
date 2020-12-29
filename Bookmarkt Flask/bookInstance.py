@@ -15,11 +15,11 @@ class BookInstance(db.Model):
     completed = db.Column(db.Boolean, nullable=False)
     currentPage = db.Column(db.Integer, nullable=False)
 
-    def __init__(self, isbn, userID):
+    def __init__(self, isbn, userID, currentPage=0, completed=False):
         self.isbn = isbn
         self.userID = userID
-        self.completed = False
-        self.currentPage = 0
+        self.completed = completed
+        self.currentPage = currentPage
 
     def __repr__(self):
         return "<BookInstance %r>" % self.bookInstanceID
