@@ -43,7 +43,7 @@ def home():
     testBookInstanceHP = BookInstance("9781408855652", 1)
     testBookInstanceIT = BookInstance("9781501142970", 1)
     db.session.add(testBookInstanceHP)
-    db.session.add(testBookInstanceIT)
+    # db.session.add(testBookInstanceIT)
     db.session.commit()
     print(BookInstance.query.all())
 
@@ -102,6 +102,18 @@ def getAllUserBooks(userID):
             })
 
     return jsonify(JsonList)
+
+
+@app.route("/users/<userID>/books/add", methods=["GET", "POST"])
+def addUserBook(userID):
+
+    isbn = request.args.get("isbn", None)
+
+    newBookInstance = BookInstance(isbn, userID)
+    db.session.add(newBookInstance)
+    db.session.commit()
+
+    return "added new BookInstance"
 
 
 @app.route('/users/add', methods=["GET", "POST"])
