@@ -122,6 +122,12 @@ def addUserBook(userID):
     db.session.add(newBookInstance)
     db.session.commit()
 
+    # check to see if book data is in database
+    if Book.query.filter(Book.isbn == isbn).count() == 0 :
+        newBook = Book(isbn=isbn)
+        db.session.add(newBook)
+        db.session.commit()
+
     return "added new BookInstance"
 
 
