@@ -59,20 +59,21 @@ class Book(db.Model):
             parsedJson = r.json()
 
             if parsedJson["totalItems"] > 0:
-                self.title = parsedJson["items"][0]["volumeInfo"]["title"]
-                self.authorName = parsedJson["items"][0]["volumeInfo"]["authors"][0]
-                self.description = parsedJson["items"][0]["volumeInfo"]["description"]
-                self.googleID = parsedJson["items"][0]["id"]
 
-                self.__addBookToAuthor()
+                if parsedJson["items"][0]["volumeInfo"]["industryIdentifiers"][0]["identifier"] == self.isbn or parsedJson["items"][0]["volumeInfo"]["industryIdentifiers"][1]["identifier"] == self.isbn:
+                    self.title = parsedJson["items"][0]["volumeInfo"]["title"]
+                    self.authorName = parsedJson["items"][0]["volumeInfo"]["authors"][0].replace(".", "").title()
+                    self.description = parsedJson["items"][0]["volumeInfo"]["description"]
+                    self.googleID = parsedJson["items"][0]["id"]
+
+                    self.__addBookToAuthor()
+                else:
+                    print(f"book not found with isbn: {self.isbn}. Not scraping fromn Google Books")
 
             else:
                 print(f"book not found with isbn: {self.isbn}")
         else:
             print("isbn empty")
-
-
-
 
     def __scrapeBookDataGoogleID(self):
         """Adds relevant book fields from information retrieved by searching Google Books API on Google Books API"""
