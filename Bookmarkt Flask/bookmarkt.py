@@ -202,10 +202,17 @@ def addUserBook(userID):
 @app.route('/users/<userID>/books/<bookInstanceID>/edit', methods=["GET", "PUT"])
 def updateBookInstance(userID, bookInstanceID):
 
+    userID = int(userID)
+
     currentPage = request.args.get("currentPage", None)
     completed = request.args.get("completed", None)
     bookshelfID = request.args.get("bookshelfID", None)
     bookInstance = BookInstance.query.filter(BookInstance.bookInstanceID == bookInstanceID).first()
+
+    # check if bookinstance belongs to that userid
+    if bookInstance.userID != userID:
+        print("Book instance does not belong to user")
+        return f"Book Instance {bookInstanceID} does not belong to user {userID}"
 
     if currentPage is not None:
         try:
@@ -225,6 +232,13 @@ def updateBookInstance(userID, bookInstanceID):
     if bookshelfID is not None:
         try:
             bookshelfID = int(bookshelfID)
+
+            # check if bookshelfID belongs to userID
+            bookshelf = Bookshelf.query.filter(Bookshelf.bookshelfID == bookshelfID).first()
+            if bookshelf.userID != userID:
+                print("Bookshelf does not belong to that user")
+                return f"Bookshelf {bookshelfID} does not belong to user {userID}"
+
             bookInstance.bookshelfID = bookshelfID
         except Exception as e:
             print(e)
@@ -235,8 +249,10 @@ def updateBookInstance(userID, bookInstanceID):
     return f"Edited book instance {bookInstanceID}"
 
 
-@app.route("/bookinstance/delete/<bookInstanceID>")
-def deleteUserBook(bookInstanceID):
+@app.route("/bookinstance/delete")
+def deleteUserBook():
+
+    bookInstanceID = request.args.get("bookInstanceID", None)
 
     BookInstance.query.filter(BookInstance.bookInstanceID == bookInstanceID).delete()
     db.session.commit()
@@ -244,9 +260,20 @@ def deleteUserBook(bookInstanceID):
     return f"deleted book instance id {bookInstanceID}"
 
 
-@app.route("/users/<userID>/books/delete/<bookInstanceID>", methods=["GET", "POST"])
-def deleteUserBook2(userID, bookInstanceID):
-    deleteUserBook(bookInstanceID)
+@app.route("/users/<userID>/books/delete", methods=["GET", "POST"])
+def deleteUserBook2(userID):
+
+    bookInstanceID = request.args.get("bookInstanceID", None)
+
+    bookInstance = BookInstance.query.filter(BookInstance.bookInstanceID == bookInstanceID).first()
+
+    # checks to see if book instance belongs to that user
+    if bookInstance.userID != int(userID):
+        print("BookInstance does not belong to user")
+        return f"Book Instance {bookInstanceID} does not belong to user {userID}"
+
+    BookInstance.query.filter(BookInstance.bookInstanceID == bookInstanceID).delete()
+    db.session.commit()
 
     return f"deleted book instance id {bookInstanceID}"
 
@@ -382,6 +409,7 @@ def addBookToBookshelf(userID, bookshelfID):
     bookInstance = BookInstance.query.filter(BookInstance.bookInstanceID == bookInstanceID).first()
     bookshelf = Bookshelf.query.filter(Bookshelf.bookshelfID == bookshelfID).first()
 
+    # checks to see if bookshelf belongs to that user
     if bookInstance.userID == bookshelf.userID:
         bookInstance.bookshelfID = bookshelfID
         db.session.commit()
