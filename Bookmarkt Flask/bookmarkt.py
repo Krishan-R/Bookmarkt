@@ -380,10 +380,15 @@ def addBookToBookshelf(userID, bookshelfID):
     bookInstanceID = request.args.get("bookInstanceID")
 
     bookInstance = BookInstance.query.filter(BookInstance.bookInstanceID == bookInstanceID).first()
-    bookInstance.bookshelfID = bookshelfID
-    db.session.commit()
+    bookshelf = Bookshelf.query.filter(Bookshelf.bookshelfID == bookshelfID).first()
 
-    return f"added book {bookInstanceID} to bookshelf {bookshelfID}"
+    if bookInstance.userID == bookshelf.userID:
+        bookInstance.bookshelfID = bookshelfID
+        db.session.commit()
+        return f"added book {bookInstanceID} to bookshelf {bookshelfID}"
+    else:
+        print("Book Instance userID and Bookshelf UserID do not match")
+        return f"That book does not belong to owner of bookshelf"
 
 
 @app.route("/authors/all", methods=["GET"])
