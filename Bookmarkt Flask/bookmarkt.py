@@ -334,7 +334,7 @@ def getAllBookshelves(userID):
 @app.route("/users/<userID>/bookshelf/add", methods=["GET", "POST"])
 def addNewBookshelf(userID):
 
-    bookshelfName = request.args.get("isbn", "")
+    bookshelfName = request.args.get("name", "")
 
     newBookshelf = Bookshelf(bookshelfName, userID)
     db.session.add(newBookshelf)
@@ -374,8 +374,11 @@ def getBooksFromBookshelf(userID, bookshelfID):
     return jsonify(JsonList)
 
 
-@app.route("/users/<userID>/bookshelf/<bookshelfID>/add/<bookInstanceID>", methods=["GET", "PUT"])
-def addBookToBookshelf(userID, bookshelfID, bookInstanceID):
+@app.route("/users/<userID>/bookshelf/<bookshelfID>/add", methods=["GET", "PUT"])
+def addBookToBookshelf(userID, bookshelfID):
+
+    bookInstanceID = request.args.get("bookInstanceID")
+
     bookInstance = BookInstance.query.filter(BookInstance.bookInstanceID == bookInstanceID).first()
     bookInstance.bookshelfID = bookshelfID
     db.session.commit()
