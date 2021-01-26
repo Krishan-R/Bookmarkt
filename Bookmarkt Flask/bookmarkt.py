@@ -6,6 +6,7 @@ from author import Author
 from book import Book
 from bookInstance import BookInstance
 from authorToBook import AuthorToBook
+from readingSession import ReadingSession
 
 import os
 from exts import db
@@ -55,7 +56,9 @@ def home():
     db.session.add(ITBookInstance)
     db.session.commit()
 
-
+    # testReadingSession = ReadingSession(1, 50, 30, 1)
+    # db.session.add(testReadingSession)
+    # db.session.commit()
 
     return "<h1>Home</h1>"
 
@@ -287,6 +290,33 @@ def deleteAllUserBook(userID):
     return f"deleted all book instanced from user {userID}"
 
 
+@app.route("/users/<userID>/books/<bookInstanceID>/read", methods=["GET", "POST"])
+def addReadingSession(userID, bookInstanceID):
+
+    currentPage = request.args.get("currentPage", None)
+    timeRead = request.args.get("timeRead", None)
+    bookInstance = BookInstance.query.filter(BookInstance.bookInstanceID == bookInstanceID).first()
+
+    if bookInstance.userID != int(userID):
+        print(bookInstance.userID, bookInstance.book.title, userID)
+        print("Book instance does not belong to user")
+        return f"Book Instance {bookInstanceID} does not belong to user {userID}"
+
+    if currentPage is None or timeRead is None:
+        return "not enough arguments"
+    else:
+
+        readingSession = ReadingSession(bookInstanceID, currentPage, timeRead, userID)
+        db.session.add(readingSession)
+
+        bookInstance.currentPage = currentPage
+
+        db.session.commit()
+
+
+        return "add reading session"
+
+
 @app.route('/users/add', methods=["GET", "POST"])
 def addNewUser():
 
@@ -473,7 +503,6 @@ def getSpecificAuthor(authorID):
         })
 
     return jsonify(JsonList)
-
 
 
 

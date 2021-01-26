@@ -122,6 +122,7 @@ class Book(db.Model):
 
     def __addBookToAuthor(self):
 
+        # adds author to database if it doesnt already exist
         if Author.query.filter(Author.authorName == self.authorName).count() == 0:
             print(f"author ({self.authorName}) not in database")
             newAuthor = Author(self.authorName)
