@@ -1,5 +1,6 @@
 import flask
 from flask import request, jsonify
+import hashlib
 from user import User
 from bookshelf import Bookshelf
 from author import Author
@@ -18,6 +19,10 @@ file_path = os.path.abspath(os.getcwd()) + "\database.db"
 app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///'+file_path
 
 db.init_app(app)
+
+
+def encryptPassword(password):
+    return hashlib.sha256(password.encode("utf-8")).hexdigest()
 
 
 @app.route('/', methods=["GET"])
@@ -347,13 +352,16 @@ def addNewUser():
 
     newUsername = request.args.get("username", None)
     email = request.args.get("email", None)
+    password = request.args.get("password", None)
 
     if newUsername is None:
         return "username is missing", 422
     if email is None:
         return "email is missing", 422
+    if password is None:
+        return "password is missing", 422
 
-    newUser = User(username=newUsername, email=email)
+    newUser = User(username=newUsername, email=email, password=encryptPassword(password))
     db.session.add(newUser)
     db.session.commit()
 
@@ -372,12 +380,20 @@ def deleteUser(userID):
     return f"deleted user {userID}", 200
 
 
-@app.route('/dropTable', methods=["DELETE"])
+@app.route('/dropDatabase', methods=["DELETE"])
 def dropDatabase():
 
     db.drop_all()
 
-    return "dropped table"
+    return "dropped database", 200
+
+
+@app.route("/createDatabase", methods=["POST"])
+def createDatabase():
+
+    db.create_all()
+
+    return "created database", 200
 
 
 @app.route("/books/all", methods=["GET"])
