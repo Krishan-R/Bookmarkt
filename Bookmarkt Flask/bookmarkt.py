@@ -28,44 +28,7 @@ def encryptPassword(password):
 @app.route('/', methods=["GET"])
 def home():
 
-    dropDatabase()
-    db.create_all()
-
-    admin = User(username="admin", email="aksnasl")
-    db.session.add(admin)
-    db.session.commit()
-    print(User.query.all())
-
-    # StephenKing = Author("Stephen King")
-    # # StephenKing.books.append(IT)
-    # db.session.add(StephenKing)
-    # db.session.commit()
-
-    # harryPotter = Book(isbn="9781408855652")
-    IT = Book(isbn="9781501142970")
-    cujo = Book(isbn="9781444708127")
-    institute = Book(isbn="9781529355413")
-
-    db.session.add(IT)
-    db.session.add(institute)
-    db.session.add(cujo)
-    db.session.commit()
-    print(Book.query.all())
-
-    adminBookshelf = Bookshelf("adminBookshelf", 1)
-    db.session.add(adminBookshelf)
-    db.session.commit()
-    print(Bookshelf.query.all())
-
-    ITBookInstance = BookInstance("9781501142970", 1, bookshelfID=1)
-    db.session.add(ITBookInstance)
-    db.session.commit()
-
-    # testReadingSession = ReadingSession(1, 50, 30, 1)
-    # db.session.add(testReadingSession)
-    # db.session.commit()
-
-    return "<h1>Home</h1>"
+    return "True", 200
 
 
 @app.route('/users/all', methods=["GET"])
