@@ -361,6 +361,11 @@ def addNewUser():
     if password is None:
         return "password is missing", 422
 
+    user = User.query.filter(User.username == newUsername).first()
+
+    if user is not None:
+        return "username already exists", 409
+
     newUser = User(username=newUsername, email=email, password=encryptPassword(password))
     db.session.add(newUser)
     db.session.commit()
@@ -378,6 +383,25 @@ def deleteUser(userID):
     db.session.commit()
 
     return f"deleted user {userID}", 200
+
+
+@app.route("/login", methods=["GET"])
+def login():
+
+    username = request.args.get("username", None)
+    password = request.args.get("password", None)
+
+    if username is None:
+        return "username is missing", 422
+    if password is None:
+        return "email is missing", 422
+
+    user = User.query.filter(User.username == username).first()
+
+    if user.password == encryptPassword(password):
+        return f"{user.id}", 200
+    else:
+        return "incorrect credentials", 403
 
 
 @app.route('/dropDatabase', methods=["DELETE"])
