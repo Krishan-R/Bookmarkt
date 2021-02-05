@@ -324,6 +324,11 @@ def addNewUser():
     if password is None:
         return "password is missing", 422
 
+    user = User.query.filter(User.email == email).first()
+
+    if user is not None:
+        return "There is already an account associated with this email", 409
+
     user = User.query.filter(User.username == newUsername).first()
 
     if user is not None:
