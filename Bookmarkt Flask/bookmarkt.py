@@ -361,8 +361,18 @@ def login():
 
     user = User.query.filter(User.username == username).first()
 
+    if user is None:
+        return f"User cannot be found", 422
+
     if user.password == encryptPassword(password):
-        return f"{user.id}", 200
+
+        jsonList = {
+            "userID": user.id,
+            "username": user.username,
+            "email": user.email
+        }
+
+        return jsonify(jsonList), 200
     else:
         return "incorrect credentials", 403
 
