@@ -1,4 +1,5 @@
 import 'package:bookmarkt_flutter/homepage.dart';
+import 'package:bookmarkt_flutter/library.dart';
 import 'package:bookmarkt_flutter/loading.dart';
 import 'package:bookmarkt_flutter/findServer.dart';
 import 'package:bookmarkt_flutter/login.dart';
@@ -12,7 +13,11 @@ void main() => runApp(MaterialApp(
     '/findServer': (context) => findServer(),
     '/login': (context) => Login(),
     '/signUp': (context) => SignUp(),
-    '/home': (context) => homepage()
+    '/home': (context) => homepage(),
+    '/library': (context) => Library()
   },
 ));
+
+
+
 

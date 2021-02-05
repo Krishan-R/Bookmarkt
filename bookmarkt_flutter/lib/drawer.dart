@@ -1,11 +1,10 @@
 import 'dart:io';
 import 'package:bookmarkt_flutter/navigatorArguments.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class myDrawer extends StatelessWidget {
-
   myDrawer(this.args);
-
   final NavigatorArguments args;
 
   @override
@@ -21,17 +20,36 @@ class myDrawer extends StatelessWidget {
               children: [
                 Text(
                   args.user.username,
-                  style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.white),
                 ),
                 Text(
                   args.user.email,
                   style: TextStyle(
                     fontSize: 15,
+                      color: Colors.white
                   ),
                 )
               ],
             ),
-            decoration: BoxDecoration(color: Colors.blue),
+            decoration: BoxDecoration(
+                color: Colors.blue,
+              image: DecorationImage(
+                image: AssetImage("lib/Assets/drawerImg.jpg"),
+                fit: BoxFit.cover
+              )
+            ),
+          ),
+          ListTile(
+            title: Text("Home"),
+            onTap: () {
+              Navigator.pushNamedAndRemoveUntil(context, "/home", (route) => false, arguments: NavigatorArguments(args.user, args.url));
+            },
+          ),
+          ListTile(
+            title: Text("Library"),
+            onTap: () {
+              Navigator.pushNamedAndRemoveUntil(context, "/library", (route) => false, arguments: NavigatorArguments(args.user, args.url));
+            },
           ),
           ListTile(
             title: Text("Logout"),
