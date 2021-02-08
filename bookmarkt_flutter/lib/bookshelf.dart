@@ -21,7 +21,7 @@ class _BookshelfState extends State<Bookshelf> {
     final NavigatorArguments args = ModalRoute.of(context).settings.arguments;
     print(args.bookshelfID);
     return Scaffold(
-      appBar: AppBar(title: Text("Bookshelf")),
+      appBar: AppBar(title: Text(args.bookshelfName)),
       body: Column(
         children: [
           Expanded(

@@ -83,7 +83,7 @@ class _SignUpState extends State<SignUp> {
               TextFormField(
                 controller: confirmPasswordController,
                 decoration: InputDecoration(
-                  hintText: "Password",
+                  hintText: "Confirm Password",
                   suffixIcon: IconButton(
                     icon: Icon(
                       Icons.lock,

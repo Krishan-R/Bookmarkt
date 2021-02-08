@@ -67,7 +67,7 @@ ListView bookshelfListView(data, args) {
           child: ListTile(
             onTap: () {
               print("tapped " + data[index].bookshelfID.toString());
-              Navigator.pushNamed(context, '/bookshelf', arguments: NavigatorArguments(args.user, args.url, bookshelfID: data[index].bookshelfID));
+              Navigator.pushNamed(context, '/bookshelf', arguments: NavigatorArguments(args.user, args.url, bookshelfID: data[index].bookshelfID, bookshelfName: data[index].name));
             },
             onLongPress: () {
               longPressDialog(context, args, data[index].bookshelfID, data[index].name);
