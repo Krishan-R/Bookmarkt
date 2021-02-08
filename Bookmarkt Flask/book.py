@@ -1,4 +1,5 @@
 import requests
+import urllib.request
 from exts import db
 from author import Author, AuthorToBook
 
@@ -19,6 +20,8 @@ class Book(db.Model):
     authorName = db.Column(db.String(50))
     description = db.Column(db.String(2000))
     googleID = db.Column(db.String(20))
+    thumbnail = db.Column(db.String(256))
+    totalPages = db.Column(db.Integer)
 
     def __init__(self, isbn="", googleID=""):
         """
@@ -33,6 +36,7 @@ class Book(db.Model):
         self.authorName = ""
         self.authorID = None
         self.description = ""
+        self.thumbnail = ""
 
         if self.isbn != "":
             self.__scrapeBookDataISBN()
@@ -65,6 +69,11 @@ class Book(db.Model):
                     self.authorName = parsedJson["items"][0]["volumeInfo"]["authors"][0].replace(".", "").title()
                     self.description = parsedJson["items"][0]["volumeInfo"]["description"]
                     self.googleID = parsedJson["items"][0]["id"]
+                    self.totalPages = parsedJson["items"][0]["volumeInfo"]["pageCount"]
+
+                    #store image locally
+                    urllib.request.urlretrieve(parsedJson["items"][0]["volumeInfo"]["imageLinks"]["thumbnail"], f"Assets/bookThumbnails/{self.isbn}.jpg")
+                    self.thumbnail = f"Assets/bookThumbnails/{self.isbn}.jpg"
 
                     self.__addBookToAuthor()
                 else:

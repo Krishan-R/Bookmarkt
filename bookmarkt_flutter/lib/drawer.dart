@@ -52,6 +52,12 @@ class myDrawer extends StatelessWidget {
             },
           ),
           ListTile(
+            title: Text("Books"),
+            onTap: () {
+              Navigator.pushNamedAndRemoveUntil(context, "/allBooks", (route) => false, arguments: NavigatorArguments(args.user, args.url));
+            },
+          ),
+          ListTile(
             title: Text("Logout"),
             onTap: () {
               logOutAlertDialog(context);

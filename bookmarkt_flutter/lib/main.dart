@@ -1,3 +1,4 @@
+import 'package:bookmarkt_flutter/allBooks.dart';
 import 'package:bookmarkt_flutter/homepage.dart';
 import 'package:bookmarkt_flutter/library.dart';
 import 'package:bookmarkt_flutter/loading.dart';
@@ -14,7 +15,8 @@ void main() => runApp(MaterialApp(
     '/login': (context) => Login(),
     '/signUp': (context) => SignUp(),
     '/home': (context) => homepage(),
-    '/library': (context) => Library()
+    '/library': (context) => Library(),
+    '/allBooks': (context) => AllBooks()
   },
 ));
 

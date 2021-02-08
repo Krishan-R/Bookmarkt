@@ -66,10 +66,10 @@ ListView bookshelfListView(data, args) {
         child: Card(
           child: ListTile(
             onTap: () {
-              print("tapped " + index.toString());
+              print("tapped " + data[index].bookshelfID.toString());
             },
             onLongPress: () {
-              longPressDialog(context, args, data[index].bookshelfID);
+              longPressDialog(context, args, data[index].bookshelfID, data[index].name);
             },
             title: Text(data[index].name),
           ),
@@ -142,7 +142,7 @@ AddBookshelfDialog(BuildContext context, NavigatorArguments args) {
   );
 }
 
-longPressDialog(BuildContext context, NavigatorArguments args, int bookshelfID) {
+longPressDialog(BuildContext context, NavigatorArguments args, int bookshelfID, String bookshelfName) {
 
   // set up the buttons
   Widget cancelButton = FlatButton(
@@ -154,12 +154,12 @@ longPressDialog(BuildContext context, NavigatorArguments args, int bookshelfID) 
 
   // set up the AlertDialog
   AlertDialog alert = AlertDialog(
-    title: Text("Edit Bookshelf"),
+    title: Text("Edit " + bookshelfName),
     content: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         FlatButton(onPressed: () {
-          renameDialog(context, args, bookshelfID);
+          renameDialog(context, args, bookshelfID, bookshelfName);
         },
             child: Text("Rename")),
         FlatButton(onPressed: () {},
@@ -180,7 +180,7 @@ longPressDialog(BuildContext context, NavigatorArguments args, int bookshelfID) 
   );
 }
 
-renameDialog(BuildContext context, NavigatorArguments args, int bookshelfID) {
+renameDialog(BuildContext context, NavigatorArguments args, int bookshelfID, String bookshelfName) {
   TextEditingController bookshelfRenameController = new TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
@@ -217,7 +217,7 @@ renameDialog(BuildContext context, NavigatorArguments args, int bookshelfID) {
 
   // set up the AlertDialog
   AlertDialog alert = AlertDialog(
-    title: Text("Rename Bookshelf"),
+    title: Text("Rename " + bookshelfName),
     content: Form(
       key: _formKey,
       child: TextFormField(

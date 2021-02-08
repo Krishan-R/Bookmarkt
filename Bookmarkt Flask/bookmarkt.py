@@ -1,5 +1,5 @@
 import flask
-from flask import request, jsonify
+from flask import request, jsonify, send_file
 import hashlib
 from user import User
 from bookshelf import Bookshelf
@@ -93,7 +93,9 @@ def getAllUserBooks(userID):
                 "title": book.title,
                 "description": book.description,
                 "author": book.authorName,
-                "googleID": book.googleID
+                "thumbnail": book.thumbnail,
+                "googleID": book.googleID,
+                "totalPages": book.totalPages
             }
 
     return jsonify(JsonList), 200
@@ -521,7 +523,9 @@ def getBooksFromBookshelf(userID, bookshelfID):
                 "title": book.title,
                 "description": book.description,
                 "author": book.authorName,
-                "googleID": book.googleID
+                "googleID": book.googleID,
+                "thumbnail": book.thumbnail,
+                "totalPages": book.totalPages
             }
 
     return jsonify(JsonList), 200
@@ -608,7 +612,12 @@ def getSpecificAuthor(authorID):
 
     return jsonify(JsonList), 200
 
+@app.route("/getThumbnail", methods=["GET"])
+def getThumbnail():
 
+    path = request.args.get("path", None)
+
+    return send_file(path, mimetype="image/gif"), 200
 
 
 
