@@ -28,7 +28,7 @@ class _AllBooksState extends State<AllBooks> {
         children: [
           Expanded(
             child: FutureBuilder<List<Book>>(
-              future: getBookshelfBookData(args),
+              future: getAllBookData(args),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   List<Book> data = snapshot.data;
@@ -57,7 +57,7 @@ ListView bookListView(data, args) {
           child: Card(
             child: InkWell(
               onTap: () {
-                print("pressed " + data[index].bookInstanceID.toString());
+                print("pressed " + data[index].bookshelfID.toString());
               },
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -97,15 +97,11 @@ ListView bookListView(data, args) {
   );
 }
 
-Future<List<Book>> getBookshelfBookData(args) async {
+Future<List<Book>> getAllBookData(args) async {
   List<Book> bookList = new List<Book>();
 
   try {
-    final response = await http.get("http://" +
-        args.url +
-        ":5000/users/" +
-        args.user.userID.toString() +
-        "/books/all");
+    final response = await http.get("http://${args.url}:5000/users/${args.user.userID.toString()}/books/all");
 
     Iterable i = json.decode(response.body);
 
