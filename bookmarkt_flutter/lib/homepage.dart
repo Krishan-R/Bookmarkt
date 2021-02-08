@@ -12,7 +12,7 @@ class _homepageState extends State<homepage> {
   Widget build(BuildContext context) {
     final NavigatorArguments args = ModalRoute.of(context).settings.arguments;
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(title: Text("Home"),),
       drawer: myDrawer(args),
       body: Text("homepage"),
     );

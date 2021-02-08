@@ -19,21 +19,20 @@ class _LibraryState extends State<Library> {
 
   @override
   Widget build(BuildContext context) {
-    final NavigatorArguments args = ModalRoute.of(context).settings.arguments;
+    final NavigatorArguments args = ModalRoute
+        .of(context)
+        .settings
+        .arguments;
 
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: Text("Library"),
+      ),
       drawer: myDrawer(args),
       body: Column(
         children: [
-          FlatButton(
-            onPressed: () {
-              AddBookshelfDialog(context, args);
-            },
-            child: Text("Add Bookshelf"),
-          ),
           Expanded(
-            child: FutureBuilder<List<Bookshelf>> (
+            child: FutureBuilder<List<Bookshelf>>(
               future: getBookshelfData(args),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
@@ -47,8 +46,14 @@ class _LibraryState extends State<Library> {
             ),
           ),
         ],
-      )
-    );
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: () {
+          AddBookshelfDialog(context, args);
+        },
+        ),
+      );
   }
 }
 
@@ -56,17 +61,22 @@ ListView bookshelfListView(data) {
   return ListView.builder(
     itemCount: data.length,
     itemBuilder: (context, index) {
-      return bookshelfTile(data[index].name);
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 1, horizontal: 4),
+        child: Card(
+          child: ListTile(
+            onTap: () {
+              print("tapped " + index.toString());
+            },
+            title: Text(data[index].name),
+          ),
+        ),
+      );
     },
   );
 }
 
-ListTile bookshelfTile(String bookshelfName) => ListTile(
-  title: Text(bookshelfName),
-);
-
 AddBookshelfDialog(BuildContext context, NavigatorArguments args) {
-
   TextEditingController bookshelfNameController = new TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
@@ -82,17 +92,20 @@ AddBookshelfDialog(BuildContext context, NavigatorArguments args) {
     child: Text("Add"),
     onPressed: () async {
       if (_formKey.currentState.validate()) {
-
         try {
-          final response = await http.post("http://" + args.url + ":5000/users/" + args.user.userID.toString() + "/bookshelf/add?name=" + bookshelfNameController.text);
+          final response = await http.post(
+              "http://" + args.url + ":5000/users/" +
+                  args.user.userID.toString() + "/bookshelf/add?name=" +
+                  bookshelfNameController.text);
           if (response.body == "added new bookshelf") {
             // Navigator.pushNamedAndRemoveUntil(context, "/library", (route) => false, arguments: NavigatorArguments(args.user, args.url));
             // Navigator.pop(context);
-            Navigator.pushReplacementNamed(context, "/library", arguments: NavigatorArguments(args.user, args.url));
+            Navigator.pushReplacementNamed(context, "/library",
+                arguments: NavigatorArguments(args.user, args.url));
           }
         } on SocketException {
           print("Cannot connect to server");
-          }
+        }
       }
     },
   );
