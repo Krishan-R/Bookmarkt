@@ -37,7 +37,7 @@ class _LibraryState extends State<Library> {
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   List<Bookshelf> data = snapshot.data;
-                  return bookshelfListView(data);
+                  return bookshelfListView(data, args);
                 } else if (snapshot.hasError) {
                   return Text("${snapshot.error}");
                 }
@@ -57,7 +57,7 @@ class _LibraryState extends State<Library> {
   }
 }
 
-ListView bookshelfListView(data) {
+ListView bookshelfListView(data, args) {
   return ListView.builder(
     itemCount: data.length,
     itemBuilder: (context, index) {
@@ -67,6 +67,9 @@ ListView bookshelfListView(data) {
           child: ListTile(
             onTap: () {
               print("tapped " + index.toString());
+            },
+            onLongPress: () {
+              longPressDialog(context, args, data[index].bookshelfID);
             },
             title: Text(data[index].name),
           ),
@@ -139,6 +142,108 @@ AddBookshelfDialog(BuildContext context, NavigatorArguments args) {
   );
 }
 
+longPressDialog(BuildContext context, NavigatorArguments args, int bookshelfID) {
+
+  // set up the buttons
+  Widget cancelButton = FlatButton(
+    child: Text("Cancel"),
+    onPressed: () {
+      Navigator.of(context).pop();
+    },
+  );
+
+  // set up the AlertDialog
+  AlertDialog alert = AlertDialog(
+    title: Text("Edit Bookshelf"),
+    content: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        FlatButton(onPressed: () {
+          renameDialog(context, args, bookshelfID);
+        },
+            child: Text("Rename")),
+        FlatButton(onPressed: () {},
+            child: Text("Delete"))
+      ],
+    ),
+    actions: [
+      cancelButton,
+    ],
+  );
+
+  // show the dialog
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return alert;
+    },
+  );
+}
+
+renameDialog(BuildContext context, NavigatorArguments args, int bookshelfID) {
+  TextEditingController bookshelfRenameController = new TextEditingController();
+
+  final _formKey = GlobalKey<FormState>();
+
+  // set up the buttons
+  Widget cancelButton = FlatButton(
+    child: Text("Cancel"),
+    onPressed: () {
+      Navigator.of(context).pop();
+    },
+  );
+  Widget continueButton = FlatButton(
+    child: Text("Rename"),
+    onPressed: () async {
+      if (_formKey.currentState.validate()) {
+        try {
+
+          final response = await http.put(
+              "http://" + args.url + ":5000/users/" +
+                  args.user.userID.toString() + "/bookshelf/" + bookshelfID.toString() + "/rename?name=" +
+                  bookshelfRenameController.text);
+
+          if (response.body == "renamed bookshelf") {
+            Navigator.pushReplacementNamed(context, "/library",
+                arguments: NavigatorArguments(args.user, args.url));
+          }
+
+        } on SocketException {
+          print("Cannot connect to server");
+        }
+      }
+    },
+  );
+
+  // set up the AlertDialog
+  AlertDialog alert = AlertDialog(
+    title: Text("Rename Bookshelf"),
+    content: Form(
+      key: _formKey,
+      child: TextFormField(
+        controller: bookshelfRenameController,
+        decoration: InputDecoration(hintText: "Bookshelf Name"),
+        validator: (value) {
+          if (value.isEmpty) return "Bookshelf name cannot be empty";
+          return null;
+        },
+      ),
+    ),
+    actions: [
+      cancelButton,
+      continueButton,
+    ],
+  );
+
+  // show the dialog
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return alert;
+    },
+  );
+}
+
 Future<List<Bookshelf>> getBookshelfData(args) async {
   List<Bookshelf> bookshelfList = new List<Bookshelf>();
   try {
@@ -152,11 +257,11 @@ Future<List<Bookshelf>> getBookshelfData(args) async {
     bookshelfList =
     List<Bookshelf>.from(i.map((model) => Bookshelf.fromJson(model)));
 
-    for (var i = 0; i < bookshelfList.length; i++) {
-      print(bookshelfList[i].name +
-          " " +
-          bookshelfList[i].bookshelfID.toString());
-    }
+    // for (var i = 0; i < bookshelfList.length; i++) {
+    //   print(bookshelfList[i].name +
+    //       " " +
+    //       bookshelfList[i].bookshelfID.toString());
+    // }
     return bookshelfList;
   } on SocketException {
     print("Error connecting to server");

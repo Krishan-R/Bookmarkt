@@ -471,6 +471,24 @@ def addNewBookshelf(userID):
     return "added new bookshelf", 201
 
 
+@app.route("/users/<userID>/bookshelf/<bookshelfID>/rename", methods=["PUT"])
+def renameBookshelf(userID, bookshelfID):
+
+    newName = request.args.get("name", None)
+    bookshelfID = int(bookshelfID)
+    userID = int(userID)
+
+    bookshelf = Bookshelf.query.filter(Bookshelf.bookshelfID == bookshelfID).first()
+
+    if bookshelf.userID != userID:
+        return "Bookshelf does not belong to that user", 403
+
+    bookshelf.name = newName
+    db.session.commit()
+
+    return "renamed bookshelf", 200
+
+
 @app.route("/users/<userID>/bookshelf/<bookshelfID>", methods=["GET"])
 def getBooksFromBookshelf(userID, bookshelfID):
 
