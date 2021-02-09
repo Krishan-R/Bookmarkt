@@ -101,6 +101,48 @@ def getAllUserBooks(userID):
     return jsonify(JsonList), 200
 
 
+@app.route("/users/<userID>/books/<bookInstanceID>", methods=["GET"])
+def getSpecificUserBook(userID, bookInstanceID):
+
+    userID = int(userID)
+    bookInstanceID = int(bookInstanceID)
+
+    bookInstance = BookInstance.query.filter(BookInstance.bookInstanceID == bookInstanceID).first()
+    book = Book.query.filter(Book.isbn == bookInstance.isbn).first()
+
+    if bookInstance is None:
+        return "Book instance could not be found", 404
+
+    if bookInstance.userID != userID:
+        return "That book does not belong to user", 403
+
+    json = {
+        "userData": {},
+        "bookData": {}
+    }
+
+    json["userData"] = {
+        "isbn": bookInstance.isbn,
+        "bookInstanceID": bookInstance.bookInstanceID,
+        "currentPage": bookInstance.currentPage,
+        "completed": bookInstance.completed,
+        "userID": bookInstance.userID,
+        "bookshelfID": bookInstance.bookshelfID
+    }
+
+    json["bookData"] = {
+        "isbn": book.isbn,
+        "title": book.title,
+        "description": book.description,
+        "author": book.authorName,
+        "thumbnail": book.thumbnail,
+        "googleID": book.googleID,
+        "totalPages": book.totalPages
+    }
+
+    return jsonify(json), 200
+
+
 @app.route("/bookinstance/all", methods=["GET"])
 def getAllBookInstances():
 
@@ -615,9 +657,12 @@ def getSpecificAuthor(authorID):
 @app.route("/getThumbnail", methods=["GET"])
 def getThumbnail():
 
-    path = request.args.get("path", None)
+    try:
+        path = request.args.get("path", None)
+        return send_file(path, mimetype="image/gif"), 200
 
-    return send_file(path, mimetype="image/gif"), 200
+    except:
+        return "Error finding file", 404
 
 
 
