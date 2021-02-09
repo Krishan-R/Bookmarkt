@@ -17,13 +17,15 @@ class BookInstance(db.Model):
     bookshelf = db.relationship("Bookshelf", backref=db.backref("bookshelf_posts", lazy=True))
     completed = db.Column(db.Boolean, nullable=False)
     currentPage = db.Column(db.Integer, nullable=False)
+    rating = db.Column(db.Integer)
 
-    def __init__(self, isbn, userID, currentPage=0, completed=False, bookshelfID=None):
+    def __init__(self, isbn, userID, currentPage=0, completed=False, bookshelfID=None, rating=0):
         self.isbn = isbn
         self.userID = userID
         self.completed = completed
         self.currentPage = currentPage
         self.bookshelfID = bookshelfID
+        self.rating = rating
 
     def __repr__(self):
         return "<BookInstance %r>" % self.bookInstanceID

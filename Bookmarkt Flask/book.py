@@ -22,6 +22,7 @@ class Book(db.Model):
     googleID = db.Column(db.String(20))
     thumbnail = db.Column(db.String(256))
     totalPages = db.Column(db.Integer)
+    publishedDate = db.Column(db.String(16))
 
     def __init__(self, isbn="", googleID=""):
         """
@@ -70,6 +71,7 @@ class Book(db.Model):
                     self.description = parsedJson["items"][0]["volumeInfo"]["description"]
                     self.googleID = parsedJson["items"][0]["id"]
                     self.totalPages = parsedJson["items"][0]["volumeInfo"]["pageCount"]
+                    self.publishedDate = parsedJson["items"][0]["volumeInfo"]["publishedDate"]
 
                     #store image locally
                     urllib.request.urlretrieve(parsedJson["items"][0]["volumeInfo"]["imageLinks"]["thumbnail"], f"Assets/bookThumbnails/{self.isbn}.jpg")

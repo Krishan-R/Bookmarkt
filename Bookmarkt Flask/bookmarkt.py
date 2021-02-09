@@ -84,7 +84,8 @@ def getAllUserBooks(userID):
             "currentPage": instance.currentPage,
             "completed": instance.completed,
             "userID": instance.userID,
-            "bookshelfID": instance.bookshelfID
+            "bookshelfID": instance.bookshelfID,
+            "rating": instance.rating
         }
 
         for book in Book.query.filter(Book.isbn == instance.isbn):
@@ -95,7 +96,8 @@ def getAllUserBooks(userID):
                 "author": book.authorName,
                 "thumbnail": book.thumbnail,
                 "googleID": book.googleID,
-                "totalPages": book.totalPages
+                "totalPages": book.totalPages,
+                "publishedDate": book.publishedDate
             }
 
     return jsonify(JsonList), 200
@@ -127,7 +129,8 @@ def getSpecificUserBook(userID, bookInstanceID):
         "currentPage": bookInstance.currentPage,
         "completed": bookInstance.completed,
         "userID": bookInstance.userID,
-        "bookshelfID": bookInstance.bookshelfID
+        "bookshelfID": bookInstance.bookshelfID,
+        "rating": bookInstance.rating
     }
 
     json["bookData"] = {
@@ -137,7 +140,8 @@ def getSpecificUserBook(userID, bookInstanceID):
         "author": book.authorName,
         "thumbnail": book.thumbnail,
         "googleID": book.googleID,
-        "totalPages": book.totalPages
+        "totalPages": book.totalPages,
+        "publishedDate": book.publishedDate
     }
 
     return jsonify(json), 200
@@ -159,7 +163,8 @@ def getAllBookInstances():
             "currentPage": instance.currentPage,
             "completed": instance.completed,
             "userID": instance.userID,
-            "bookshelfID": instance.bookshelfID
+            "bookshelfID": instance.bookshelfID,
+            "rating": instance.rating
         }
 
         for book in Book.query.filter(Book.isbn == instance.isbn):
@@ -168,7 +173,8 @@ def getAllBookInstances():
                 "title": book.title,
                 "description": book.description,
                 "author": book.authorName,
-                "googleID": book.googleID
+                "googleID": book.googleID,
+                "publishedDate": book.publishedDate
             }
 
     return jsonify(JsonList), 200
@@ -181,6 +187,7 @@ def addUserBook(userID):
     currentPage = request.args.get("currentPage", None)
     completed = request.args.get("completed", None)
     bookshelfID = request.args.get("bookshelfID", None)
+    rating = request.args.get("rating", 0)
 
     if currentPage is not None:
         try:
@@ -214,7 +221,7 @@ def addUserBook(userID):
             print("An Error has occurred")
             return "bookshelfID is not valid", 422
 
-    newBookInstance = BookInstance(isbn, userID, completed=completed, currentPage=currentPage, bookshelfID=bookshelfID)
+    newBookInstance = BookInstance(isbn, userID, completed=completed, currentPage=currentPage, bookshelfID=bookshelfID, rating=rating)
     db.session.add(newBookInstance)
     db.session.commit()
 
@@ -236,6 +243,7 @@ def updateBookInstance(userID, bookInstanceID):
     currentPage = request.args.get("currentPage", None)
     completed = request.args.get("completed", None)
     bookshelfID = request.args.get("bookshelfID", None)
+    rating = request.args.get("rating", None)
     bookInstance = BookInstance.query.filter(BookInstance.bookInstanceID == bookInstanceID).first()
 
     if bookInstance is None:
@@ -260,6 +268,12 @@ def updateBookInstance(userID, bookInstanceID):
     elif completed is not None and completed.lower() == "true":
         completed = True
         bookInstance.completed = completed
+
+    if rating is not None:
+        try:
+            bookInstance.rating = rating
+        except:
+            print("an error occured changing rating of book instance")
 
     if bookshelfID is not None:
         try:
@@ -556,7 +570,8 @@ def getBooksFromBookshelf(userID, bookshelfID):
             "currentPage": instance.currentPage,
             "completed": instance.completed,
             "userID": instance.userID,
-            "bookshelfID": instance.bookshelfID
+            "bookshelfID": instance.bookshelfID,
+            "rating": instance.rating
         }
 
         for book in Book.query.filter(Book.isbn == instance.isbn):
@@ -567,7 +582,8 @@ def getBooksFromBookshelf(userID, bookshelfID):
                 "author": book.authorName,
                 "googleID": book.googleID,
                 "thumbnail": book.thumbnail,
-                "totalPages": book.totalPages
+                "totalPages": book.totalPages,
+                "publishedDate": book.publishedDate
             }
 
     return jsonify(JsonList), 200
