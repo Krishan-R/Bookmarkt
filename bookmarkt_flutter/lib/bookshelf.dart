@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:bookmarkt_flutter/Models/book.dart';
+import 'package:bookmarkt_flutter/Widgets/bookListView.dart';
 import 'package:bookmarkt_flutter/allBooks.dart';
 import 'package:bookmarkt_flutter/drawer.dart';
 import 'package:bookmarkt_flutter/navigatorArguments.dart';
@@ -20,27 +21,29 @@ class _BookshelfState extends State<Bookshelf> {
   Widget build(BuildContext context) {
     final NavigatorArguments args = ModalRoute.of(context).settings.arguments;
     print(args.bookshelfID);
-    return Scaffold(
-      appBar: AppBar(title: Text(args.bookshelfName)),
-      body: Column(
-        children: [
-          Expanded(
-            child: FutureBuilder<List<Book>>(
-              future: getBookshelfBookData(args),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  List<Book> data = snapshot.data;
-                  return bookListView(data, args);
-                } else if (snapshot.hasError) {
-                  return Text("${snapshot.error}");
-                }
-                return CircularProgressIndicator();
-              },
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(title: Text(args.bookshelfName)),
+        body: Column(
+          children: [
+            Expanded(
+              child: FutureBuilder<List<Book>>(
+                future: getBookshelfBookData(args),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    List<Book> data = snapshot.data;
+                    return bookListView(data, args);
+                  } else if (snapshot.hasError) {
+                    return Text("${snapshot.error}");
+                  }
+                  return CircularProgressIndicator();
+                },
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
 
+      ),
     );
   }
 }

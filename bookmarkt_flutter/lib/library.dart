@@ -24,36 +24,38 @@ class _LibraryState extends State<Library> {
         .settings
         .arguments;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Library"),
-      ),
-      drawer: myDrawer(args),
-      body: Column(
-        children: [
-          Expanded(
-            child: FutureBuilder<List<Bookshelf>>(
-              future: getBookshelfData(args),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  List<Bookshelf> data = snapshot.data;
-                  return bookshelfListView(data, args);
-                } else if (snapshot.hasError) {
-                  return Text("${snapshot.error}");
-                }
-                return CircularProgressIndicator();
-              },
-            ),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: () {
-          AddBookshelfDialog(context, args);
-        },
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text("Library"),
         ),
-      );
+        drawer: myDrawer(args),
+        body: Column(
+          children: [
+            Expanded(
+              child: FutureBuilder<List<Bookshelf>>(
+                future: getBookshelfData(args),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    List<Bookshelf> data = snapshot.data;
+                    return bookshelfListView(data, args);
+                  } else if (snapshot.hasError) {
+                    return Text("${snapshot.error}");
+                  }
+                  return CircularProgressIndicator();
+                },
+              ),
+            ),
+          ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.add),
+          onPressed: () {
+            AddBookshelfDialog(context, args);
+          },
+          ),
+        ),
+    );
   }
 }
 

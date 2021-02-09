@@ -17,64 +17,66 @@ class _findServerState extends State<findServer> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: new Text("Find Server"),
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                TextFormField(
-                  controller: serverURLController,
-                  validator: (value) {
-                    if (value.isEmpty) {
-                      return "Server URL must not be empty";
-                    }
-                    return null;
-                  },
-                  decoration: InputDecoration(hintText: "Enter Server URL"),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Visibility(
-                    child: Text(
-                      "Server not found",
-                      style: TextStyle(
-                        color: Colors.red,
-                      ),
-                    ),
-                    visible: serverURLError,
-                  ),
-                ),
-                FlatButton(
-                  onPressed: () async {
-                    if (_formKey.currentState.validate()) {
-                      bool serverFound =
-                          await connectToServer(serverURLController.text);
-
-                      if (serverFound) {
-                        setState(() {
-                          serverURLError = false;
-                        });
-                        Navigator.pushNamed(context, '/login',
-                            arguments: NavigatorArguments(
-                                null, serverURLController.text));
-                      } else {
-                        setState(() {
-                          serverURLError = true;
-                        });
-                      }
-                    }
-                  },
-                  child: Text("Enter"),
-                )
-              ],
-            ),
+    return SafeArea(
+      child: Scaffold(
+          appBar: AppBar(
+            title: new Text("Find Server"),
           ),
-        ));
+          body: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  TextFormField(
+                    controller: serverURLController,
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return "Server URL must not be empty";
+                      }
+                      return null;
+                    },
+                    decoration: InputDecoration(hintText: "Enter Server URL"),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Visibility(
+                      child: Text(
+                        "Server not found",
+                        style: TextStyle(
+                          color: Colors.red,
+                        ),
+                      ),
+                      visible: serverURLError,
+                    ),
+                  ),
+                  FlatButton(
+                    onPressed: () async {
+                      if (_formKey.currentState.validate()) {
+                        bool serverFound =
+                            await connectToServer(serverURLController.text);
+
+                        if (serverFound) {
+                          setState(() {
+                            serverURLError = false;
+                          });
+                          Navigator.pushNamed(context, '/login',
+                              arguments: NavigatorArguments(
+                                  null, serverURLController.text));
+                        } else {
+                          setState(() {
+                            serverURLError = true;
+                          });
+                        }
+                      }
+                    },
+                    child: Text("Enter"),
+                  )
+                ],
+              ),
+            ),
+          )),
+    );
   }
 }
 

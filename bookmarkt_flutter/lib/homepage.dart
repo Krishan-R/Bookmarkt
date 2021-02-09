@@ -12,11 +12,13 @@ class _homepageState extends State<homepage> {
   @override
   Widget build(BuildContext context) {
     final NavigatorArguments args = ModalRoute.of(context).settings.arguments;
-    return Scaffold(
-      appBar: AppBar(title: Text("Home"),),
-      drawer: myDrawer(args),
-      // body: Text("homepage"),
-      body: Text("Home")
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(title: Text("Home"),),
+        drawer: myDrawer(args),
+        // body: Text("homepage"),
+        body: Text("Home")
+      ),
     );
   }
 }

@@ -28,126 +28,128 @@ class _SignUpState extends State<SignUp> {
   @override
   Widget build(BuildContext context) {
     final NavigatorArguments args = ModalRoute.of(context).settings.arguments;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Sign Up"),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: usernameController,
-                decoration: InputDecoration(hintText: "Username"),
-                validator: (value) {
-                  if (value.isEmpty) return "Username cannot be empty";
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: emailController,
-                decoration: InputDecoration(hintText: "Email"),
-                validator: (value) {
-                  if (value.isEmpty) return "Email cannot be empty";
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text("Sign Up"),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                TextFormField(
+                  controller: usernameController,
+                  decoration: InputDecoration(hintText: "Username"),
+                  validator: (value) {
+                    if (value.isEmpty) return "Username cannot be empty";
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: emailController,
+                  decoration: InputDecoration(hintText: "Email"),
+                  validator: (value) {
+                    if (value.isEmpty) return "Email cannot be empty";
 
-                  bool emailValid = RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(value);
-                  if (!emailValid) return "Email not correct format";
+                    bool emailValid = RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(value);
+                    if (!emailValid) return "Email not correct format";
 
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: passwordController,
-                decoration: InputDecoration(
-                  hintText: "Password",
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      Icons.lock,
-                      color: Theme.of(context).primaryColorDark
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        passwordVisible = !passwordVisible;
-                      });
-                    },
-                  )
+                    return null;
+                  },
                 ),
-                validator: (value) {
-                  if (value.isEmpty) return "Password cannot be empty";
-                  return null;
-                },
-                obscureText: passwordVisible,
-              ),
-              TextFormField(
-                controller: confirmPasswordController,
-                decoration: InputDecoration(
-                  hintText: "Confirm Password",
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      Icons.lock,
-                      color: Theme.of(context).primaryColorDark,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        confirmPasswordVisible = !confirmPasswordVisible;
-                      });
-                    },
+                TextFormField(
+                  controller: passwordController,
+                  decoration: InputDecoration(
+                    hintText: "Password",
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        Icons.lock,
+                        color: Theme.of(context).primaryColorDark
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          passwordVisible = !passwordVisible;
+                        });
+                      },
+                    )
                   ),
+                  validator: (value) {
+                    if (value.isEmpty) return "Password cannot be empty";
+                    return null;
+                  },
+                  obscureText: passwordVisible,
                 ),
-                validator: (value) {
-                  if (value.isEmpty) return "Confirm Password cannot be empty";
-                  if (passwordController.text != confirmPasswordController.text) return "Passwords need to match";
-                  return null;
-                },
-                obscureText: confirmPasswordVisible,
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Visibility(
-                  child: Text(
-                    "Username already exists",
-                    style: TextStyle(color: Colors.red)
+                TextFormField(
+                  controller: confirmPasswordController,
+                  decoration: InputDecoration(
+                    hintText: "Confirm Password",
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        Icons.lock,
+                        color: Theme.of(context).primaryColorDark,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          confirmPasswordVisible = !confirmPasswordVisible;
+                        });
+                      },
+                    ),
                   ),
-                  visible: usernameConflict,
+                  validator: (value) {
+                    if (value.isEmpty) return "Confirm Password cannot be empty";
+                    if (passwordController.text != confirmPasswordController.text) return "Passwords need to match";
+                    return null;
+                  },
+                  obscureText: confirmPasswordVisible,
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Visibility(
-                  child: Text(
-                      "There is already an account associated with this email",
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Visibility(
+                    child: Text(
+                      "Username already exists",
                       style: TextStyle(color: Colors.red)
+                    ),
+                    visible: usernameConflict,
                   ),
-                  visible: emailConflict,
                 ),
-              ),
-              FlatButton(child: Text("Sign Up"), onPressed: () async {
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Visibility(
+                    child: Text(
+                        "There is already an account associated with this email",
+                        style: TextStyle(color: Colors.red)
+                    ),
+                    visible: emailConflict,
+                  ),
+                ),
+                FlatButton(child: Text("Sign Up"), onPressed: () async {
 
-                if (_formKey.currentState.validate()) {
-                  String result = await signUp(args.url, usernameController.text, passwordController.text, emailController.text);
+                  if (_formKey.currentState.validate()) {
+                    String result = await signUp(args.url, usernameController.text, passwordController.text, emailController.text);
 
-                  if (result == "success") {
-                    usernameConflict = false;
-                    emailConflict = false;
-                    Fluttertoast.showToast(msg: "Successfully created account");
-                    Navigator.pop(context);
-                  } else if (result == "usernameConflict") {
-                    setState(() {
-                      usernameConflict = true;
-                    });
-                  } else if (result == "emailConflict") {
-                    setState(() {
-                      emailConflict = true;
-                    });
-                  } else if (result == "SocketException") {
-                    Fluttertoast.showToast(msg: "Error connecting to server");
+                    if (result == "success") {
+                      usernameConflict = false;
+                      emailConflict = false;
+                      Fluttertoast.showToast(msg: "Successfully created account");
+                      Navigator.pop(context);
+                    } else if (result == "usernameConflict") {
+                      setState(() {
+                        usernameConflict = true;
+                      });
+                    } else if (result == "emailConflict") {
+                      setState(() {
+                        emailConflict = true;
+                      });
+                    } else if (result == "SocketException") {
+                      Fluttertoast.showToast(msg: "Error connecting to server");
+                    }
                   }
-                }
 
-              })
-            ],
+                })
+              ],
+            ),
           ),
         ),
       ),
