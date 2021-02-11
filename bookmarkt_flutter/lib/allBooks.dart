@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:bookmarkt_flutter/Models/book.dart';
+import 'package:bookmarkt_flutter/Widgets/addBookAlert.dart';
 import 'package:bookmarkt_flutter/Widgets/bookListView.dart';
 import 'package:bookmarkt_flutter/drawer.dart';
 import 'package:bookmarkt_flutter/navigatorArguments.dart';
@@ -26,6 +27,12 @@ class _AllBooksState extends State<AllBooks> {
           title: Text("Books"),
         ),
         drawer: myDrawer(args),
+        floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.add),
+          onPressed: () {
+            addBookAlert(context, NavigatorArguments(args.user, args.url, redirect: "/allBooks"));
+          },
+        ),
         body: Column(
           children: [
             Expanded(

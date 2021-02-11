@@ -10,6 +10,9 @@ class Book {
   int currentPage;
   int totalPages;
   String thumbnail;
+  String publishedDate;
+  int rating;
+  int totalTimeRead;
 
   Book(
       {this.bookInstanceID,
@@ -22,7 +25,10 @@ class Book {
       this.completed,
       this.currentPage,
       this.totalPages,
-      this.thumbnail});
+      this.thumbnail,
+      this.publishedDate,
+      this.rating,
+      this.totalTimeRead});
 
   Book.fromJson(Map<String, dynamic> json)
       : bookInstanceID = json["userData"]["bookInstanceID"],
@@ -35,5 +41,17 @@ class Book {
         author = json["bookData"]["author"],
         description = json["bookData"]["description"],
         thumbnail = json["bookData"]["thumbnail"],
-        title = json["bookData"]["title"];
+        publishedDate = json["bookData"]["publishedDate"],
+        title = json["bookData"]["title"],
+        totalTimeRead = json["userData"]["totalTimeRead"],
+        rating = json["userData"]["rating"];
+
+  Book.fromJsonBookData(Map<String, dynamic> json)
+      : author = json["author"],
+        description = json["description"],
+        ISBN = json["isbn"],
+        publishedDate = json["publishedDate"],
+        thumbnail = json["thumbnail"],
+        title = json["title"],
+        totalPages = json["totalPages"];
 }

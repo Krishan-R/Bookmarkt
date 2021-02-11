@@ -24,7 +24,7 @@ class Book(db.Model):
     totalPages = db.Column(db.Integer)
     publishedDate = db.Column(db.String(16))
 
-    def __init__(self, isbn="", googleID=""):
+    def __init__(self, isbn="", googleID="", title="", description="", totalPages="", author=""):
         """
         :param isbn: String containing ISBN of book
         :param googleID: String containing Google Books ID of book
@@ -33,11 +33,12 @@ class Book(db.Model):
         self.isbn = isbn
         self.googleID = googleID
 
-        self.title = ""
-        self.authorName = ""
+        self.title = title
+        self.authorName = author
         self.authorID = None
-        self.description = ""
+        self.description = description
         self.thumbnail = ""
+        self.totalPages = totalPages
 
         if self.isbn != "":
             self.__scrapeBookDataISBN()
@@ -45,7 +46,6 @@ class Book(db.Model):
             self.__scrapeBookDataGoogleID()
         else:
             print("no isbn or google books ID provided, automatic scraping will not occur")
-
 
     def __scrapeBookDataISBN(self):
         """Adds relevant book fields from information retrieved by searching ISBN on Google Books API"""

@@ -34,7 +34,7 @@ class _LibraryState extends State<Library> {
           children: [
             Expanded(
               child: FutureBuilder<List<Bookshelf>>(
-                future: getBookshelfData(args),
+                future: getBookshelfList(args),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     List<Bookshelf> data = snapshot.data;
@@ -52,7 +52,7 @@ class _LibraryState extends State<Library> {
           child: Icon(Icons.add),
           onPressed: () {
             AddBookshelfDialog(context, args);
-          },
+            },
           ),
         ),
     );
@@ -68,7 +68,7 @@ ListView bookshelfListView(data, args) {
         child: Card(
           child: ListTile(
             onTap: () {
-              print("tapped " + data[index].bookshelfID.toString());
+              //todo change args to pass list of bookshelves
               Navigator.pushNamed(context, '/bookshelf', arguments: NavigatorArguments(args.user, args.url, bookshelfID: data[index].bookshelfID, bookshelfName: data[index].name));
             },
             onLongPress: () {
@@ -106,8 +106,7 @@ AddBookshelfDialog(BuildContext context, NavigatorArguments args) {
           if (response.body == "added new bookshelf") {
             // Navigator.pushNamedAndRemoveUntil(context, "/library", (route) => false, arguments: NavigatorArguments(args.user, args.url));
             // Navigator.pop(context);
-            Navigator.pushReplacementNamed(context, "/library",
-                arguments: NavigatorArguments(args.user, args.url));
+            Navigator.pushReplacementNamed(context, "/library", arguments: NavigatorArguments(args.user, args.url));
           }
         } on SocketException {
           print("Cannot connect to server");
@@ -247,7 +246,7 @@ renameDialog(BuildContext context, NavigatorArguments args, int bookshelfID, Str
   );
 }
 
-Future<List<Bookshelf>> getBookshelfData(args) async {
+Future<List<Bookshelf>> getBookshelfList(args) async {
   List<Bookshelf> bookshelfList = new List<Bookshelf>();
   try {
     final response = await http.get("http://" +

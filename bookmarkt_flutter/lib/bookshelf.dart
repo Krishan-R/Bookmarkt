@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:bookmarkt_flutter/Models/book.dart';
+import 'package:bookmarkt_flutter/Widgets/addBookAlert.dart';
 import 'package:bookmarkt_flutter/Widgets/bookListView.dart';
 import 'package:bookmarkt_flutter/allBooks.dart';
 import 'package:bookmarkt_flutter/drawer.dart';
@@ -20,11 +22,16 @@ class _BookshelfState extends State<Bookshelf> {
   @override
   Widget build(BuildContext context) {
     final NavigatorArguments args = ModalRoute.of(context).settings.arguments;
-    print(args.bookshelfID);
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(title: Text(args.bookshelfName)),
-        body: Column(
+        floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.add),
+          onPressed: () {
+            addBookAlert(context, NavigatorArguments(args.user, args.url, redirect: "/bookshelf"));
+          },
+        ),
+          body: Column(
           children: [
             Expanded(
               child: FutureBuilder<List<Book>>(
@@ -59,11 +66,14 @@ Future<List<Book>> getBookshelfBookData(args) async {
     // print(i);
     bookList = List<Book>.from(i.map((model) => Book.fromJson(model)));
 
+
     for (var i = 0; i < bookList.length; i++) {
       print(bookList[i].ISBN.toString() +
           " " +
-          bookList[i].bookshelfID.toString());
+          bookList[i].totalTimeRead.toString());
     }
+
+    print(bookList[0].totalTimeRead.toString());
 
     return bookList;
   } on SocketException {

@@ -21,14 +21,17 @@ ListView bookListView(data, args) {
           child: Card(
             child: InkWell(
               onTap: () {
-                print("pressed " + data[index].bookInstanceID.toString());
+                Navigator.pushNamed(context, '/book', arguments: NavigatorArguments(args.user, args.url, book: data[index]));
               },
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
                   children: [
-                    Image.network(
-                        "http://${args.url}:5000/getThumbnail?path=${data[index].thumbnail}"),
+                    Hero(
+                      tag: data[index].bookInstanceID,
+                      child: Image.network(
+                          "http://${args.url}:5000/getThumbnail?path=${data[index].thumbnail}"),
+                    ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                       child: Column(
