@@ -85,7 +85,8 @@ def getAllUserBooks(userID):
             "completed": instance.completed,
             "userID": instance.userID,
             "bookshelfID": instance.bookshelfID,
-            "rating": instance.rating
+            "rating": instance.rating,
+            "totalTimeRead": instance.totalTimeRead
         }
 
         for book in Book.query.filter(Book.isbn == instance.isbn):
@@ -130,7 +131,8 @@ def getSpecificUserBook(userID, bookInstanceID):
         "completed": bookInstance.completed,
         "userID": bookInstance.userID,
         "bookshelfID": bookInstance.bookshelfID,
-        "rating": bookInstance.rating
+        "rating": bookInstance.rating,
+        "totalTimeRead": bookInstance.totalTimeRead
     }
 
     json["bookData"] = {
@@ -164,7 +166,8 @@ def getAllBookInstances():
             "completed": instance.completed,
             "userID": instance.userID,
             "bookshelfID": instance.bookshelfID,
-            "rating": instance.rating
+            "rating": instance.rating,
+            "totalTimeRead": instance.totalTimeRead
         }
 
         for book in Book.query.filter(Book.isbn == instance.isbn):
@@ -188,6 +191,7 @@ def addUserBook(userID):
     completed = request.args.get("completed", None)
     bookshelfID = request.args.get("bookshelfID", None)
     rating = request.args.get("rating", 0)
+    totalTimeRead = request.args.get("totalTimeRead", 0)
 
     if currentPage is not None:
         try:
@@ -221,7 +225,7 @@ def addUserBook(userID):
             print("An Error has occurred")
             return "bookshelfID is not valid", 422
 
-    newBookInstance = BookInstance(isbn, userID, completed=completed, currentPage=currentPage, bookshelfID=bookshelfID, rating=rating)
+    newBookInstance = BookInstance(isbn, userID, completed=completed, currentPage=currentPage, bookshelfID=bookshelfID, rating=rating, totalTimeRead=totalTimeRead)
     db.session.add(newBookInstance)
     db.session.commit()
 
@@ -244,6 +248,7 @@ def updateBookInstance(userID, bookInstanceID):
     completed = request.args.get("completed", None)
     bookshelfID = request.args.get("bookshelfID", None)
     rating = request.args.get("rating", None)
+    totalTimeRead = request.args.get("totalTimeRead", None)
     bookInstance = BookInstance.query.filter(BookInstance.bookInstanceID == bookInstanceID).first()
 
     if bookInstance is None:
@@ -273,7 +278,13 @@ def updateBookInstance(userID, bookInstanceID):
         try:
             bookInstance.rating = rating
         except:
-            print("an error occured changing rating of book instance")
+            print("an error occurred changing rating of book instance")
+
+    if totalTimeRead is not None:
+        try:
+            bookInstance.totalTimeRead = totalTimeRead
+        except:
+            print("an error occurred changing totalTimeRead of Book instance")
 
     if bookshelfID is not None:
         try:
@@ -362,6 +373,7 @@ def addReadingSession(userID, bookInstanceID):
 
         # changes the current page of the bookinstance object
         bookInstance.currentPage = currentPage
+        bookInstance.totalTimeRead += timeRead
 
         db.session.commit()
 
@@ -467,7 +479,10 @@ def getAllBooks():
                 "title": book.title,
                 "description": book.description,
                 "author": book.authorName,
-                "googleID": book.googleID
+                "googleID": book.googleID,
+                "thumbnail": book.thumbnail,
+                "totalPages": book.totalPages,
+                "publishedDate": book.publishedDate
             })
     except Exception as e:
         print(e)
@@ -571,7 +586,8 @@ def getBooksFromBookshelf(userID, bookshelfID):
             "completed": instance.completed,
             "userID": instance.userID,
             "bookshelfID": instance.bookshelfID,
-            "rating": instance.rating
+            "rating": instance.rating,
+            "totalTimeRead": instance.totalTimeRead
         }
 
         for book in Book.query.filter(Book.isbn == instance.isbn):
@@ -680,6 +696,43 @@ def getThumbnail():
     except:
         return "Error finding file", 404
 
+
+@app.route("/books/scrape", methods=["POST"])
+def scrapeBook():
+    """
+    checks to see if book data already exists, scrapes data if it does not
+    :return:
+    """
+
+    isbn = request.args.get("isbn", None)
+
+    if isbn is None:
+        return "isbn parameter is missing", 400
+
+    book = Book.query.filter(Book.isbn == isbn).first()
+
+    # book does not exist in database
+    if book is None:
+        book = Book(isbn=isbn)
+        db.session.add(book)
+        db.session.commit()
+
+    # book not correctly scraped
+    if book.title == "":
+        # print(book.title)
+        # print(book.isbn)
+        return "Cannot be found", 404
+
+    return jsonify({
+        "isbn": book.isbn,
+        "title": book.title,
+        "description": book.description,
+        "author": book.authorName,
+        "googleID": book.googleID,
+        "thumbnail": book.thumbnail,
+        "totalPages": book.totalPages,
+        "publishedDate": book.publishedDate
+    }), 200
 
 
 
