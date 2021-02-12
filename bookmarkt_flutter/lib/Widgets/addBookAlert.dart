@@ -81,13 +81,15 @@ addBookDataAlert(BuildContext context, NavigatorArguments args, Book book,
   bool scraped = true;
   if (book.title == null) {
     scraped = false;
-    book.totalPages = 0;
+    book.totalPages = 1;
   } else scraped = true;
 
   final _formKey = GlobalKey<FormState>();
   TextEditingController currentPageController = new TextEditingController();
 
   bool completedCheckBox = false;
+  book.rating = 0;
+  book.currentPage = 1;
 
   int dropdownValue;
   if (bookshelfList.isEmpty) {
@@ -97,6 +99,7 @@ addBookDataAlert(BuildContext context, NavigatorArguments args, Book book,
     dropdownValue = -1;
   } else {
     dropdownValue = bookshelfList[0].bookshelfID;
+    book.bookshelfID = dropdownValue;
   }
 
   for (var i = 0; i < bookshelfList.length; i++) {
@@ -119,17 +122,24 @@ addBookDataAlert(BuildContext context, NavigatorArguments args, Book book,
         try {
 
           String bookshelfID = "";
-          if (book.bookshelfID != null) bookshelfID = "&bookshelfID=${book.bookshelfID}";
-          else bookshelfID = "";
+          if (book.bookshelfID == null) {
+            bookshelfID = "";
+          } else if (book.bookshelfID == -1) {
+            bookshelfID = "";
+          } else bookshelfID = "&bookshelfID=${book.bookshelfID}";
+
           if (book.currentPage == null) book.currentPage = 1;
+          print("asfasf " + book.currentPage.toString());
           String currentPage = "&currentPage=${book.currentPage}";
           String completed = "&completed=${completedCheckBox}";
           String rating = "&rating=${book.rating}";
 
-          print("knaslfkansf " + book.bookshelfID.toString());
+          String title = "&title=${book.title}";
+          String author = "&author=${book.author}";
+          String description = "&description=${book.description}";
+          String totalPages = "&totalPages=${book.totalPages}";
 
-
-          final response = await http.post("http://${args.url}:5000/users/${args.user.userID.toString()}/books/add?isbn=${book.ISBN}${bookshelfID}${currentPage}${completed}${rating}");
+          final response = await http.post("http://${args.url}:5000/users/${args.user.userID.toString()}/books/add?isbn=${book.ISBN}${bookshelfID}${currentPage}${completed}${rating}${title}${author}${description}${totalPages}");
 
           print(response.body);
 
@@ -235,7 +245,7 @@ addBookDataAlert(BuildContext context, NavigatorArguments args, Book book,
                                     book.currentPage =
                                         int.parse(currentPageController.text);
                                   } else
-                                    book.currentPage = null;
+                                    book.currentPage = 1;
                                 }
                               });
                             }),
@@ -248,7 +258,13 @@ addBookDataAlert(BuildContext context, NavigatorArguments args, Book book,
                           hintText: "Current Page",
                           contentPadding: EdgeInsets.symmetric(horizontal: 10)),
                       keyboardType: TextInputType.number,
+                      validator: (value) {
+
+                        if (value.isNotEmpty && int.parse(value) > book.totalPages) return "Current Page is larger than total";
+                        return null;
+                      },
                       onChanged: (value) {
+                        if (value.isEmpty) book.currentPage = 1;
                         book.currentPage = int.parse(value);
                       },
                     ),

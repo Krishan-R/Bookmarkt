@@ -192,6 +192,10 @@ def addUserBook(userID):
     bookshelfID = request.args.get("bookshelfID", None)
     rating = request.args.get("rating", 0)
     totalTimeRead = request.args.get("totalTimeRead", 0)
+    title = request.args.get("title", None)
+    author = request.args.get("author", None)
+    description = request.args.get("description", None)
+    totalPages = request.args.get("totalPages", 1)
 
     if currentPage is not None:
         try:
@@ -225,16 +229,19 @@ def addUserBook(userID):
             print("An Error has occurred")
             return "bookshelfID is not valid", 422
 
+    # check to see if book data is in database
+    book = Book.query.filter(Book.isbn == isbn).first()
+    if book is None:
+        print("book not found, trying to scrape")
+        newBook = Book(isbn=isbn, title=title, author=author, description=description, totalPages=totalPages)
+        db.session.add(newBook)
+        db.session.commit()
+
     newBookInstance = BookInstance(isbn, userID, completed=completed, currentPage=currentPage, bookshelfID=bookshelfID, rating=rating, totalTimeRead=totalTimeRead)
     db.session.add(newBookInstance)
     db.session.commit()
 
-    # check to see if book data is in database
-    if Book.query.filter(Book.isbn == isbn).count() == 0:
-        print("book not found, trying to scrape")
-        newBook = Book(isbn=isbn)
-        db.session.add(newBook)
-        db.session.commit()
+
 
     return "added new BookInstance", 201
 
@@ -719,8 +726,9 @@ def scrapeBook():
 
     # book not correctly scraped
     if book.title == "":
-        # print(book.title)
-        # print(book.isbn)
+        Book.query.filter(Book.isbn == isbn).delete()
+        db.session.commit()
+
         return "Cannot be found", 404
 
     return jsonify({

@@ -24,7 +24,7 @@ class Book(db.Model):
     totalPages = db.Column(db.Integer)
     publishedDate = db.Column(db.String(16))
 
-    def __init__(self, isbn="", googleID="", title="", description="", totalPages="", author=""):
+    def __init__(self, isbn="", googleID="", title="", description="", totalPages=1, author=""):
         """
         :param isbn: String containing ISBN of book
         :param googleID: String containing Google Books ID of book
@@ -37,7 +37,7 @@ class Book(db.Model):
         self.authorName = author
         self.authorID = None
         self.description = description
-        self.thumbnail = ""
+        self.thumbnail = "Assets/bookThumbnails/default.jpg"
         self.totalPages = totalPages
 
         if self.isbn != "":
@@ -64,23 +64,24 @@ class Book(db.Model):
             parsedJson = r.json()
 
             if parsedJson["totalItems"] > 0:
+                try:
+                    if parsedJson["items"][0]["volumeInfo"]["industryIdentifiers"][0]["identifier"] == self.isbn or parsedJson["items"][0]["volumeInfo"]["industryIdentifiers"][1]["identifier"] == self.isbn:
+                        self.title = parsedJson["items"][0]["volumeInfo"]["title"]
+                        self.authorName = parsedJson["items"][0]["volumeInfo"]["authors"][0].replace(".", "").title()
+                        self.description = parsedJson["items"][0]["volumeInfo"]["description"]
+                        self.googleID = parsedJson["items"][0]["id"]
+                        self.totalPages = parsedJson["items"][0]["volumeInfo"]["pageCount"]
+                        self.publishedDate = parsedJson["items"][0]["volumeInfo"]["publishedDate"]
 
-                if parsedJson["items"][0]["volumeInfo"]["industryIdentifiers"][0]["identifier"] == self.isbn or parsedJson["items"][0]["volumeInfo"]["industryIdentifiers"][1]["identifier"] == self.isbn:
-                    self.title = parsedJson["items"][0]["volumeInfo"]["title"]
-                    self.authorName = parsedJson["items"][0]["volumeInfo"]["authors"][0].replace(".", "").title()
-                    self.description = parsedJson["items"][0]["volumeInfo"]["description"]
-                    self.googleID = parsedJson["items"][0]["id"]
-                    self.totalPages = parsedJson["items"][0]["volumeInfo"]["pageCount"]
-                    self.publishedDate = parsedJson["items"][0]["volumeInfo"]["publishedDate"]
+                        #store image locally
+                        urllib.request.urlretrieve(parsedJson["items"][0]["volumeInfo"]["imageLinks"]["thumbnail"], f"Assets/bookThumbnails/{self.isbn}.jpg")
+                        self.thumbnail = f"Assets/bookThumbnails/{self.isbn}.jpg"
 
-                    #store image locally
-                    urllib.request.urlretrieve(parsedJson["items"][0]["volumeInfo"]["imageLinks"]["thumbnail"], f"Assets/bookThumbnails/{self.isbn}.jpg")
-                    self.thumbnail = f"Assets/bookThumbnails/{self.isbn}.jpg"
-
-                    self.__addBookToAuthor()
-                else:
-                    print(f"book not found with isbn: {self.isbn}. Not scraping fromn Google Books")
-
+                        self.__addBookToAuthor()
+                    else:
+                        print(f"book not found with isbn: {self.isbn}. Not scraping fromn Google Books")
+                except IndexError:
+                    print("There was an issue scraping from google")
             else:
                 print(f"book not found with isbn: {self.isbn}")
         else:
@@ -126,7 +127,7 @@ class Book(db.Model):
                 "title": self.title,
                 "author": self.authorName,
                 "description": self.description,
-                "pages": 200,
+                "pages": self.totalPages,
                 "googleID": self.googleID
             }
         ]

@@ -10,6 +10,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 class bookView extends StatefulWidget {
   @override
@@ -104,8 +105,7 @@ Container bookHeader(args) {
       children: [
         Hero(
           tag: args.book.bookInstanceID,
-          child: Image.network(
-              "http://${args.url}:5000/getThumbnail?path=${args.book.thumbnail}"),
+          child: Image.network("http://${args.url}:5000/getThumbnail?path=${args.book.thumbnail}")
         ),
         SizedBox(
           height: 20,
@@ -139,7 +139,7 @@ Container bookHeader(args) {
                   height: 5,
                 ),
                 Text(
-                  args.book.publishedDate,
+                  args.book.publishedDate ?? "",
                   style: TextStyle(color: Colors.grey, fontSize: 15),
                 ),
                 Container(
