@@ -40,8 +40,10 @@ class _AllBooksState extends State<AllBooks> {
                 future: getAllBookData(args),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    List<Book> data = snapshot.data;
-                    return bookListView(data, args);
+                    List<Book> bookList = snapshot.data;
+
+                    if (bookList.isEmpty) return Text("No books have been added to your account");
+                    else return bookListView(bookList, args);
                   } else if (snapshot.hasError) {
                     return Text("${snapshot.error}");
                   }
@@ -63,9 +65,14 @@ Future<List<Book>> getAllBookData(args) async {
   try {
     final response = await http.get("http://${args.url}:5000/users/${args.user.userID.toString()}/books/all");
 
+    print(response.body);
+
+    if (response.body == "No books") {
+      return bookList;
+    }
+
     Iterable i = json.decode(response.body);
 
-    // print(i);
     bookList = List<Book>.from(i.map((model) => Book.fromJson(model)));
 
     // for (var i = 0; i < bookList.length; i++) {

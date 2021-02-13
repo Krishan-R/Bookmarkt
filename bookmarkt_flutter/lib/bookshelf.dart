@@ -38,8 +38,9 @@ class _BookshelfState extends State<Bookshelf> {
                 future: getBookshelfBookData(args),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    List<Book> data = snapshot.data;
-                    return bookListView(data, args);
+                    List<Book> bookList = snapshot.data;
+                    if (bookList.isEmpty) return Text("This bookshelf is empty");
+                    return bookListView(bookList, args);
                   } else if (snapshot.hasError) {
                     return Text("${snapshot.error}");
                   }
@@ -49,7 +50,6 @@ class _BookshelfState extends State<Bookshelf> {
             ),
           ],
         ),
-
       ),
     );
   }
@@ -58,8 +58,13 @@ class _BookshelfState extends State<Bookshelf> {
 Future<List<Book>> getBookshelfBookData(args) async {
   List<Book> bookList = new List<Book>();
 
+
   try {
     final response = await http.get("http://${args.url}:5000/users/${args.user.userID.toString()}/bookshelf/${args.bookshelfID}");
+
+    if (response.body == "Bookshelf is empty") {
+      return bookList;
+    }
 
     Iterable i = json.decode(response.body);
 
@@ -74,6 +79,8 @@ Future<List<Book>> getBookshelfBookData(args) async {
     }
 
     print(bookList[0].totalTimeRead.toString());
+
+
 
     return bookList;
   } on SocketException {

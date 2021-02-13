@@ -71,6 +71,10 @@ def getSpecificUser(userID):
 @app.route('/users/<userID>/books/all', methods=["GET"])
 def getAllUserBooks(userID):
 
+    bookInstance = BookInstance.query.filter(BookInstance.userID == userID).first()
+    if bookInstance is None:
+        return "No books", 200
+
     JsonList = []
 
     for index, instance in enumerate(BookInstance.query.filter(BookInstance.userID == userID)):
@@ -580,6 +584,9 @@ def getBooksFromBookshelf(userID, bookshelfID):
         return "Bookshelf does not exist", 422
     if bookshelf.userID != int(userID):
         return "Bookshelf does not belong to that user", 403
+    bookInstance = BookInstance.query.filter(BookInstance.bookshelfID == bookshelfID).first()
+    if bookInstance is None:
+        return "Bookshelf is empty", 200
 
     for index, instance in enumerate(BookInstance.query.filter(BookInstance.bookshelfID == bookshelfID)):
 

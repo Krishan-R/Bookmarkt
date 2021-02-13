@@ -10,9 +10,14 @@ import 'package:flutter/material.dart';
 
 import 'package:http/http.dart' as http;
 
-ListView bookListView(data, args) {
+ListView bookListView(bookList, args) {
+
+  for (int i=0; i<bookList.length; i++) {
+    print(bookList[i]);
+  }
+
   return ListView.builder(
-    itemCount: data.length,
+    itemCount: bookList.length,
     itemBuilder: (context, index) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 1, horizontal: 4),
@@ -21,16 +26,19 @@ ListView bookListView(data, args) {
           child: Card(
             child: InkWell(
               onTap: () {
-                Navigator.pushNamed(context, '/book', arguments: NavigatorArguments(args.user, args.url, book: data[index]));
+                Navigator.pushNamed(context, '/book', arguments: NavigatorArguments(args.user, args.url, book: bookList[index]));
+              },
+              onLongPress: () {
+                print(bookList[index].title);
               },
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
                   children: [
                     Hero(
-                      tag: data[index].bookInstanceID,
+                      tag: bookList[index].bookInstanceID,
                       child: Image.network(
-                          "http://${args.url}:5000/getThumbnail?path=${data[index].thumbnail}"),
+                          "http://${args.url}:5000/getThumbnail?path=${bookList[index].thumbnail}"),
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
@@ -39,15 +47,15 @@ ListView bookListView(data, args) {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            data[index].title,
+                            bookList[index].title,
                             style: TextStyle(fontSize: 20),
                           ),
                           Text(
-                            data[index].author,
+                            bookList[index].author,
                             style: TextStyle(color: Colors.grey),
                           ),
                           Text(
-                            "${data[index].currentPage.toString()}/${data[index].totalPages}",
+                            "${bookList[index].currentPage.toString()}/${bookList[index].totalPages}",
                             style: TextStyle(color: Colors.grey),
                           )
                         ],
