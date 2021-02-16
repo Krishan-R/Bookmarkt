@@ -200,6 +200,7 @@ def addUserBook(userID):
     totalTimeRead = request.args.get("totalTimeRead", 0)
     title = request.args.get("title", None)
     author = request.args.get("author", None)
+    publishedDate = request.args.get("publishedDate", None)
     description = request.args.get("description", None)
     totalPages = request.args.get("totalPages", 1)
 
@@ -239,7 +240,12 @@ def addUserBook(userID):
     book = Book.query.filter(Book.isbn == isbn).first()
     if book is None:
         print("book not found, trying to scrape")
-        newBook = Book(isbn=isbn, title=title, author=author, description=description, totalPages=totalPages)
+        newBook = Book(isbn=isbn,
+                       title=title,
+                       author=author,
+                       description=description,
+                       totalPages=totalPages,
+                       publishedDate=publishedDate)
         db.session.add(newBook)
         db.session.commit()
 

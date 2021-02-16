@@ -18,7 +18,6 @@ addBookAlert(BuildContext context, NavigatorArguments args) {
 
   TextEditingController bookISBNController = new TextEditingController();
 
-
   Widget cancelButton = FlatButton(
     child: Text("Cancel"),
     onPressed: () {
@@ -79,7 +78,6 @@ addBookAlert(BuildContext context, NavigatorArguments args) {
 
 addBookDataAlert(BuildContext context, NavigatorArguments args, Book book,
     List<Bookshelf> bookshelfList) {
-
   // prepends blank bookshelf
   bookshelfList.insert(0, Bookshelf(bookshelfID: -1, name: "(No bookshelf)"));
 
@@ -87,7 +85,8 @@ addBookDataAlert(BuildContext context, NavigatorArguments args, Book book,
   if (book.title == null) {
     scraped = false;
     book.totalPages = 1;
-  } else scraped = true;
+  } else
+    scraped = true;
 
   final _formKey = GlobalKey<FormState>();
   TextEditingController currentPageController = new TextEditingController();
@@ -95,6 +94,13 @@ addBookDataAlert(BuildContext context, NavigatorArguments args, Book book,
   bool completedCheckBox = false;
   book.rating = 0;
   book.currentPage = 1;
+
+  DateTime selectedDate = DateTime.now();
+
+  if (book.publishedDate != null) {
+    selectedDate = DateTime.parse(book.publishedDate);
+  }
+  print(selectedDate);
 
   int dropdownValue;
   if (bookshelfList.isEmpty) {
@@ -118,15 +124,14 @@ addBookDataAlert(BuildContext context, NavigatorArguments args, Book book,
     child: Text("Add"),
     onPressed: () async {
       if (_formKey.currentState.validate()) {
-
         try {
-
           String bookshelfID = "";
           if (book.bookshelfID == null) {
             bookshelfID = "";
           } else if (book.bookshelfID == -1) {
             bookshelfID = "";
-          } else bookshelfID = "&bookshelfID=${book.bookshelfID}";
+          } else
+            bookshelfID = "&bookshelfID=${book.bookshelfID}";
 
           if (book.currentPage == null) book.currentPage = 1;
           print("asfasf " + book.currentPage.toString());
@@ -138,19 +143,21 @@ addBookDataAlert(BuildContext context, NavigatorArguments args, Book book,
           String author = "&author=${book.author}";
           String description = "&description=${book.description}";
           String totalPages = "&totalPages=${book.totalPages}";
+          String publishedDate = "&publishedDate=${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
 
-          final response = await http.post("http://${args.url}:5000/users/${args.user.userID.toString()}/books/add?isbn=${book.ISBN}${bookshelfID}${currentPage}${completed}${rating}${title}${author}${description}${totalPages}");
+          final response = await http.post(
+              "http://${args.url}:5000/users/${args.user.userID.toString()}/books/add?isbn=${book.ISBN}$bookshelfID$currentPage$completed$rating$title$author$description$totalPages$publishedDate");
 
           print(response.body);
 
           if (response.body == "added new BookInstance") {
             Navigator.popUntil(context, ModalRoute.withName(args.redirect));
-            Navigator.pushReplacementNamed(context, args.redirect, arguments: args);
+            Navigator.pushReplacementNamed(context, args.redirect,
+                arguments: args);
           }
         } on SocketException {
           print("Error connecting to server");
         }
-
       }
     },
   );
@@ -225,6 +232,20 @@ addBookDataAlert(BuildContext context, NavigatorArguments args, Book book,
                         book.totalPages = int.parse(value);
                       },
                     ),
+                    FlatButton(
+                        onPressed: () async {
+                          DateTime picked = await showDatePicker(
+                              context: context,
+                              initialDate: selectedDate,
+                              firstDate: DateTime(1900),
+                              lastDate: DateTime.now());
+                          if (picked != null && picked != selectedDate)
+                            setState(() {
+                              selectedDate = picked;
+                            });
+                        },
+                        child: Text(
+                            "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}")),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -256,8 +277,9 @@ addBookDataAlert(BuildContext context, NavigatorArguments args, Book book,
                           contentPadding: EdgeInsets.symmetric(horizontal: 10)),
                       keyboardType: TextInputType.number,
                       validator: (value) {
-
-                        if (value.isNotEmpty && int.parse(value) > book.totalPages) return "Current Page is larger than total";
+                        if (value.isNotEmpty &&
+                            int.parse(value) > book.totalPages)
+                          return "Current Page is larger than total";
                         return null;
                       },
                       onChanged: (value) {
@@ -265,7 +287,9 @@ addBookDataAlert(BuildContext context, NavigatorArguments args, Book book,
                         book.currentPage = int.parse(value);
                       },
                     ),
-                    SizedBox(height: 10,),
+                    SizedBox(
+                      height: 10,
+                    ),
                     Container(
                       // color: Colors.grey,
                       child: RatingBar.builder(

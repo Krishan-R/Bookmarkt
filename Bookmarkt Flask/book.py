@@ -24,7 +24,7 @@ class Book(db.Model):
     totalPages = db.Column(db.Integer)
     publishedDate = db.Column(db.String(16))
 
-    def __init__(self, isbn="", googleID="", title="", description="", totalPages=1, author=""):
+    def __init__(self, isbn="", googleID="", title="", description=None, totalPages=1, author="", publishedDate=None):
         """
         :param isbn: String containing ISBN of book
         :param googleID: String containing Google Books ID of book
@@ -39,6 +39,7 @@ class Book(db.Model):
         self.description = description
         self.thumbnail = "Assets/bookThumbnails/default.jpg"
         self.totalPages = totalPages
+        self.publishedDate = publishedDate
 
         if self.isbn != "":
             self.__scrapeBookDataISBN()
@@ -72,6 +73,10 @@ class Book(db.Model):
                         self.googleID = parsedJson["items"][0]["id"]
                         self.totalPages = parsedJson["items"][0]["volumeInfo"]["pageCount"]
                         self.publishedDate = parsedJson["items"][0]["volumeInfo"]["publishedDate"]
+
+                        # standardise publishedDate
+                        if len(self.publishedDate) == 4:
+                            self.publishedDate = f"{self.publishedDate}-01-01"
 
                         #store image locally
                         urllib.request.urlretrieve(parsedJson["items"][0]["volumeInfo"]["imageLinks"]["thumbnail"], f"Assets/bookThumbnails/{self.isbn}.jpg")
