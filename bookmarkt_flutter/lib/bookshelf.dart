@@ -28,7 +28,7 @@ class _BookshelfState extends State<Bookshelf> {
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add),
           onPressed: () {
-            addBookAlert(context, NavigatorArguments(args.user, args.url, redirect: "/bookshelf"));
+            addBookAlert(context, NavigatorArguments(args.user, args.url, bookshelfName: args.bookshelfName, bookshelfID: args.bookshelfID, redirect: "/bookshelf"));
           },
         ),
           body: Column(

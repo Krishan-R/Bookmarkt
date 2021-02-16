@@ -59,6 +59,7 @@ addBookAlert(BuildContext context, NavigatorArguments args) {
       child: TextFormField(
         controller: bookISBNController,
         decoration: InputDecoration(hintText: "Book ISBN"),
+        keyboardType: TextInputType.number,
         validator: (value) {
           if (value.isEmpty) return "Book ISBN cannot be empty";
           return null;
@@ -102,10 +103,10 @@ addBookDataAlert(BuildContext context, NavigatorArguments args, Book book,
     book.bookshelfID = dropdownValue;
   }
 
-  for (var i = 0; i < bookshelfList.length; i++) {
-    print(
-        bookshelfList[i].name + " " + bookshelfList[i].bookshelfID.toString());
-  }
+  // for (var i = 0; i < bookshelfList.length; i++) {
+  //   print(
+  //       bookshelfList[i].name + " " + bookshelfList[i].bookshelfID.toString());
+  // }
 
   Widget cancelButton = FlatButton(
     child: Text("Cancel"),
@@ -145,6 +146,7 @@ addBookDataAlert(BuildContext context, NavigatorArguments args, Book book,
 
           if (response.body == "added new BookInstance") {
             Navigator.popUntil(context, ModalRoute.withName(args.redirect));
+            Navigator.pushReplacementNamed(context, args.redirect, arguments: args);
           }
         } on SocketException {
           print("Error connecting to server");

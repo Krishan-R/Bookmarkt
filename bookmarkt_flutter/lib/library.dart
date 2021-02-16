@@ -104,7 +104,6 @@ AddBookshelfDialog(BuildContext context, NavigatorArguments args) {
                   args.user.userID.toString() + "/bookshelf/add?name=" +
                   bookshelfNameController.text);
           if (response.body == "added new bookshelf") {
-            // Navigator.pushNamedAndRemoveUntil(context, "/library", (route) => false, arguments: NavigatorArguments(args.user, args.url));
             // Navigator.pop(context);
             Navigator.pushReplacementNamed(context, "/library", arguments: NavigatorArguments(args.user, args.url));
           }

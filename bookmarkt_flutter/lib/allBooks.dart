@@ -21,6 +21,8 @@ class _AllBooksState extends State<AllBooks> {
   Widget build(BuildContext context) {
     final NavigatorArguments args = ModalRoute.of(context).settings.arguments;
 
+    List<Book> bookList = List<Book>();
+
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -31,6 +33,11 @@ class _AllBooksState extends State<AllBooks> {
           child: Icon(Icons.add),
           onPressed: () {
             addBookAlert(context, NavigatorArguments(args.user, args.url, redirect: "/allBooks"));
+
+            for (int i=0; i<bookList.length; i++) {
+              print(bookList[i].bookInstanceID);
+            }
+
           },
         ),
         body: Column(

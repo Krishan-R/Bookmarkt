@@ -12,9 +12,9 @@ import 'package:http/http.dart' as http;
 
 ListView bookListView(bookList, args) {
 
-  for (int i=0; i<bookList.length; i++) {
-    print(bookList[i]);
-  }
+  // for (int i=0; i<bookList.length; i++) {
+  //   print(bookList[i]);
+  // }
 
   return ListView.builder(
     itemCount: bookList.length,
