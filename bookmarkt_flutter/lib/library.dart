@@ -258,11 +258,6 @@ Future<List<Bookshelf>> getBookshelfList(args) async {
     bookshelfList =
     List<Bookshelf>.from(i.map((model) => Bookshelf.fromJson(model)));
 
-    // for (var i = 0; i < bookshelfList.length; i++) {
-    //   print(bookshelfList[i].name +
-    //       " " +
-    //       bookshelfList[i].bookshelfID.toString());
-    // }
     return bookshelfList;
   } on SocketException {
     print("Error connecting to server");

@@ -18,6 +18,7 @@ addBookAlert(BuildContext context, NavigatorArguments args) {
 
   TextEditingController bookISBNController = new TextEditingController();
 
+
   Widget cancelButton = FlatButton(
     child: Text("Cancel"),
     onPressed: () {
@@ -79,6 +80,9 @@ addBookAlert(BuildContext context, NavigatorArguments args) {
 addBookDataAlert(BuildContext context, NavigatorArguments args, Book book,
     List<Bookshelf> bookshelfList) {
 
+  // prepends blank bookshelf
+  bookshelfList.insert(0, Bookshelf(bookshelfID: -1, name: "(No bookshelf)"));
+
   bool scraped = true;
   if (book.title == null) {
     scraped = false;
@@ -102,11 +106,6 @@ addBookDataAlert(BuildContext context, NavigatorArguments args, Book book,
     dropdownValue = bookshelfList[0].bookshelfID;
     book.bookshelfID = dropdownValue;
   }
-
-  // for (var i = 0; i < bookshelfList.length; i++) {
-  //   print(
-  //       bookshelfList[i].name + " " + bookshelfList[i].bookshelfID.toString());
-  // }
 
   Widget cancelButton = FlatButton(
     child: Text("Cancel"),
