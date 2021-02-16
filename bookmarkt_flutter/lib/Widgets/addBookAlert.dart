@@ -146,10 +146,6 @@ addBookDataAlert(BuildContext context, NavigatorArguments args, Book book,
           if (response.body == "added new BookInstance") {
             Navigator.popUntil(context, ModalRoute.withName(args.redirect));
           }
-
-
-
-
         } on SocketException {
           print("Error connecting to server");
         }
@@ -297,7 +293,6 @@ addBookDataAlert(BuildContext context, NavigatorArguments args, Book book,
                           [],
                       onChanged: (int value) {
                         setState(() {
-                          print(value);
                           dropdownValue = value;
                           book.bookshelfID = value;
                         });

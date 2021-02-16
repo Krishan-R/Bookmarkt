@@ -1,3 +1,5 @@
+import datetime
+
 import flask
 from flask import request, jsonify, send_file
 import hashlib
@@ -364,31 +366,41 @@ def deleteAllUserBook(userID):
 @app.route("/users/<userID>/books/<bookInstanceID>/read", methods=["POST"])
 def addReadingSession(userID, bookInstanceID):
 
-    currentPage = request.args.get("currentPage", None)
+    pagesRead = request.args.get("pagesRead", None)
     timeRead = request.args.get("timeRead", None)
+    date = request.args.get("date", datetime.date.today())
+    updateProgress = request.args.get("updateProgress", True)
     bookInstance = BookInstance.query.filter(BookInstance.bookInstanceID == bookInstanceID).first()
+
+    dateObj = datetime.datetime.strptime(date, "%Y-%m-%d")
 
     if bookInstance.userID != int(userID):
         print(bookInstance.userID, bookInstance.book.title, userID)
         print("Book instance does not belong to user")
         return f"Book Instance {bookInstanceID} does not belong to user {userID}", 403
 
-    if currentPage is None:
-        return "currentPage missing", 422
+    if pagesRead is None:
+        return "pagesRead missing", 422
     if timeRead is None:
         return "timeRead missing", 422
+    if updateProgress == "false" or updateProgress == "False":
+        updateProgress = False
     else:
+        updateProgress = True
 
-        readingSession = ReadingSession(bookInstanceID, currentPage, timeRead, userID)
-        db.session.add(readingSession)
 
-        # changes the current page of the bookinstance object
-        bookInstance.currentPage = currentPage
-        bookInstance.totalTimeRead += timeRead
+    readingSession = ReadingSession(bookInstanceID, pagesRead, timeRead, userID, dateObj)
+    db.session.add(readingSession)
 
-        db.session.commit()
+    timeRead = int(timeRead)
+    bookInstance.totalTimeRead += timeRead
+    # changes the current page of the bookinstance object
+    if (updateProgress):
+        bookInstance.currentPage = pagesRead
 
-        return "add reading session", 201
+    db.session.commit()
+
+    return "added reading session", 201
 
 
 @app.route('/users/add', methods=["POST"])

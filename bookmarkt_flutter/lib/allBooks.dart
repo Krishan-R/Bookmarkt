@@ -65,8 +65,6 @@ Future<List<Book>> getAllBookData(args) async {
   try {
     final response = await http.get("http://${args.url}:5000/users/${args.user.userID.toString()}/books/all");
 
-    print(response.body);
-
     if (response.body == "No books") {
       return bookList;
     }

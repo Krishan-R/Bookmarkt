@@ -1,16 +1,11 @@
-import 'dart:convert';
-import 'dart:io';
 
-import 'package:bookmarkt_flutter/Models/book.dart';
 import 'package:bookmarkt_flutter/navigatorArguments.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-
 import 'package:http/http.dart' as http;
 import 'package:percent_indicator/circular_percent_indicator.dart';
-import 'package:transparent_image/transparent_image.dart';
 
 class bookView extends StatefulWidget {
   @override
@@ -30,6 +25,7 @@ class _bookViewState extends State<bookView> {
         child: Column(
           children: [
             bookHeader(args),
+            // pages/time read counter
             Container(
               height: 100,
               // color: Colors.pink,
@@ -67,8 +63,8 @@ class _bookViewState extends State<bookView> {
                     radius: 50,
                     lineWidth: 5,
                     percent: 1,
-                    center:
-                    Icon(Icons.watch, color: Theme.of(context).primaryColor),
+                    center: Icon(Icons.watch,
+                        color: Theme.of(context).primaryColor),
                     progressColor: Colors.green,
                     backgroundColor: Colors.grey,
                   ),
@@ -89,6 +85,28 @@ class _bookViewState extends State<bookView> {
                   ),
                 ],
               ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                FlatButton(
+                  onPressed: () {
+                    print("start session pressed");
+                  },
+                  child: Text("Start Reading Session",
+                      style: TextStyle(color: Colors.white)),
+                  color: Theme.of(context).primaryColor,
+                ),
+                FlatButton(
+                    onPressed: () {
+                      addReadingSessionAlert(context, args);
+                    },
+                    child: Text(
+                      "Add Reading Session",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    color: Theme.of(context).primaryColor),
+              ],
             )
           ],
         ),
@@ -104,9 +122,9 @@ Container bookHeader(args) {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Hero(
-          tag: args.book.bookInstanceID,
-          child: Image.network("http://${args.url}:5000/getThumbnail?path=${args.book.thumbnail}")
-        ),
+            tag: args.book.bookInstanceID,
+            child: Image.network(
+                "http://${args.url}:5000/getThumbnail?path=${args.book.thumbnail}")),
         SizedBox(
           height: 20,
           width: 10,
@@ -169,4 +187,139 @@ Container bookHeader(args) {
       ],
     ),
   );
+}
+
+addReadingSessionAlert(BuildContext context, NavigatorArguments args) {
+  TextEditingController pagesReadController = new TextEditingController();
+  TextEditingController hoursController = new TextEditingController();
+  TextEditingController minutesController = new TextEditingController();
+
+  DateTime selectedDate = DateTime.now();
+
+  final _formKey = GlobalKey<FormState>();
+
+  Widget cancelButton = FlatButton(
+    child: Text("Cancel"),
+    onPressed: () {
+      Navigator.of(context).pop();
+    },
+  );
+
+  Widget continueButton = FlatButton(
+    child: Text("Add"),
+    onPressed: () async {
+      if (_formKey.currentState.validate()) {
+        String pagesRead = pagesReadController.text;
+
+        int timeRead = (int.parse(hoursController.text) * 60) + int.parse(minutesController.text);
+        args.book.totalTimeRead += timeRead;
+
+        final response = await http.post("http://${args.url}:5000/users/${args.user.userID}/books/${args.book.bookInstanceID}/read?pagesRead=${pagesRead}&timeRead=${timeRead}&date=${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}&updateProgress=false");
+
+        if (response.body == "added reading session") {
+          Navigator.popUntil(context, ModalRoute.withName("/book"));
+          Navigator.pushReplacementNamed(context, "/book", arguments: args);
+        }
+      }
+    },
+  );
+
+  // show the dialog
+  showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(builder: (context, setState) {
+          return AlertDialog(
+            title: Text("Add Reading Session"),
+            content: Form(
+              key: _formKey,
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Text(
+                      "(Will not update book progress)",
+                      style: TextStyle(fontSize: 15, color: Colors.grey),
+                    ),
+                    TextFormField(
+                      controller: pagesReadController,
+                      decoration:
+                          InputDecoration(hintText: "Num. of pages read"),
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value.isEmpty) return "Pages read cannot be empty";
+                        if (int.parse(value) > args.book.totalPages) return "Cannot be greater than total pages in book";
+                        return null;
+                      },
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 60,
+                          padding: EdgeInsets.zero,
+                          child: TextFormField(
+                            controller: hoursController,
+                            textAlign: TextAlign.center,
+                            decoration: InputDecoration(
+                                hintText: "HH",
+                                contentPadding: EdgeInsets.zero),
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              new LengthLimitingTextInputFormatter(2)
+                            ],
+                            validator: (value) {
+                              if (value.isEmpty) return "Cannot be empty";
+                              return null;
+                            },
+                          ),
+                        ),
+                        Text(":"),
+                        Container(
+                          width: 60,
+                          padding: EdgeInsets.zero,
+                          child: TextFormField(
+                            controller: minutesController,
+                            textAlign: TextAlign.center,
+                            decoration: InputDecoration(hintText: "MM"),
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              new LengthLimitingTextInputFormatter(2)
+                            ],
+                            validator: (value) {
+                              if (value.isEmpty) return "Cannot be empty";
+                              if (int.parse(value) >= 60) return "Too Large";
+                              return null;
+                            },
+                          ),
+                        )
+                      ],
+                    ),
+                    FlatButton(
+                        onPressed: () async {
+                          DateTime picked = await showDatePicker(
+                              context: context,
+                              initialDate: selectedDate,
+                              firstDate: DateTime(1900),
+                              lastDate: DateTime.now());
+                          if (picked != null && picked != selectedDate)
+                            setState(() {
+                              selectedDate = picked;
+                            });
+
+                          print(
+                              "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}");
+                        },
+                        child: Text(
+                            "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}"))
+                  ],
+                ),
+              ),
+            ),
+            actions: [
+              cancelButton,
+              continueButton,
+            ],
+          );
+        });
+      });
 }
