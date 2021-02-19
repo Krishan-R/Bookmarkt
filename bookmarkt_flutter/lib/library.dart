@@ -171,7 +171,6 @@ longPressDialog(BuildContext context, NavigatorArguments args, int bookshelfID,
         FlatButton(
             child: Text("Delete"),
             onPressed: () async {
-              print("delete");
 
               final response = await http.delete("http://${args.url}:5000/users/${args.user.userID.toString()}/bookshelf/$bookshelfID/delete");
 
@@ -179,7 +178,6 @@ longPressDialog(BuildContext context, NavigatorArguments args, int bookshelfID,
                 Navigator.pop(context);
                 Navigator.pushReplacementNamed(context, "/library", arguments: args);
               } else {
-                print(response.body);
                 Fluttertoast.showToast(msg: "Error deleting Bookshelf");
               }
 

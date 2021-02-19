@@ -7,9 +7,11 @@ import 'package:bookmarkt_flutter/Widgets/addBookAlert.dart';
 import 'package:bookmarkt_flutter/Widgets/bookListView.dart';
 import 'package:bookmarkt_flutter/allBooks.dart';
 import 'package:bookmarkt_flutter/drawer.dart';
+import 'package:bookmarkt_flutter/library.dart';
 import 'package:bookmarkt_flutter/navigatorArguments.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:http/http.dart' as http;
 
@@ -24,14 +26,46 @@ class _BookshelfState extends State<Bookshelf> {
     final NavigatorArguments args = ModalRoute.of(context).settings.arguments;
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(title: Text(args.bookshelfName)),
+        appBar: AppBar(
+          title: Text(args.bookshelfName),
+          actions: <Widget>[
+            PopupMenuButton<String>(
+              onSelected: (value) async {
+                if (value == "Rename") {
+                  renameDialog(context, args, args.bookshelfID, args.bookshelfName);
+                } else if (value == "Delete") {
+
+                  final response = await http.delete("http://${args.url}:5000/users/${args.user.userID.toString()}/bookshelf/${args.bookshelfID}/delete");
+                  if (response.body == "deleted bookshelf") {
+                    Navigator.pushReplacementNamed(context, "/library", arguments: args);
+                  } else {
+                    Fluttertoast.showToast(msg: "Error deleting Bookshelf");
+                  }
+                }
+              },
+              itemBuilder: (BuildContext context) {
+                return {'Rename', 'Delete'}.map((String choice) {
+                  return PopupMenuItem<String>(
+                    value: choice,
+                    child: Text(choice),
+                  );
+                }).toList();
+              },
+            ),
+          ],
+        ),
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add),
           onPressed: () {
-            addBookAlert(context, NavigatorArguments(args.user, args.url, bookshelfName: args.bookshelfName, bookshelfID: args.bookshelfID, redirect: "/bookshelf"));
+            addBookAlert(
+                context,
+                NavigatorArguments(args.user, args.url,
+                    bookshelfName: args.bookshelfName,
+                    bookshelfID: args.bookshelfID,
+                    redirect: "/bookshelf"));
           },
         ),
-          body: Column(
+        body: Column(
           children: [
             Expanded(
               child: FutureBuilder<List<Book>>(
@@ -39,7 +73,8 @@ class _BookshelfState extends State<Bookshelf> {
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     List<Book> bookList = snapshot.data;
-                    if (bookList.isEmpty) return Text("This bookshelf is empty");
+                    if (bookList.isEmpty)
+                      return Text("This bookshelf is empty");
                     return bookListView(bookList, args);
                   } else if (snapshot.hasError) {
                     return Text("${snapshot.error}");
@@ -58,9 +93,9 @@ class _BookshelfState extends State<Bookshelf> {
 Future<List<Book>> getBookshelfBookData(args) async {
   List<Book> bookList = new List<Book>();
 
-
   try {
-    final response = await http.get("http://${args.url}:5000/users/${args.user.userID.toString()}/bookshelf/${args.bookshelfID}");
+    final response = await http.get(
+        "http://${args.url}:5000/users/${args.user.userID.toString()}/bookshelf/${args.bookshelfID}");
 
     if (response.body == "Bookshelf is empty") {
       return bookList;
@@ -71,7 +106,6 @@ Future<List<Book>> getBookshelfBookData(args) async {
     // print(i);
     bookList = List<Book>.from(i.map((model) => Book.fromJson(model)));
 
-
     for (var i = 0; i < bookList.length; i++) {
       print(bookList[i].ISBN.toString() +
           " " +
@@ -79,8 +113,6 @@ Future<List<Book>> getBookshelfBookData(args) async {
     }
 
     print(bookList[0].totalTimeRead.toString());
-
-
 
     return bookList;
   } on SocketException {
