@@ -6,9 +6,9 @@ import 'package:bookmarkt_flutter/Models/bookshelf.dart';
 import 'package:bookmarkt_flutter/navigatorArguments.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:http/http.dart' as http;
-
 
 class Library extends StatefulWidget {
   @override
@@ -16,13 +16,9 @@ class Library extends StatefulWidget {
 }
 
 class _LibraryState extends State<Library> {
-
   @override
   Widget build(BuildContext context) {
-    final NavigatorArguments args = ModalRoute
-        .of(context)
-        .settings
-        .arguments;
+    final NavigatorArguments args = ModalRoute.of(context).settings.arguments;
 
     return SafeArea(
       child: Scaffold(
@@ -52,9 +48,9 @@ class _LibraryState extends State<Library> {
           child: Icon(Icons.add),
           onPressed: () {
             AddBookshelfDialog(context, args);
-            },
-          ),
+          },
         ),
+      ),
     );
   }
 }
@@ -69,10 +65,14 @@ ListView bookshelfListView(data, args) {
           child: ListTile(
             onTap: () {
               //todo change args to pass list of bookshelves
-              Navigator.pushNamed(context, '/bookshelf', arguments: NavigatorArguments(args.user, args.url, bookshelfID: data[index].bookshelfID, bookshelfName: data[index].name));
+              Navigator.pushNamed(context, '/bookshelf',
+                  arguments: NavigatorArguments(args.user, args.url,
+                      bookshelfID: data[index].bookshelfID,
+                      bookshelfName: data[index].name));
             },
             onLongPress: () {
-              longPressDialog(context, args, data[index].bookshelfID, data[index].name);
+              longPressDialog(
+                  context, args, data[index].bookshelfID, data[index].name);
             },
             title: Text(data[index].name),
           ),
@@ -99,13 +99,16 @@ AddBookshelfDialog(BuildContext context, NavigatorArguments args) {
     onPressed: () async {
       if (_formKey.currentState.validate()) {
         try {
-          final response = await http.post(
-              "http://" + args.url + ":5000/users/" +
-                  args.user.userID.toString() + "/bookshelf/add?name=" +
-                  bookshelfNameController.text);
+          final response = await http.post("http://" +
+              args.url +
+              ":5000/users/" +
+              args.user.userID.toString() +
+              "/bookshelf/add?name=" +
+              bookshelfNameController.text);
           if (response.body == "added new bookshelf") {
             // Navigator.pop(context);
-            Navigator.pushReplacementNamed(context, "/library", arguments: NavigatorArguments(args.user, args.url));
+            Navigator.pushReplacementNamed(context, "/library",
+                arguments: NavigatorArguments(args.user, args.url));
           }
         } on SocketException {
           print("Cannot connect to server");
@@ -143,8 +146,8 @@ AddBookshelfDialog(BuildContext context, NavigatorArguments args) {
   );
 }
 
-longPressDialog(BuildContext context, NavigatorArguments args, int bookshelfID, String bookshelfName) {
-
+longPressDialog(BuildContext context, NavigatorArguments args, int bookshelfID,
+    String bookshelfName) {
   // set up the buttons
   Widget cancelButton = FlatButton(
     child: Text("Cancel"),
@@ -159,12 +162,29 @@ longPressDialog(BuildContext context, NavigatorArguments args, int bookshelfID, 
     content: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        FlatButton(onPressed: () {
-          renameDialog(context, args, bookshelfID, bookshelfName);
-        },
-            child: Text("Rename")),
-        FlatButton(onPressed: () {},
-            child: Text("Delete"))
+        FlatButton(
+          child: Text("Rename"),
+          onPressed: () {
+            renameDialog(context, args, bookshelfID, bookshelfName);
+          },
+        ),
+        FlatButton(
+            child: Text("Delete"),
+            onPressed: () async {
+              print("delete");
+
+              final response = await http.delete("http://${args.url}:5000/users/${args.user.userID.toString()}/bookshelf/$bookshelfID/delete");
+
+              if (response.body == "deleted bookshelf") {
+                Navigator.pop(context);
+                Navigator.pushReplacementNamed(context, "/library", arguments: args);
+              } else {
+                print(response.body);
+                Fluttertoast.showToast(msg: "Error deleting Bookshelf");
+              }
+
+            }
+        ),
       ],
     ),
     actions: [
@@ -181,7 +201,8 @@ longPressDialog(BuildContext context, NavigatorArguments args, int bookshelfID, 
   );
 }
 
-renameDialog(BuildContext context, NavigatorArguments args, int bookshelfID, String bookshelfName) {
+renameDialog(BuildContext context, NavigatorArguments args, int bookshelfID,
+    String bookshelfName) {
   TextEditingController bookshelfRenameController = new TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
@@ -198,17 +219,19 @@ renameDialog(BuildContext context, NavigatorArguments args, int bookshelfID, Str
     onPressed: () async {
       if (_formKey.currentState.validate()) {
         try {
-
-          final response = await http.put(
-              "http://" + args.url + ":5000/users/" +
-                  args.user.userID.toString() + "/bookshelf/" + bookshelfID.toString() + "/rename?name=" +
-                  bookshelfRenameController.text);
+          final response = await http.put("http://" +
+              args.url +
+              ":5000/users/" +
+              args.user.userID.toString() +
+              "/bookshelf/" +
+              bookshelfID.toString() +
+              "/rename?name=" +
+              bookshelfRenameController.text);
 
           if (response.body == "renamed bookshelf") {
             Navigator.pushReplacementNamed(context, "/library",
                 arguments: NavigatorArguments(args.user, args.url));
           }
-
         } on SocketException {
           print("Cannot connect to server");
         }
@@ -256,7 +279,7 @@ Future<List<Bookshelf>> getBookshelfList(args) async {
 
     Iterable i = json.decode(response.body);
     bookshelfList =
-    List<Bookshelf>.from(i.map((model) => Bookshelf.fromJson(model)));
+        List<Bookshelf>.from(i.map((model) => Bookshelf.fromJson(model)));
 
     return bookshelfList;
   } on SocketException {

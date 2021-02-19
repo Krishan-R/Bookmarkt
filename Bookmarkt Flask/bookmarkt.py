@@ -591,6 +591,29 @@ def renameBookshelf(userID, bookshelfID):
     return "renamed bookshelf", 200
 
 
+@app.route("/users/<userID>/bookshelf/<bookshelfID>/delete", methods=["DELETE"])
+def deleteBookshelf(userID, bookshelfID):
+
+    newName = request.args.get("name", None)
+    bookshelfID = int(bookshelfID)
+    userID = int(userID)
+
+    bookshelf = Bookshelf.query.filter(Bookshelf.bookshelfID == bookshelfID).first()
+
+    if bookshelf.userID != userID:
+        return "Bookshelf does not belong to that user", 403
+
+
+    for bookInstance in BookInstance.query.filter(BookInstance.bookshelfID == bookshelfID):
+        bookInstance.bookshelfID = None
+
+    Bookshelf.query.filter(Bookshelf.bookshelfID == bookshelfID).delete()
+
+    db.session.commit()
+
+    return "deleted bookshelf", 200
+
+
 @app.route("/users/<userID>/bookshelf/<bookshelfID>", methods=["GET"])
 def getBooksFromBookshelf(userID, bookshelfID):
 
