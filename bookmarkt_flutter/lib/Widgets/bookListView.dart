@@ -7,6 +7,7 @@ import 'package:bookmarkt_flutter/drawer.dart';
 import 'package:bookmarkt_flutter/navigatorArguments.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:http/http.dart' as http;
 
@@ -30,6 +31,9 @@ ListView bookListView(bookList, args) {
               },
               onLongPress: () {
                 print(bookList[index].title);
+
+                longPressBookDialog(context, args, bookList[index].bookInstanceID, bookList[index].title);
+
               },
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -68,6 +72,52 @@ ListView bookListView(bookList, args) {
           ),
         ),
       );
+    },
+  );
+}
+
+longPressBookDialog(BuildContext context, NavigatorArguments args, int bookInstanceID, String bookTitle) {
+  // set up the buttons
+  Widget cancelButton = FlatButton(
+    child: Text("Cancel"),
+    onPressed: () {
+      Navigator.of(context).pop();
+    },
+  );
+
+  // set up the AlertDialog
+  AlertDialog alert = AlertDialog(
+    title: Text("Edit " + bookTitle),
+    content: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        FlatButton(
+            child: Text("Delete"),
+            onPressed: () async {
+
+              final response = await http.delete("http://${args.url}:5000/users/${args.user.userID.toString()}/books/delete?bookInstanceID=$bookInstanceID");
+
+              if (response.body == "deleted book instance") {
+                Navigator.pushReplacementNamed(context, "/allBooks", arguments: args);
+              } else {
+                print(response.body);
+                Fluttertoast.showToast(msg: "Error deleting Book");
+              }
+
+            },
+        ),
+      ],
+    ),
+    actions: [
+      cancelButton,
+    ],
+  );
+
+  // show the dialog
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return alert;
     },
   );
 }

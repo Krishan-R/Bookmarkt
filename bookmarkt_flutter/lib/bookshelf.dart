@@ -31,6 +31,7 @@ class _BookshelfState extends State<Bookshelf> {
           actions: <Widget>[
             PopupMenuButton<String>(
               onSelected: (value) async {
+
                 if (value == "Rename") {
                   renameDialog(context, args, args.bookshelfID, args.bookshelfName);
                 } else if (value == "Delete") {
@@ -42,6 +43,7 @@ class _BookshelfState extends State<Bookshelf> {
                     Fluttertoast.showToast(msg: "Error deleting Bookshelf");
                   }
                 }
+
               },
               itemBuilder: (BuildContext context) {
                 return {'Rename', 'Delete'}.map((String choice) {

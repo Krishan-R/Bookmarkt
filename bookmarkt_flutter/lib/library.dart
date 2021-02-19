@@ -71,7 +71,7 @@ ListView bookshelfListView(data, args) {
                       bookshelfName: data[index].name));
             },
             onLongPress: () {
-              longPressDialog(
+              longPressBookshelfDialog(
                   context, args, data[index].bookshelfID, data[index].name);
             },
             title: Text(data[index].name),
@@ -146,7 +146,7 @@ AddBookshelfDialog(BuildContext context, NavigatorArguments args) {
   );
 }
 
-longPressDialog(BuildContext context, NavigatorArguments args, int bookshelfID,
+longPressBookshelfDialog(BuildContext context, NavigatorArguments args, int bookshelfID,
     String bookshelfName) {
   // set up the buttons
   Widget cancelButton = FlatButton(

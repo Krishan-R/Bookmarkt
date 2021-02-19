@@ -1,9 +1,9 @@
-
 import 'package:bookmarkt_flutter/navigatorArguments.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
@@ -18,8 +18,35 @@ class _bookViewState extends State<bookView> {
     final NavigatorArguments args = ModalRoute.of(context).settings.arguments;
 
     return SafeArea(
-        child: Scaffold(
-      appBar: AppBar(),
+      child: Scaffold(
+      appBar: AppBar(
+        actions: <Widget>[
+          PopupMenuButton<String>(
+            onSelected: (value) async {
+              if (value == "Delete") {
+                final response = await http.delete(
+                    "http://${args.url}:5000/users/${args.user.userID.toString()}/books/delete?bookInstanceID=${args.book.bookInstanceID}");
+
+                if (response.body == "deleted book instance") {
+                  Navigator.pushReplacementNamed(context, "/allBooks",
+                      arguments: args);
+                } else {
+                  print(response.body);
+                  Fluttertoast.showToast(msg: "Error deleting Book");
+                }
+              }
+            },
+            itemBuilder: (BuildContext context) {
+              return {'Delete'}.map((String choice) {
+                return PopupMenuItem<String>(
+                  value: choice,
+                  child: Text(choice),
+                );
+              }).toList();
+            },
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(10.0),
         child: Column(
@@ -211,10 +238,12 @@ addReadingSessionAlert(BuildContext context, NavigatorArguments args) {
       if (_formKey.currentState.validate()) {
         String pagesRead = pagesReadController.text;
 
-        int timeRead = (int.parse(hoursController.text) * 60) + int.parse(minutesController.text);
+        int timeRead = (int.parse(hoursController.text) * 60) +
+            int.parse(minutesController.text);
         args.book.totalTimeRead += timeRead;
 
-        final response = await http.post("http://${args.url}:5000/users/${args.user.userID}/books/${args.book.bookInstanceID}/read?pagesRead=${pagesRead}&timeRead=${timeRead}&date=${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}&updateProgress=false");
+        final response = await http.post(
+            "http://${args.url}:5000/users/${args.user.userID}/books/${args.book.bookInstanceID}/read?pagesRead=${pagesRead}&timeRead=${timeRead}&date=${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}&updateProgress=false");
 
         if (response.body == "added reading session") {
           Navigator.popUntil(context, ModalRoute.withName("/book"));
@@ -247,7 +276,8 @@ addReadingSessionAlert(BuildContext context, NavigatorArguments args) {
                       keyboardType: TextInputType.number,
                       validator: (value) {
                         if (value.isEmpty) return "Pages read cannot be empty";
-                        if (int.parse(value) > args.book.totalPages) return "Cannot be greater than total pages in book";
+                        if (int.parse(value) > args.book.totalPages)
+                          return "Cannot be greater than total pages in book";
                         return null;
                       },
                     ),
@@ -305,11 +335,9 @@ addReadingSessionAlert(BuildContext context, NavigatorArguments args) {
                             setState(() {
                               selectedDate = picked;
                             });
-                          },
+                        },
                         child: Text(
-                            "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}"
-                        )
-                    )
+                            "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}"))
                   ],
                 ),
               ),

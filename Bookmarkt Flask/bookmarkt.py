@@ -253,8 +253,6 @@ def addUserBook(userID):
     db.session.add(newBookInstance)
     db.session.commit()
 
-
-
     return "added new BookInstance", 201
 
 
@@ -351,13 +349,12 @@ def deleteUserBookInstance(userID):
 
     # checks to see if book instance belongs to that user
     if bookInstance.userID != int(userID):
-        print("BookInstance does not belong to user")
         return f"Book Instance {bookInstanceID} does not belong to user {userID}", 403
 
     BookInstance.query.filter(BookInstance.bookInstanceID == bookInstanceID).delete()
     db.session.commit()
 
-    return f"deleted book instance id {bookInstanceID}", 200
+    return f"deleted book instance", 200
 
 
 @app.route("/users/<userID>/books/delete/all", methods=["DELETE"])
