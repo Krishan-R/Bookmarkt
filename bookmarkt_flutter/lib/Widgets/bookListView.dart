@@ -12,11 +12,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 
 ListView bookListView(bookList, args) {
-
-  // for (int i=0; i<bookList.length; i++) {
-  //   print(bookList[i]);
-  // }
-
+  //todo convert to stateful widget
   return ListView.builder(
     itemCount: bookList.length,
     itemBuilder: (context, index) {

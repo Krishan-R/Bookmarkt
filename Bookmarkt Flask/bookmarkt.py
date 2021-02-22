@@ -373,9 +373,13 @@ def addReadingSession(userID, bookInstanceID):
     timeRead = request.args.get("timeRead", None)
     date = request.args.get("date", datetime.date.today())
     updateProgress = request.args.get("updateProgress", True)
+    completed = request.args.get("completed", False)
     bookInstance = BookInstance.query.filter(BookInstance.bookInstanceID == bookInstanceID).first()
 
-    dateObj = datetime.datetime.strptime(date, "%Y-%m-%d")
+    try:
+        dateObj = datetime.datetime.strptime(date, "%Y-%m-%d")
+    except TypeError:
+        dateObj = date
 
     if bookInstance.userID != int(userID):
         print(bookInstance.userID, bookInstance.book.title, userID)
@@ -384,22 +388,31 @@ def addReadingSession(userID, bookInstanceID):
 
     if pagesRead is None:
         return "pagesRead missing", 422
+
     if timeRead is None:
         return "timeRead missing", 422
+
     if updateProgress == "false" or updateProgress == "False":
         updateProgress = False
     else:
         updateProgress = True
 
+    if completed == "true" or completed == "True":
+        completed = True
+    else:
+        completed = False
 
     readingSession = ReadingSession(bookInstanceID, pagesRead, timeRead, userID, dateObj)
     db.session.add(readingSession)
 
+    pagesRead = int(pagesRead)
     timeRead = int(timeRead)
     bookInstance.totalTimeRead += timeRead
-    # changes the current page of the bookinstance object
-    if (updateProgress):
-        bookInstance.currentPage = pagesRead
+
+    # updates bookinstance object
+    if updateProgress:
+        bookInstance.currentPage += pagesRead
+        bookInstance.completed = completed
 
     db.session.commit()
 

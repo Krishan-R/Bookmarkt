@@ -180,7 +180,6 @@ longPressBookshelfDialog(BuildContext context, NavigatorArguments args, int book
               } else {
                 Fluttertoast.showToast(msg: "Error deleting Bookshelf");
               }
-
             }
         ),
       ],

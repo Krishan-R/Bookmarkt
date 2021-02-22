@@ -117,14 +117,6 @@ class _bookViewState extends State<bookView> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 FlatButton(
-                  onPressed: () {
-                    print("start session pressed");
-                  },
-                  child: Text("Start Reading Session",
-                      style: TextStyle(color: Colors.white)),
-                  color: Theme.of(context).primaryColor,
-                ),
-                FlatButton(
                     onPressed: () {
                       addReadingSessionAlert(context, args);
                     },
@@ -133,6 +125,14 @@ class _bookViewState extends State<bookView> {
                       style: TextStyle(color: Colors.white),
                     ),
                     color: Theme.of(context).primaryColor),
+                FlatButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/readingSession', arguments: args).then((value) => setState((){}));
+                  },
+                  child: Text("Start Reading Session",
+                      style: TextStyle(color: Colors.white)),
+                  color: Theme.of(context).primaryColor,
+                ),
               ],
             )
           ],
@@ -350,3 +350,4 @@ addReadingSessionAlert(BuildContext context, NavigatorArguments args) {
         });
       });
 }
+
