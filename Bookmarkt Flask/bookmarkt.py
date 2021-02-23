@@ -20,9 +20,12 @@ app.config["DEBUG"] = True
 
 if Path("/database").is_dir():
     file_path = "/database/database.db"
+    app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///'+file_path
+
 else:
     file_path = os.path.abspath(os.getcwd()) + "/database/database.db"
 
+print(f"database path is {file_path}")
 app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///'+file_path
 
 db.init_app(app)
@@ -34,6 +37,8 @@ def encryptPassword(password):
 
 @app.route('/', methods=["GET"])
 def home():
+
+    print(f"database path is {file_path}")
 
     try:
         if len(os.listdir(file_path.replace("/database.db", ""))) != 1:
