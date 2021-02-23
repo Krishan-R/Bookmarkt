@@ -28,6 +28,7 @@ dependencies:
   percent_indicator: ^2.1.9+1
   transparent_image: ^1.0.0
   stop_watch_timer: ^0.7.0
+  flutter_countdown_timer: ^3.0.1
   flutter:
     sdk: flutter
 
