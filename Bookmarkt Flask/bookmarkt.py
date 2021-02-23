@@ -1,5 +1,6 @@
 import datetime
 
+from pathlib import Path
 import flask
 from flask import request, jsonify, send_file
 import hashlib
@@ -17,7 +18,11 @@ from exts import db
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
 
-file_path = os.path.abspath(os.getcwd()) + "\database.db"
+if Path("/database").is_dir():
+    file_path = "/database/database.db"
+else:
+    file_path = os.path.abspath(os.getcwd()) + "/database/database.db"
+
 app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///'+file_path
 
 db.init_app(app)
@@ -29,6 +34,21 @@ def encryptPassword(password):
 
 @app.route('/', methods=["GET"])
 def home():
+
+    try:
+        if len(os.listdir(file_path.replace("/database.db", ""))) != 1:
+            print("cant find database file")
+            db.drop_all()
+            db.create_all()
+    except FileNotFoundError:
+        os.mkdir(file_path.replace("/database.db", ""))
+        db.drop_all()
+        db.create_all()
+    except NotADirectoryError:
+        os.mkdir(file_path.replace("/database.db", ""))
+        db.drop_all()
+        db.create_all()
+
 
     return "True", 200
 
