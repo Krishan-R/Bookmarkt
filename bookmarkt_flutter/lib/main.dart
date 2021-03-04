@@ -1,4 +1,5 @@
 import 'package:bookmarkt_flutter/Widgets/addBookAlert.dart';
+import 'package:bookmarkt_flutter/Widgets/addBookData.dart';
 import 'package:bookmarkt_flutter/allBooks.dart';
 import 'package:bookmarkt_flutter/bookView.dart';
 import 'package:bookmarkt_flutter/bookshelf.dart';
@@ -23,7 +24,8 @@ void main() => runApp(MaterialApp(
     '/bookshelf': (context) => Bookshelf(),
     '/allBooks': (context) => AllBooks(),
     '/book': (context) => bookView(),
-    '/readingSession': (context) => readingSession()
+    '/readingSession': (context) => readingSession(),
+    '/addBook': (context) => addBook()
   },
 ));
 

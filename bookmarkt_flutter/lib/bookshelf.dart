@@ -64,6 +64,7 @@ class _BookshelfState extends State<Bookshelf> {
                 NavigatorArguments(args.user, args.url,
                     bookshelfName: args.bookshelfName,
                     bookshelfID: args.bookshelfID,
+                    bookshelfList: args.bookshelfList,
                     redirect: "/bookshelf"));
           },
         ),
@@ -108,13 +109,13 @@ Future<List<Book>> getBookshelfBookData(args) async {
     // print(i);
     bookList = List<Book>.from(i.map((model) => Book.fromJson(model)));
 
-    for (var i = 0; i < bookList.length; i++) {
-      print(bookList[i].ISBN.toString() +
-          " " +
-          bookList[i].totalTimeRead.toString());
-    }
+    // for (var i = 0; i < bookList.length; i++) {
+    //   print(bookList[i].ISBN.toString() +
+    //       " " +
+    //       bookList[i].totalTimeRead.toString());
+    // }
 
-    print(bookList[0].totalTimeRead.toString());
+    // print(bookList[0].totalTimeRead.toString());
 
     return bookList;
   } on SocketException {

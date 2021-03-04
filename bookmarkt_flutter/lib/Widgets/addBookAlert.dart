@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:bookmarkt_flutter/Models/book.dart';
 import 'package:bookmarkt_flutter/Models/bookshelf.dart';
+import 'package:bookmarkt_flutter/Widgets/addBookData.dart';
 import 'package:bookmarkt_flutter/library.dart';
 import 'package:bookmarkt_flutter/navigatorArguments.dart';
 import 'package:flutter/cupertino.dart';
@@ -39,11 +40,26 @@ addBookAlert(BuildContext context, NavigatorArguments args) {
             print("Cannot be found");
             Book book = new Book();
             book.ISBN = int.parse(bookISBNController.text);
-            addBookDataAlert(context, args, book, bookshelfList);
+
+            Navigator.pushNamed(context, '/addBook',
+                arguments: NavigatorArguments(args.user, args.url,
+                    book: book,
+                    bookshelfList: bookshelfList,
+                    bookshelfID: args.bookshelfID,
+                    bookshelfName: args.bookshelfName,
+                    redirect: args.redirect));
+            // addBookDataAlert(context, args, book);
           } else {
             Map i = json.decode(response.body);
             Book book = Book.fromJsonBookData(i);
-            addBookDataAlert(context, args, book, bookshelfList);
+            Navigator.pushNamed(context, '/addBook',
+                arguments: NavigatorArguments(args.user, args.url,
+                    book: book,
+                    bookshelfList: bookshelfList,
+                    bookshelfID: args.bookshelfID,
+                    bookshelfName: args.bookshelfName,
+                    redirect: args.redirect));
+            // addBookDataAlert(context, args, book);
           }
         } on SocketException {
           print("error connecting to server");
@@ -76,10 +92,10 @@ addBookAlert(BuildContext context, NavigatorArguments args) {
       });
 }
 
-addBookDataAlert(BuildContext context, NavigatorArguments args, Book book,
-    List<Bookshelf> bookshelfList) {
+addBookDataAlert(BuildContext context, NavigatorArguments args, Book book) {
   // prepends blank bookshelf
-  bookshelfList.insert(0, Bookshelf(bookshelfID: -1, name: "(No bookshelf)"));
+  args.bookshelfList
+      .insert(0, Bookshelf(bookshelfID: -1, name: "(No bookshelf)"));
 
   bool scraped = true;
   if (book.title == null) {
@@ -103,13 +119,13 @@ addBookDataAlert(BuildContext context, NavigatorArguments args, Book book,
   print(selectedDate);
 
   int dropdownValue;
-  if (bookshelfList.isEmpty) {
+  if (args.bookshelfList.isEmpty) {
     Bookshelf emptyBookshelf =
         Bookshelf(bookshelfID: -1, name: "No Bookshelves");
-    bookshelfList.add(emptyBookshelf);
+    args.bookshelfList.add(emptyBookshelf);
     dropdownValue = -1;
   } else {
-    dropdownValue = bookshelfList[0].bookshelfID;
+    dropdownValue = args.bookshelfList[0].bookshelfID;
     book.bookshelfID = dropdownValue;
   }
 
@@ -143,7 +159,8 @@ addBookDataAlert(BuildContext context, NavigatorArguments args, Book book,
           String author = "&author=${book.author}";
           String description = "&description=${book.description}";
           String totalPages = "&totalPages=${book.totalPages}";
-          String publishedDate = "&publishedDate=${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
+          String publishedDate =
+              "&publishedDate=${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
 
           final response = await http.post(
               "http://${args.url}:5000/users/${args.user.userID.toString()}/books/add?isbn=${book.ISBN}$bookshelfID$currentPage$completed$rating$title$author$description$totalPages$publishedDate");
@@ -309,7 +326,7 @@ addBookDataAlert(BuildContext context, NavigatorArguments args, Book book,
                     ),
                     DropdownButton<int>(
                       value: dropdownValue,
-                      items: bookshelfList?.map((item) {
+                      items: args.bookshelfList?.map((item) {
                             return DropdownMenuItem(
                               child: Text(item.name),
                               value: item.bookshelfID,

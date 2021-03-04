@@ -64,11 +64,11 @@ ListView bookshelfListView(data, args) {
         child: Card(
           child: ListTile(
             onTap: () {
-              //todo change args to pass list of bookshelves
               Navigator.pushNamed(context, '/bookshelf',
                   arguments: NavigatorArguments(args.user, args.url,
                       bookshelfID: data[index].bookshelfID,
-                      bookshelfName: data[index].name));
+                      bookshelfName: data[index].name,
+                      bookshelfList: data));
             },
             onLongPress: () {
               longPressBookshelfDialog(
@@ -146,8 +146,8 @@ AddBookshelfDialog(BuildContext context, NavigatorArguments args) {
   );
 }
 
-longPressBookshelfDialog(BuildContext context, NavigatorArguments args, int bookshelfID,
-    String bookshelfName) {
+longPressBookshelfDialog(BuildContext context, NavigatorArguments args,
+    int bookshelfID, String bookshelfName) {
   // set up the buttons
   Widget cancelButton = FlatButton(
     child: Text("Cancel"),
@@ -171,17 +171,17 @@ longPressBookshelfDialog(BuildContext context, NavigatorArguments args, int book
         FlatButton(
             child: Text("Delete"),
             onPressed: () async {
-
-              final response = await http.delete("http://${args.url}:5000/users/${args.user.userID.toString()}/bookshelf/$bookshelfID/delete");
+              final response = await http.delete(
+                  "http://${args.url}:5000/users/${args.user.userID.toString()}/bookshelf/$bookshelfID/delete");
 
               if (response.body == "deleted bookshelf") {
                 Navigator.pop(context);
-                Navigator.pushReplacementNamed(context, "/library", arguments: args);
+                Navigator.pushReplacementNamed(context, "/library",
+                    arguments: args);
               } else {
                 Fluttertoast.showToast(msg: "Error deleting Bookshelf");
               }
-            }
-        ),
+            }),
       ],
     ),
     actions: [

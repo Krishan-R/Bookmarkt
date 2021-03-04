@@ -34,10 +34,13 @@ class _bookViewState extends State<bookView> {
                   print(response.body);
                   Fluttertoast.showToast(msg: "Error deleting Book");
                 }
+              } else if (value == "Edit") {
+                //todo go to edit book view
+                print("edit pressed");
               }
             },
             itemBuilder: (BuildContext context) {
-              return {'Delete'}.map((String choice) {
+              return {'Edit', 'Delete'}.map((String choice) {
                 return PopupMenuItem<String>(
                   value: choice,
                   child: Text(choice),
