@@ -129,7 +129,8 @@ def getAllUserBooks(userID):
                 "thumbnail": book.thumbnail,
                 "googleID": book.googleID,
                 "totalPages": book.totalPages,
-                "publishedDate": book.publishedDate
+                "publishedDate": book.publishedDate,
+                "automaticallyScraped": book.automaticallyScraped
             }
 
     return jsonify(JsonList), 200
@@ -174,7 +175,8 @@ def getSpecificUserBook(userID, bookInstanceID):
         "thumbnail": book.thumbnail,
         "googleID": book.googleID,
         "totalPages": book.totalPages,
-        "publishedDate": book.publishedDate
+        "publishedDate": book.publishedDate,
+        "automaticallyScraped": book.automaticallyScraped
     }
 
     return jsonify(json), 200
@@ -208,7 +210,8 @@ def getAllBookInstances():
                 "description": book.description,
                 "author": book.authorName,
                 "googleID": book.googleID,
-                "publishedDate": book.publishedDate
+                "publishedDate": book.publishedDate,
+                "automaticallyScraped": book.automaticallyScraped
             }
 
     return jsonify(JsonList), 200
@@ -273,6 +276,9 @@ def addUserBook(userID):
                        publishedDate=publishedDate)
         db.session.add(newBook)
         db.session.commit()
+
+    # if completed:
+    #     currentPage = totalPages
 
     newBookInstance = BookInstance(isbn, userID, completed=completed, currentPage=currentPage, bookshelfID=bookshelfID, rating=rating, totalTimeRead=totalTimeRead)
     db.session.add(newBookInstance)
@@ -546,7 +552,8 @@ def getAllBooks():
                 "googleID": book.googleID,
                 "thumbnail": book.thumbnail,
                 "totalPages": book.totalPages,
-                "publishedDate": book.publishedDate
+                "publishedDate": book.publishedDate,
+                "automaticallyScraped": book.automaticallyScraped
             })
     except Exception as e:
         print(e)
@@ -555,6 +562,44 @@ def getAllBooks():
 
     return jsonify(jsonList), 200
 
+@app.route("/books/<isbn>", methods=["PUT"])
+def updateBook(isbn):
+
+    title = request.args.get("title", None)
+    author = request.args.get("author", None)
+    description = request.args.get("description", None)
+    totalPages = request.args.get("totalPages", None)
+    publishedDate = request.args.get("publishedDate", None)
+
+    book = Book.query.filter(Book.isbn == isbn).first()
+    authorObj = Author.query.filter(Author.authorName == book.authorName).first()
+
+    if book is None:
+        return "Book cannot be found", 404
+
+    if book.automaticallyScraped:
+        return "Book cannot be edited", 403
+
+    if title is not None:
+        book.title = title
+    if author is not None:
+        book.authorName = author
+    if description is not None:
+        book.description = description
+    if totalPages is not None:
+        book.totalPages = totalPages
+    if publishedDate is not None:
+        book.publishedDate = publishedDate
+
+
+    book.addBookToAuthor()
+    db.session.commit()
+
+    d = AuthorToBook.delete().where(AuthorToBook.c.authorID == authorObj.authorID and AuthorToBook.c.isbn == book.isbn)
+    db.session.execute(d)
+    db.session.commit()
+
+    return "Updated Book Instance", 200
 
 @app.route("/users/<userID>/bookshelf/all", methods=["GET"])
 def getAllUserBookshelves(userID):
@@ -689,7 +734,8 @@ def getBooksFromBookshelf(userID, bookshelfID):
                 "googleID": book.googleID,
                 "thumbnail": book.thumbnail,
                 "totalPages": book.totalPages,
-                "publishedDate": book.publishedDate
+                "publishedDate": book.publishedDate,
+                "automaticallyScraped": book.automaticallyScraped
             }
 
     return jsonify(JsonList), 200

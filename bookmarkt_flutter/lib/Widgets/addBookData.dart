@@ -27,33 +27,54 @@ class _addBookState extends State<addBook> {
   DateTime selectedDate = DateTime.now();
   bool init = false;
 
+  String appBarText;
+
   @override
   Widget build(BuildContext context) {
     final NavigatorArguments args = ModalRoute.of(context).settings.arguments;
 
     bool scraped = true;
-    if (args.book.title == null) {
-      print("not scraped");
+
+
+    if (args.book.automaticallyScraped != null && !args.book.automaticallyScraped) {
       scraped = false;
     } else {
-      print("scraped");
-      scraped = true;
+      if (args.book.title == null) {
+        scraped = false;
+      } else {
+        scraped = true;
+      }
     }
+
+    if (args.redirect == "edit") {
+      appBarText = "Edit Book";
+    } else {
+      appBarText = "Add New Book";
+    }
+
+
 
     //sets book variables on first build
     if (!init) {
       print("setting variables");
 
       if (scraped) {
-        args.book.rating = 0;
+        print("scraped");
         if (args.book.publishedDate != null) {
           selectedDate = DateTime.parse(args.book.publishedDate);
         }
-      }
 
-      args.book.totalPages = 1;
-      args.book.rating = 0;
-      args.book.currentPage = 1;
+        if (args.book.description == "null") args.book.description = "";
+        currentPageController.text =  args.book.currentPage.toString();
+
+      } else {
+        print("not scraped");
+        if (args.book.totalPages == null) args.book.totalPages = 1;
+
+        if (args.book.currentPage == null) args.book.currentPage = 1;
+
+
+      }
 
       init = true;
     }
@@ -81,58 +102,128 @@ class _addBookState extends State<addBook> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: Text("Add New Book"),
+          title: Text(appBarText),
           actions: [
-            FlatButton(
-              child: Text(
-                "Add",
-              ),
-              onPressed: () async {
-                if (_formKey.currentState.validate()) {
-                  try {
-                    String bookshelfID = "";
-                    if (args.book.bookshelfID == null) {
-                      bookshelfID = "";
-                    } else if (args.book.bookshelfID == -1) {
-                      bookshelfID = "";
-                    } else {
-                      bookshelfID = "&bookshelfID=${args.book.bookshelfID}";
+            Visibility(
+              visible: args.redirect != "edit",
+              child: FlatButton(
+                child: Text(
+                  "Add",
+                ),
+                onPressed: () async {
+                  if (_formKey.currentState.validate()) {
+                    try {
+                      String bookshelfID = "";
+                      if (args.book.bookshelfID == null) {
+                        bookshelfID = "";
+                      } else if (args.book.bookshelfID == -1) {
+                        bookshelfID = "";
+                      } else {
+                        bookshelfID = "&bookshelfID=${args.book.bookshelfID}";
+                      }
+
+                      if (args.book.currentPage == null) {
+                        args.book.currentPage = 1;
+                      }
+                      print("asfasf " + args.book.currentPage.toString());
+                      String currentPage =
+                          "&currentPage=${args.book.currentPage}";
+                      String completed = "&completed=$completedCheckBox";
+                      String rating = "&rating=${args.book.rating}";
+
+                      String title = "&title=${args.book.title}";
+                      String author = "&author=${args.book.author}";
+                      String description =
+                          "&description=${args.book.description}";
+                      String totalPages = "&totalPages=${args.book.totalPages}";
+                      String publishedDate =
+                          "&publishedDate=${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
+
+                      print(currentPage);
+                      print("knasflknaslkfn");
+
+                      final response = await http.post(
+                          "http://${args.url}:5000/users/${args.user.userID.toString()}/books/add?isbn=${args.book.ISBN}$bookshelfID$currentPage$completed$rating$title$author$description$totalPages$publishedDate");
+
+                      if (response.body == "added new BookInstance") {
+                        Navigator.popUntil(
+                            context, ModalRoute.withName(args.redirect));
+                        Navigator.pushReplacementNamed(context, args.redirect,
+                            arguments: args);
+                      }
+                    } on SocketException {
+                      print("Error connecting to server");
                     }
-
-                    if (args.book.currentPage == null) {
-                      args.book.currentPage = 1;
-                    }
-                    print("asfasf " + args.book.currentPage.toString());
-                    String currentPage =
-                        "&currentPage=${args.book.currentPage}";
-                    String completed = "&completed=$completedCheckBox";
-                    String rating = "&rating=${args.book.rating}";
-
-                    String title = "&title=${args.book.title}";
-                    String author = "&author=${args.book.author}";
-                    String description =
-                        "&description=${args.book.description}";
-                    String totalPages = "&totalPages=${args.book.totalPages}";
-                    String publishedDate =
-                        "&publishedDate=${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
-
-                    print(currentPage);
-                    print("knasflknaslkfn");
-
-                    final response = await http.post(
-                        "http://${args.url}:5000/users/${args.user.userID.toString()}/books/add?isbn=${args.book.ISBN}$bookshelfID$currentPage$completed$rating$title$author$description$totalPages$publishedDate");
-
-                    if (response.body == "added new BookInstance") {
-                      Navigator.popUntil(
-                          context, ModalRoute.withName(args.redirect));
-                      Navigator.pushReplacementNamed(context, args.redirect,
-                          arguments: args);
-                    }
-                  } on SocketException {
-                    print("Error connecting to server");
                   }
-                }
-              },
+                },
+              ),
+            ),
+            Visibility(
+              visible: args.redirect == "edit",
+              child: FlatButton(
+                child: Text(
+                  "Edit",
+                ),
+                onPressed: () async {
+                  if (_formKey.currentState.validate()) {
+                    try {
+                      String bookshelfID = "";
+                      if (args.book.bookshelfID == null) {
+                        bookshelfID = "";
+                      } else if (args.book.bookshelfID == -1) {
+                        bookshelfID = "";
+                      } else {
+                        bookshelfID = "&bookshelfID=${args.book.bookshelfID}";
+                      }
+
+                      if (args.book.currentPage == null) {
+                        args.book.currentPage = 1;
+                      }
+
+                      String currentPage =
+                          "&currentPage=${args.book.currentPage}";
+                      String completed = "&completed=$completedCheckBox";
+
+                      String title = "title=${args.book.title}";
+                      String author = "&author=${args.book.author}";
+                      String description =
+                          "&description=${args.book.description}";
+                      String totalPages = "&totalPages=${args.book.totalPages}";
+                      String publishedDate =
+                          "&publishedDate=${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
+
+                      if (!args.book.automaticallyScraped) {
+                        final response = await http.put(
+                            "http://${args.url}:5000/books/${args.book.ISBN}?$title$author$description$totalPages$publishedDate"
+                        );
+                        print(response.body);
+                      }
+
+                      final response = await http.put(
+                        "http://${args.url}:5000/users/${args.user.userID.toString()}/books/${args.book.bookInstanceID}/edit?currentPage=${args.book.currentPage}&completed=$completedCheckBox&bookshelfID=${args.book.bookshelfID}"
+                      );
+
+                      Navigator.pop(context);
+
+                      print(response.body);
+
+
+                      //
+                      // final response = await http.post(
+                      //     "http://${args.url}:5000/users/${args.user.userID.toString()}/books/add?isbn=${args.book.ISBN}$bookshelfID$currentPage$completed");
+                      //
+                      // if (response.body == "added new BookInstance") {
+                      //   Navigator.popUntil(
+                      //       context, ModalRoute.withName(args.redirect));
+                      //   Navigator.pushReplacementNamed(context, args.redirect,
+                      //       arguments: args);
+                      // }
+                    } on SocketException {
+                      print("Error connecting to server");
+                    }
+                  }
+                },
+              ),
             )
           ],
         ),
@@ -145,7 +236,7 @@ class _addBookState extends State<addBook> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextFormField(
-                    enabled: !scraped,
+                    enabled: false,
                     initialValue: args.book.ISBN.toString(),
                     decoration: InputDecoration(hintText: "ISBN"),
                     validator: (value) {
@@ -183,6 +274,7 @@ class _addBookState extends State<addBook> {
                   TextFormField(
                     enabled: !scraped,
                     initialValue: args.book.description,
+                    maxLines: 4,
                     decoration: InputDecoration(hintText: "Description"),
                     onChanged: (value) {
                       args.book.description = value;
@@ -261,22 +353,25 @@ class _addBookState extends State<addBook> {
                   SizedBox(
                     height: 10,
                   ),
-                  Container(
-                    // color: Colors.grey,
-                    child: RatingBar.builder(
-                        initialRating: 0,
-                        minRating: 0,
-                        direction: Axis.horizontal,
-                        allowHalfRating: true,
-                        itemCount: 5,
-                        itemPadding: EdgeInsets.symmetric(horizontal: 1),
-                        itemBuilder: (context, _) => Icon(
-                              Icons.star,
-                              color: Colors.amber,
-                            ),
-                        onRatingUpdate: (rating) async {
-                          args.book.rating = (rating * 2).toInt();
-                        }),
+                  Visibility(
+                    visible: args.redirect != "edit",
+                    child: Container(
+                      // color: Colors.grey,
+                      child: RatingBar.builder(
+                          initialRating: 0,
+                          minRating: 0,
+                          direction: Axis.horizontal,
+                          allowHalfRating: true,
+                          itemCount: 5,
+                          itemPadding: EdgeInsets.symmetric(horizontal: 1),
+                          itemBuilder: (context, _) => Icon(
+                                Icons.star,
+                                color: Colors.amber,
+                              ),
+                          onRatingUpdate: (rating) async {
+                            args.book.rating = (rating * 2).toInt();
+                          }),
+                    ),
                   ),
                   Visibility(
                     visible: args.bookshelfID == null,

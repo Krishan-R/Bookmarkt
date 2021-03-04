@@ -15,16 +15,15 @@ class Book(db.Model):
     __tablename__ = "Book"
     isbn = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(50))
-    # authorID = db.Column(db.Integer, db.ForeignKey("author.authorID"))
-    # author = db.relationship("Author", backref=db.backref("author_posts", lazy=True))
     authorName = db.Column(db.String(50))
     description = db.Column(db.String(2000))
     googleID = db.Column(db.String(20))
     thumbnail = db.Column(db.String(256))
     totalPages = db.Column(db.Integer)
     publishedDate = db.Column(db.String(16))
+    automaticallyScraped = db.Column(db.Boolean, default=False)
 
-    def __init__(self, isbn="", googleID="", title="", description=None, totalPages=1, author="", publishedDate=None):
+    def __init__(self, isbn="", googleID="", title="", description=None, totalPages=1, author=None, publishedDate=None):
         """
         :param isbn: String containing ISBN of book
         :param googleID: String containing Google Books ID of book
@@ -35,7 +34,6 @@ class Book(db.Model):
 
         self.title = title
         self.authorName = author
-        self.authorID = None
         self.description = description
         self.thumbnail = "Assets/bookThumbnails/default.jpg"
         self.totalPages = totalPages
@@ -62,6 +60,9 @@ class Book(db.Model):
             r = requests.get(
                 f"https://www.googleapis.com/books/v1/volumes?q=ISBN:{self.isbn}&orderBy={orderBy}&key={apiKey}")
 
+            r = requests.get(
+                f"https://www.googleapis.com/books/v1/volumes?q=isbn:{self.isbn}&orderBy={orderBy}")
+
             parsedJson = r.json()
 
             if parsedJson["totalItems"] > 0:
@@ -82,13 +83,16 @@ class Book(db.Model):
                         urllib.request.urlretrieve(parsedJson["items"][0]["volumeInfo"]["imageLinks"]["thumbnail"], f"Assets/bookThumbnails/{self.isbn}.jpg")
                         self.thumbnail = f"Assets/bookThumbnails/{self.isbn}.jpg"
 
-                        self.__addBookToAuthor()
+                        self.addBookToAuthor()
+                        self.automaticallyScraped = True
                     else:
-                        print(f"book not found with isbn: {self.isbn}. Not scraping fromn Google Books")
+                        print(f"book not found with isbn: {self.isbn}. Not scraping from Google Books")
                 except IndexError:
                     print("There was an issue scraping from google")
             else:
                 print(f"book not found with isbn: {self.isbn}")
+                if self.authorName is not None:
+                    self.addBookToAuthor()
         else:
             print("isbn empty")
 
@@ -113,7 +117,7 @@ class Book(db.Model):
                 self.description = parsedJson["items"][0]["volumeInfo"]["description"]
                 self.isbn = parsedJson["volumeInfo"]["industryIdentifiers"][1]["identifier"]
 
-                self.__addBookToAuthor()
+                self.addBookToAuthor()
             except KeyError:
                 print(f"book not found with google ID: {self.googleID}")
 
@@ -137,7 +141,7 @@ class Book(db.Model):
             }
         ]
 
-    def __addBookToAuthor(self):
+    def addBookToAuthor(self):
 
         # adds author to database if it doesnt already exist
         if Author.query.filter(Author.authorName == self.authorName).count() == 0:

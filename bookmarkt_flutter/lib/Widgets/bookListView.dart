@@ -2,8 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:bookmarkt_flutter/Models/book.dart';
+import 'package:bookmarkt_flutter/Models/bookshelf.dart';
 import 'package:bookmarkt_flutter/allBooks.dart';
 import 'package:bookmarkt_flutter/drawer.dart';
+import 'package:bookmarkt_flutter/library.dart';
 import 'package:bookmarkt_flutter/navigatorArguments.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -22,8 +24,11 @@ ListView bookListView(bookList, args) {
           height: 120,
           child: Card(
             child: InkWell(
-              onTap: () {
-                Navigator.pushNamed(context, '/book', arguments: NavigatorArguments(args.user, args.url, book: bookList[index]));
+              onTap: () async {
+
+                List<Bookshelf> bookshelfList = await getBookshelfList(args);
+
+                Navigator.pushNamed(context, '/book', arguments: NavigatorArguments(args.user, args.url, bookshelfList: bookshelfList, book: bookList[index]));
               },
               onLongPress: () {
                 print(bookList[index].title);

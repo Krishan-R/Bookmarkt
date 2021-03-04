@@ -21,4 +21,25 @@ class NavigatorArguments {
       this.book,
       this.bookshelfList,
       this.redirect});
+
+  void printStuff() {
+    print("=====");
+    print("username: ${user.username}");
+    print("url: $url");
+    print("bookshelfID: $bookshelfID");
+    print("bookshelfName: $bookshelfName");
+    print("bookInstanceID: $bookInstanceID");
+    print("book.title: ${book}");
+
+    print("BookshelfList: ");
+    if (bookshelfList != null && bookshelfList.isNotEmpty) {
+      for (Bookshelf bookshelf in bookshelfList) {
+        print(bookshelf.name);
+      }
+    }
+
+    print("redirect: $redirect");
+    print("=====");
+
+  }
 }
