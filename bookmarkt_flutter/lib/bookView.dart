@@ -18,7 +18,7 @@ class _bookViewState extends State<bookView> {
     final NavigatorArguments args = ModalRoute.of(context).settings.arguments;
 
     return SafeArea(
-      child: Scaffold(
+        child: Scaffold(
       appBar: AppBar(
         actions: <Widget>[
           PopupMenuButton<String>(
@@ -37,7 +37,8 @@ class _bookViewState extends State<bookView> {
               } else if (value == "Edit") {
                 //todo go to edit book view
                 args.redirect = "edit";
-                Navigator.pushNamed(context, '/addBook', arguments: args).then((value) => setState(() {}));
+                Navigator.pushNamed(context, '/addBook', arguments: args)
+                    .then((value) => setState(() {}));
               }
             },
             itemBuilder: (BuildContext context) {
@@ -56,32 +57,35 @@ class _bookViewState extends State<bookView> {
         child: Column(
           children: [
             bookHeader(args),
-            SizedBox(height: 10,),
+            SizedBox(
+              height: 10,
+            ),
             InkWell(
               onTap: () {
-                showDialog(context: context,
-                builder: (context) {
-                  return StatefulBuilder(builder: (context, setState) {
-                    return AlertDialog(
-                      content: Expanded(
-                        child: SingleChildScrollView(
-                          child: Text(
-                              args.book.description,
-                            style: TextStyle(
-                              fontSize: 15
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      return StatefulBuilder(builder: (context, setState) {
+                        return AlertDialog(
+                          content: Expanded(
+                            child: SingleChildScrollView(
+                              child: Text(
+                                args.book.description,
+                                style: TextStyle(fontSize: 15),
+                              ),
                             ),
                           ),
-                        ),
-                      ),
-                      actions: [
-                        FlatButton(
-                          child: Text("OK"),
-                          onPressed: () {Navigator.pop(context);},
-                        )
-                      ],
-                    );
-                  });
-                });
+                          actions: [
+                            FlatButton(
+                              child: Text("OK"),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                            )
+                          ],
+                        );
+                      });
+                    });
               },
               child: Text(
                 args.book.description,
@@ -162,7 +166,9 @@ class _bookViewState extends State<bookView> {
                     color: Theme.of(context).primaryColor),
                 FlatButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, '/readingSession', arguments: args).then((value) => setState((){}));
+                    Navigator.pushNamed(context, '/readingSession',
+                            arguments: args)
+                        .then((value) => setState(() {}));
                   },
                   child: Text("Start Reading Session",
                       style: TextStyle(color: Colors.white)),
@@ -385,4 +391,3 @@ addReadingSessionAlert(BuildContext context, NavigatorArguments args) {
         });
       });
 }
-
