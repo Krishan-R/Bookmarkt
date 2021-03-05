@@ -65,6 +65,8 @@ class _addBookState extends State<addBook> {
         }
 
         if (args.book.description == "null") args.book.description = "";
+        if (args.book.rating == null) args.book.rating = 0;
+
         currentPageController.text =  args.book.currentPage.toString();
 
       } else {
@@ -73,6 +75,7 @@ class _addBookState extends State<addBook> {
 
         if (args.book.currentPage == null) args.book.currentPage = 1;
 
+        if (args.book.rating == null) args.book.rating = 0;
 
       }
 
@@ -207,17 +210,6 @@ class _addBookState extends State<addBook> {
 
                       print(response.body);
 
-
-                      //
-                      // final response = await http.post(
-                      //     "http://${args.url}:5000/users/${args.user.userID.toString()}/books/add?isbn=${args.book.ISBN}$bookshelfID$currentPage$completed");
-                      //
-                      // if (response.body == "added new BookInstance") {
-                      //   Navigator.popUntil(
-                      //       context, ModalRoute.withName(args.redirect));
-                      //   Navigator.pushReplacementNamed(context, args.redirect,
-                      //       arguments: args);
-                      // }
                     } on SocketException {
                       print("Error connecting to server");
                     }

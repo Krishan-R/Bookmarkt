@@ -56,7 +56,38 @@ class _bookViewState extends State<bookView> {
         child: Column(
           children: [
             bookHeader(args),
-            // pages/time read counter
+            SizedBox(height: 10,),
+            InkWell(
+              onTap: () {
+                showDialog(context: context,
+                builder: (context) {
+                  return StatefulBuilder(builder: (context, setState) {
+                    return AlertDialog(
+                      content: Expanded(
+                        child: SingleChildScrollView(
+                          child: Text(
+                              args.book.description,
+                            style: TextStyle(
+                              fontSize: 15
+                            ),
+                          ),
+                        ),
+                      ),
+                      actions: [
+                        FlatButton(
+                          child: Text("OK"),
+                          onPressed: () {Navigator.pop(context);},
+                        )
+                      ],
+                    );
+                  });
+                });
+              },
+              child: Text(
+                args.book.description,
+                maxLines: 3,
+              ),
+            ),
             Container(
               height: 100,
               // color: Colors.pink,
