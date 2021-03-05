@@ -66,16 +66,13 @@ class _addBookState extends State<addBook> {
 
         if (args.book.description == "null") args.book.description = "";
         if (args.book.rating == null) args.book.rating = 0;
-
-        currentPageController.text =  args.book.currentPage.toString();
+        if (args.book.currentPage != null) currentPageController.text =  args.book.currentPage.toString();
 
       } else {
         print("not scraped");
         if (args.book.totalPages == null) args.book.totalPages = 1;
-
-        if (args.book.currentPage == null) args.book.currentPage = 1;
-
         if (args.book.rating == null) args.book.rating = 0;
+        if (args.book.currentPage != null) currentPageController.text =  args.book.currentPage.toString();
 
       }
 
