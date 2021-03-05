@@ -45,5 +45,17 @@
         </list>
       </option>
     </inspection_tool>
+    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredIdentifiers">
+        <list>
+          <option value="bookshelf.Bookshelf.*" />
+          <option value="author.Author.*" />
+          <option value="book.Book.*" />
+          <option value="user.User.*" />
+          <option value="bookInstance.BookInstance.*" />
+          <option value="readingSession.ReadingSession.*" />
+        </list>
+      </option>
+    </inspection_tool>
   </profile>
 </component>

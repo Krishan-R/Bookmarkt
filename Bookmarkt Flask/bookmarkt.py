@@ -20,13 +20,13 @@ app.config["DEBUG"] = True
 
 if Path("/database").is_dir():
     file_path = "/database/database.db"
-    app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///'+file_path
+    app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///' + file_path
 
 else:
     file_path = os.path.abspath(os.getcwd()) + "/database/database.db"
 
 print(f"database path is {file_path}")
-app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///'+file_path
+app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///' + file_path
 
 db.init_app(app)
 
@@ -37,7 +37,6 @@ def encryptPassword(password):
 
 @app.route('/', methods=["GET"])
 def home():
-
     print(f"database path is {file_path}")
 
     try:
@@ -54,13 +53,11 @@ def home():
         db.drop_all()
         db.create_all()
 
-
     return "True", 200
 
 
 @app.route('/users/all', methods=["GET"])
 def getAllUsers():
-
     jsonList = []
     try:
         for user in User.query.all():
@@ -77,7 +74,6 @@ def getAllUsers():
 
 @app.route('/users/<userID>', methods=["GET"])
 def getSpecificUser(userID):
-
     if User.query.filter(User.id == userID).first() is None:
         return "User does not exist", 422
 
@@ -97,7 +93,6 @@ def getSpecificUser(userID):
 
 @app.route('/users/<userID>/books/all', methods=["GET"])
 def getAllUserBooks(userID):
-
     bookInstance = BookInstance.query.filter(BookInstance.userID == userID).first()
     if bookInstance is None:
         return "No books", 200
@@ -138,7 +133,6 @@ def getAllUserBooks(userID):
 
 @app.route("/users/<userID>/books/<bookInstanceID>", methods=["GET"])
 def getSpecificUserBook(userID, bookInstanceID):
-
     userID = int(userID)
     bookInstanceID = int(bookInstanceID)
 
@@ -184,7 +178,6 @@ def getSpecificUserBook(userID, bookInstanceID):
 
 @app.route("/bookinstance/all", methods=["GET"])
 def getAllBookInstances():
-
     JsonList = []
 
     for index, instance in enumerate(BookInstance.query.all()):
@@ -219,7 +212,6 @@ def getAllBookInstances():
 
 @app.route("/users/<userID>/books/add", methods=["POST"])
 def addUserBook(userID):
-
     isbn = request.args.get("isbn", None)
     currentPage = request.args.get("currentPage", None)
     completed = request.args.get("completed", None)
@@ -251,7 +243,7 @@ def addUserBook(userID):
         try:
             bookshelfID = int(bookshelfID)
 
-            #checks to see if bookshelf exists and belongs to that user
+            # checks to see if bookshelf exists and belongs to that user
             bookshelf = Bookshelf.query.filter(Bookshelf.bookshelfID == bookshelfID).first()
             if bookshelf is None:
                 return "Bookshelf does not not exist", 422
@@ -280,7 +272,8 @@ def addUserBook(userID):
     # if completed:
     #     currentPage = totalPages
 
-    newBookInstance = BookInstance(isbn, userID, completed=completed, currentPage=currentPage, bookshelfID=bookshelfID, rating=rating, totalTimeRead=totalTimeRead)
+    newBookInstance = BookInstance(isbn, userID, completed=completed, currentPage=currentPage, bookshelfID=bookshelfID,
+                                   rating=rating, totalTimeRead=totalTimeRead)
     db.session.add(newBookInstance)
     db.session.commit()
 
@@ -289,7 +282,6 @@ def addUserBook(userID):
 
 @app.route('/users/<userID>/books/<bookInstanceID>/edit', methods=["PUT"])
 def updateBookInstance(userID, bookInstanceID):
-
     userID = int(userID)
 
     currentPage = request.args.get("currentPage", None)
@@ -356,7 +348,6 @@ def updateBookInstance(userID, bookInstanceID):
 
 @app.route("/bookinstance/delete", methods=["DELETE"])
 def deleteBookInstance():
-
     bookInstanceID = request.args.get("bookInstanceID", None)
 
     if BookInstance.query.filter(BookInstance.bookInstanceID == bookInstanceID).first() is None:
@@ -370,7 +361,6 @@ def deleteBookInstance():
 
 @app.route("/users/<userID>/books/delete", methods=["DELETE"])
 def deleteUserBookInstance(userID):
-
     bookInstanceID = request.args.get("bookInstanceID", None)
 
     bookInstance = BookInstance.query.filter(BookInstance.bookInstanceID == bookInstanceID).first()
@@ -390,7 +380,6 @@ def deleteUserBookInstance(userID):
 
 @app.route("/users/<userID>/books/delete/all", methods=["DELETE"])
 def deleteAllUserBook(userID):
-
     BookInstance.query.filter(BookInstance.userID == userID).delete()
     db.session.commit()
 
@@ -399,7 +388,6 @@ def deleteAllUserBook(userID):
 
 @app.route("/users/<userID>/books/<bookInstanceID>/read", methods=["POST"])
 def addReadingSession(userID, bookInstanceID):
-
     pagesRead = request.args.get("pagesRead", None)
     timeRead = request.args.get("timeRead", None)
     date = request.args.get("date", datetime.date.today())
@@ -452,7 +440,6 @@ def addReadingSession(userID, bookInstanceID):
 
 @app.route('/users/add', methods=["POST"])
 def addNewUser():
-
     newUsername = request.args.get("username", None)
     email = request.args.get("email", None)
     password = request.args.get("password", None)
@@ -483,7 +470,6 @@ def addNewUser():
 
 @app.route("/users/<userID>/delete", methods=["DELETE"])
 def deleteUser(userID):
-
     User.query.filter(User.id == userID).delete()
     Bookshelf.query.filter(Bookshelf.userID == userID).delete()
     BookInstance.query.filter(BookInstance.userID == userID).delete()
@@ -495,7 +481,6 @@ def deleteUser(userID):
 
 @app.route("/login", methods=["GET"])
 def login():
-
     username = request.args.get("username", None)
     password = request.args.get("password", None)
 
@@ -524,7 +509,6 @@ def login():
 
 @app.route('/dropDatabase', methods=["DELETE"])
 def dropDatabase():
-
     db.drop_all()
 
     return "dropped database", 200
@@ -532,7 +516,6 @@ def dropDatabase():
 
 @app.route("/createDatabase", methods=["POST"])
 def createDatabase():
-
     db.create_all()
 
     return "created database", 200
@@ -540,7 +523,6 @@ def createDatabase():
 
 @app.route("/books/all", methods=["GET"])
 def getAllBooks():
-
     jsonList = []
     try:
         for book in Book.query.all():
@@ -562,9 +544,9 @@ def getAllBooks():
 
     return jsonify(jsonList), 200
 
+
 @app.route("/books/<isbn>", methods=["PUT"])
 def updateBook(isbn):
-
     title = request.args.get("title", None)
     author = request.args.get("author", None)
     description = request.args.get("description", None)
@@ -591,7 +573,6 @@ def updateBook(isbn):
     if publishedDate is not None:
         book.publishedDate = publishedDate
 
-
     book.addBookToAuthor()
     db.session.commit()
 
@@ -601,13 +582,12 @@ def updateBook(isbn):
 
     return "Updated Book Instance", 200
 
+
 @app.route("/users/<userID>/bookshelf/all", methods=["GET"])
 def getAllUserBookshelves(userID):
-
     jsonList = []
     try:
         for bookshelf in Bookshelf.query.filter(Bookshelf.userID == userID):
-
             jsonList.append({
                 "bookshelfID": bookshelf.bookshelfID,
                 "name": bookshelf.name,
@@ -621,11 +601,9 @@ def getAllUserBookshelves(userID):
 
 @app.route("/bookshelf/all", methods=["GET"])
 def getAllBookshelves():
-
     jsonList = []
     try:
         for bookshelf in Bookshelf.query.all():
-
             jsonList.append({
                 "bookshelfID": bookshelf.bookshelfID,
                 "name": bookshelf.name,
@@ -640,7 +618,6 @@ def getAllBookshelves():
 
 @app.route("/users/<userID>/bookshelf/add", methods=["POST"])
 def addNewBookshelf(userID):
-
     bookshelfName = request.args.get("name", None)
 
     if bookshelfName is None:
@@ -655,7 +632,6 @@ def addNewBookshelf(userID):
 
 @app.route("/users/<userID>/bookshelf/<bookshelfID>/rename", methods=["PUT"])
 def renameBookshelf(userID, bookshelfID):
-
     newName = request.args.get("name", None)
     bookshelfID = int(bookshelfID)
     userID = int(userID)
@@ -673,7 +649,6 @@ def renameBookshelf(userID, bookshelfID):
 
 @app.route("/users/<userID>/bookshelf/<bookshelfID>/delete", methods=["DELETE"])
 def deleteBookshelf(userID, bookshelfID):
-
     newName = request.args.get("name", None)
     bookshelfID = int(bookshelfID)
     userID = int(userID)
@@ -682,7 +657,6 @@ def deleteBookshelf(userID, bookshelfID):
 
     if bookshelf.userID != userID:
         return "Bookshelf does not belong to that user", 403
-
 
     for bookInstance in BookInstance.query.filter(BookInstance.bookshelfID == bookshelfID):
         bookInstance.bookshelfID = None
@@ -696,7 +670,6 @@ def deleteBookshelf(userID, bookshelfID):
 
 @app.route("/users/<userID>/bookshelf/<bookshelfID>", methods=["GET"])
 def getBooksFromBookshelf(userID, bookshelfID):
-
     JsonList = []
 
     bookshelf = Bookshelf.query.filter(Bookshelf.bookshelfID == bookshelfID).first()
@@ -743,7 +716,6 @@ def getBooksFromBookshelf(userID, bookshelfID):
 
 @app.route("/users/<userID>/bookshelf/<bookshelfID>/add", methods=["POST"])
 def addBookToBookshelf(userID, bookshelfID):
-
     bookInstanceID = request.args.get("bookInstanceID")
 
     bookInstance = BookInstance.query.filter(BookInstance.bookInstanceID == bookInstanceID).first()
@@ -766,7 +738,6 @@ def addBookToBookshelf(userID, bookshelfID):
 
 @app.route("/authors/all", methods=["GET"])
 def getAllAuthors():
-
     JsonList = []
 
     for index, author in enumerate(Author.query.all()):
@@ -795,7 +766,6 @@ def getAllAuthors():
 
 @app.route("/authors/<authorID>", methods=["GET"])
 def getSpecificAuthor(authorID):
-
     author = Author.query.filter(Author.authorID == authorID).first()
 
     if author is None:
@@ -822,9 +792,9 @@ def getSpecificAuthor(authorID):
 
     return jsonify(JsonList), 200
 
+
 @app.route("/getThumbnail", methods=["GET"])
 def getThumbnail():
-
     try:
         path = request.args.get("path", None)
         return send_file(path, mimetype="image/gif"), 200
@@ -872,20 +842,49 @@ def scrapeBook():
     }), 200
 
 
+@app.route("/users/<userID>/books/<bookInstanceID>/stats", methods=["GET"])
+def getBookInstanceStats(userID, bookInstanceID):
+    userID = int(userID)
+    bookInstanceID = int(bookInstanceID)
 
+    time = request.args.get("time", 30)
 
+    time = int(time)
 
+    bookInstance = BookInstance.query.filter(BookInstance.bookInstanceID == bookInstanceID).first()
 
+    if bookInstance.userID != userID:
+        return "Book Instance does not belong to that user", 403
 
+    returnJson = {
+        "totalTimeRead": 0,
+        "totalPagesRead": 0,
+        "statistics": {
+            "time": [],
+            "pages": []
+        }
+    }
 
+    start_date = (datetime.datetime.now() - datetime.timedelta(days=time)).date()
+    end_date = datetime.date.today()
+    delta = datetime.timedelta(days=1)
+    while start_date <= end_date:
 
+        time = 0
+        pages = 0
+        for record in ReadingSession.query \
+                .filter(ReadingSession.bookInstanceID == bookInstanceID) \
+                .filter(ReadingSession.date == start_date) \
+                .all():
+            time += record.timeRead
+            pages += record.pagesRead
+            returnJson["totalTimeRead"] += record.timeRead
+            returnJson["totalPagesRead"] += record.pagesRead
+            print(record.timeRead, record.date)
 
+        returnJson["statistics"]["time"].append({start_date.strftime("%Y-%m-%d"): time})
+        returnJson["statistics"]["pages"].append({start_date.strftime("%Y-%m-%d"): pages})
 
+        start_date += delta
 
-
-
-
-
-
-
-
+    return returnJson, 200
