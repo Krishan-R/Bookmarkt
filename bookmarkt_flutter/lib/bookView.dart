@@ -1,4 +1,8 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:bookmarkt_flutter/navigatorArguments.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -16,6 +20,10 @@ class _bookViewState extends State<bookView> {
   @override
   Widget build(BuildContext context) {
     final NavigatorArguments args = ModalRoute.of(context).settings.arguments;
+
+    var data = 0;
+
+    // List<FlSpot> graphData = getReadingStatistics(args);
 
     return SafeArea(
         child: Scaffold(
@@ -175,7 +183,40 @@ class _bookViewState extends State<bookView> {
                   color: Theme.of(context).primaryColor,
                 ),
               ],
-            )
+            ),
+            Text("Time Spent Reading - 30 Days"),
+            FutureBuilder(
+              future: getReadingStatistics(args),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return Stack(
+                    children: <Widget>[
+                      AspectRatio(
+                        aspectRatio: 1.70,
+                        child: Container(
+                          decoration: const BoxDecoration(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(18),
+                              ),
+                              color: Color(0xff232d37)),
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                                right: 18.0, left: 12.0, top: 24, bottom: 12),
+                            child: LineChart(
+                              mainData(snapshot.data),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                } else if (snapshot.hasError) {
+                  return Text("${snapshot.error}");
+                }
+                return CircularProgressIndicator();
+              }
+
+            ),
           ],
         ),
       ),
@@ -390,4 +431,129 @@ addReadingSessionAlert(BuildContext context, NavigatorArguments args) {
           );
         });
       });
+}
+
+LineChartData mainData(data) {
+  List<Color> gradientColors = [
+    const Color(0xff23b6e6),
+    const Color(0xff02d39a),
+  ];
+
+  return LineChartData(
+    gridData: FlGridData(
+      show: true,
+      drawVerticalLine: true,
+      getDrawingHorizontalLine: (value) {
+        return FlLine(
+          color: const Color(0xff37434d),
+          strokeWidth: 1,
+        );
+      },
+      getDrawingVerticalLine: (value) {
+        return FlLine(
+          color: const Color(0xff37434d),
+          strokeWidth: 1,
+        );
+      },
+    ),
+    titlesData: FlTitlesData(
+      show: true,
+      bottomTitles: SideTitles(
+        rotateAngle: 0,
+        showTitles: true,
+        reservedSize: 22,
+        getTextStyles: (value) => const TextStyle(
+            color: Color(0xff68737d),
+            fontWeight: FontWeight.bold,
+            fontSize: 14),
+        getTitles: (value) {
+
+          if (value % 7 == 0) return data["dateData"][value].substring(5, data["dateData"][value].length).replaceAll("-", "/");
+
+          return '';
+        },
+        margin: 8,
+      ),
+      leftTitles: SideTitles(
+        showTitles: true,
+        getTextStyles: (value) => const TextStyle(
+          color: Color(0xff67727d),
+          fontWeight: FontWeight.bold,
+          fontSize: 15,
+        ),
+        getTitles: (value) {
+
+          if (data["maxY"] >= 200) {
+            if (value % 50 == 0) return value.toInt().toString();
+          } else if (data["maxY"] >= 100) {
+            if (value % 25 == 0) return value.toInt().toString();
+          } else if (data["maxY"] >= 50) {
+            if (value % 25 == 0) return value.toInt().toString();
+          }
+
+          return '';
+        },
+        reservedSize: 28,
+        margin: 12,
+      ),
+    ),
+    borderData: FlBorderData(
+        show: true,
+        border: Border.all(color: const Color(0xff37434d), width: 1)),
+    minX: 0,
+    maxX: data["maxX"],
+    minY: 0,
+    maxY: data["maxY"],
+    lineBarsData: [
+      LineChartBarData(
+        spots: data["timeData"],
+        isCurved: false,
+        colors: gradientColors,
+        barWidth: 2,
+        isStrokeCapRound: true,
+        dotData: FlDotData(
+          show: false,
+        ),
+        belowBarData: BarAreaData(
+          show: true,
+          colors:
+              gradientColors.map((color) => color.withOpacity(0.3)).toList(),
+        ),
+      ),
+    ],
+  );
+}
+
+Future<Map> getReadingStatistics(NavigatorArguments args) async {
+
+  List<FlSpot> timeList = [];
+  Map dateData = {};
+
+  try {
+
+    final response = await http.get("http://${args.url}:5000/users/${args.user.userID}/books/${args.book.bookInstanceID}/stats?time=30");
+
+    Iterable i = json.decode(response.body)["statistics"]["time"];
+
+    double maxY = 0;
+    double xValue = 0;
+    for (var val in i) {
+
+      timeList.add(FlSpot(xValue, val["time"].toDouble()));
+      dateData[xValue] = val["date"];
+
+      if (val["time"].toDouble() > maxY) maxY = val["time"].toDouble();
+      xValue += 1;
+    }
+
+    Map returnData = {"maxX": xValue.toDouble(), "maxY": maxY, "timeData": timeList, "dateData": dateData};
+
+    print(returnData);
+
+    return returnData;
+
+  } on SocketException {
+    print("error connecting to server");
+  }
+
 }
