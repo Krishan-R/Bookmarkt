@@ -189,6 +189,11 @@ class _bookViewState extends State<bookView> {
               future: getReadingStatistics(args),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
+
+                  if (snapshot.data["maxY"] == 0) {
+                    return Text("Please read to show history");
+                  }
+
                   return Stack(
                     children: <Widget>[
                       AspectRatio(
@@ -440,6 +445,9 @@ LineChartData mainData(data) {
   ];
 
   return LineChartData(
+    lineTouchData: LineTouchData(
+      enabled: true,
+    ),
     gridData: FlGridData(
       show: true,
       drawVerticalLine: true,
@@ -489,6 +497,8 @@ LineChartData mainData(data) {
             if (value % 25 == 0) return value.toInt().toString();
           } else if (data["maxY"] >= 50) {
             if (value % 25 == 0) return value.toInt().toString();
+          } else if (data["maxY"] >= 10) {
+            if (value % 10 == 0) return value.toInt().toString();
           }
 
           return '';
@@ -546,9 +556,7 @@ Future<Map> getReadingStatistics(NavigatorArguments args) async {
       xValue += 1;
     }
 
-    Map returnData = {"maxX": xValue.toDouble(), "maxY": maxY, "timeData": timeList, "dateData": dateData};
-
-    print(returnData);
+    Map returnData = {"maxX": xValue.toDouble()-1, "maxY": maxY, "timeData": timeList, "dateData": dateData};
 
     return returnData;
 
