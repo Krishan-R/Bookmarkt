@@ -45,6 +45,7 @@ def home():
             db.drop_all()
             db.create_all()
     except FileNotFoundError:
+        print("database not found, creating")
         os.mkdir(file_path.replace("/database.db", ""))
         db.drop_all()
         db.create_all()
@@ -880,11 +881,75 @@ def getBookInstanceStats(userID, bookInstanceID):
             pages += record.pagesRead
             returnJson["totalTimeRead"] += record.timeRead
             returnJson["totalPagesRead"] += record.pagesRead
-            print(record.timeRead, record.date)
 
-        returnJson["statistics"]["time"].append({start_date.strftime("%Y-%m-%d"): time})
-        returnJson["statistics"]["pages"].append({start_date.strftime("%Y-%m-%d"): pages})
+        returnJson["statistics"]["time"].append({"date": start_date.strftime("%Y-%m-%d"), "time": time})
+        returnJson["statistics"]["pages"].append({"date": start_date.strftime("%Y-%m-%d"), "pages": pages})
 
         start_date += delta
+
+    return returnJson, 200
+
+
+@app.route("/users/<userID>/stats/weekly", methods=["GET"])
+def getUserWeeklyStats(userID):
+    userID = int(userID)
+
+    time = request.args.get("time", 30)
+
+    time = int(time)
+
+    start_date = (datetime.datetime.now() - datetime.timedelta(days=time)).date()
+    end_date = datetime.date.today()
+    delta = datetime.timedelta(days=1)
+
+    returnJson = {
+        "userID": userID,
+        "stats": [
+            {
+                "day": "monday",
+                "time": 0,
+                "page": 0
+            },
+            {
+                "day": "tuesday",
+                "time": 0,
+                "page": 0
+            },
+            {
+                "day": "wednesday",
+                "time": 0,
+                "page": 0
+            },
+            {
+                "day": "thursday",
+                "time": 0,
+                "page": 0
+            },
+            {
+                "day": "friday",
+                "time": 0,
+                "page": 0
+            },
+            {
+                "day": "saturday",
+                "time": 0,
+                "page": 0
+            },
+            {
+                "day": "sunday",
+                "time": 0,
+                "page": 0
+            },
+
+        ]
+    }
+
+    for session in ReadingSession.query.filter(ReadingSession.userID == userID) \
+            .filter(ReadingSession.date >= start_date) \
+            .all():
+
+        returnJson["stats"][session.date.weekday()]["time"] += session.timeRead
+        returnJson["stats"][session.date.weekday()]["page"] += session.pagesRead
+    # print(returnJson["stats"])
 
     return returnJson, 200
