@@ -17,6 +17,8 @@ class bookView extends StatefulWidget {
 }
 
 class _bookViewState extends State<bookView> {
+  int graphDuration = 30;
+
   @override
   Widget build(BuildContext context) {
     final NavigatorArguments args = ModalRoute.of(context).settings.arguments;
@@ -181,19 +183,71 @@ class _bookViewState extends State<bookView> {
                 ),
               ],
             ),
-
+            Divider(thickness: 2,),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "History",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text("last"),
+                    Container(
+                        width: 40,
+                        child: TextFormField(
+                          decoration: new InputDecoration(
+                            border: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            errorBorder: InputBorder.none,
+                            disabledBorder: InputBorder.none,
+                          ),
+                          initialValue: graphDuration.toString(),
+                          textAlign: TextAlign.center,
+                          keyboardType: TextInputType.number,
+                          onChanged: (value) {
+                            setState(() {
+                              // if 0, graphs are removed due to lack of data
+                              if (int.parse(value) == 0) {
+                                graphDuration = 1;
+                              } else {
+                                graphDuration = int.parse(value);
+                              }
+                            });
+                          },
+                        )),
+                    Text("days")
+                  ],
+                ),
+              ],
+            ),
             FutureBuilder(
-                future: getReadingStatistics(args),
+                future: getReadingStatistics(args, graphDuration),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     if (snapshot.data["timeData"]["maxY"] == 0) {
-                      return Text("Please read to show history");
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+
+                          Text("No reading data found for this time period"),
+                        ],
+                      );
                     }
                     return Column(
                       children: [
+
+
                         Text(
-                          "Time Spent Reading - 30 Days",
-                          textAlign: TextAlign.center,
+                          "Time Spent Reading",
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(
+                          height: 5,
                         ),
                         Stack(
                           children: <Widget>[
@@ -220,11 +274,15 @@ class _bookViewState extends State<bookView> {
                           ],
                         ),
                         SizedBox(
-                          height: 10,
+                          height: 5,
                         ),
                         Text(
-                          "Pages Read - 30 Days",
-                          textAlign: TextAlign.center,
+                          "Pages Read",
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(
+                          height: 5,
                         ),
                         Stack(
                           children: <Widget>[
@@ -403,16 +461,17 @@ addReadingSessionAlert(BuildContext context, NavigatorArguments args) {
                       },
                     ),
                     FlatButton(
-                      child: Text("${duration.inHours.toString().padLeft(2, '0')} : ${(duration.inMinutes % 60).toString().padLeft(2, '0')}"),
+                      child: Text(
+                          "${duration.inHours.toString().padLeft(2, '0')} : ${(duration.inMinutes % 60).toString().padLeft(2, '0')}"),
                       onPressed: () {
                         showModalBottomSheet(
                           context: context,
                           builder: (BuildContext builder) {
                             return Container(
                               height: MediaQuery.of(context)
-                                  .copyWith()
-                                  .size
-                                  .height /
+                                      .copyWith()
+                                      .size
+                                      .height /
                                   3,
                               child: CupertinoTimerPicker(
                                 mode: CupertinoTimerPickerMode.hm,
@@ -648,14 +707,14 @@ LineChartData pagesReadData(data) {
   );
 }
 
-Future<Map> getReadingStatistics(NavigatorArguments args) async {
+Future<Map> getReadingStatistics(NavigatorArguments args, int duration) async {
   List<FlSpot> timeList = [];
   List<FlSpot> pageList = [];
   Map dateData = {};
 
   try {
     final response = await http.get(
-        "http://${args.url}:5000/users/${args.user.userID}/books/${args.book.bookInstanceID}/stats?time=30");
+        "http://${args.url}:5000/users/${args.user.userID}/books/${args.book.bookInstanceID}/stats?time=${duration - 1}");
 
     Iterable time = json.decode(response.body)["statistics"]["time"];
 
@@ -697,7 +756,7 @@ Future<Map> getReadingStatistics(NavigatorArguments args) async {
       "dateData": dateData,
       "pageData": pageData
     };
-    
+
     return returnData;
   } on SocketException {
     print("error connecting to server");

@@ -5,6 +5,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 class myDrawer extends StatelessWidget {
   myDrawer(this.args);
+
   final NavigatorArguments args;
 
   @override
@@ -20,42 +21,51 @@ class myDrawer extends StatelessWidget {
               children: [
                 Text(
                   args.user.username,
-                  style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.white),
+                  style: TextStyle(
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
                 ),
                 Text(
                   args.user.email,
-                  style: TextStyle(
-                    fontSize: 15,
-                      color: Colors.white
-                  ),
+                  style: TextStyle(fontSize: 15, color: Colors.white),
                 )
               ],
             ),
             decoration: BoxDecoration(
                 color: Colors.blue,
-              image: DecorationImage(
-                image: AssetImage("lib/Assets/drawerImg.jpg"),
-                fit: BoxFit.cover
-              )
-            ),
+                image: DecorationImage(
+                    image: AssetImage("lib/Assets/drawerImg.jpg"),
+                    fit: BoxFit.cover)),
           ),
           ListTile(
             title: Text("Home"),
             onTap: () {
-              Navigator.pushNamedAndRemoveUntil(context, "/home", (route) => false, arguments: NavigatorArguments(args.user, args.url));
+              Navigator.pushNamedAndRemoveUntil(
+                  context, "/home", (route) => false,
+                  arguments: NavigatorArguments(args.user, args.url));
             },
           ),
           ListTile(
             title: Text("Library"),
             onTap: () {
-              Navigator.pushNamedAndRemoveUntil(context, "/library", (route) => false, arguments: NavigatorArguments(args.user, args.url));
+              Navigator.pushNamedAndRemoveUntil(
+                  context, "/library", (route) => false,
+                  arguments: NavigatorArguments(args.user, args.url));
             },
           ),
           ListTile(
             title: Text("Books"),
             onTap: () {
-              Navigator.pushNamedAndRemoveUntil(context, "/allBooks", (route) => false, arguments: NavigatorArguments(args.user, args.url));
+              Navigator.pushNamedAndRemoveUntil(
+                  context, "/allBooks", (route) => false,
+                  arguments: NavigatorArguments(args.user, args.url));
             },
+          ),
+          Divider(
+            thickness: 2,
+            indent: 15,
+            endIndent: 15,
           ),
           ListTile(
             title: Text("Logout"),
@@ -102,5 +112,3 @@ logOutAlertDialog(BuildContext context) {
     },
   );
 }
-
-
