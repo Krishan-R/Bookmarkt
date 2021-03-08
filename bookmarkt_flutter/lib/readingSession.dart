@@ -97,7 +97,8 @@ class _readingSessionState extends State<readingSession> {
                                     },
                                   ),
                                 );
-                              });
+                              },
+                          );
                         },
                       ),
                     ],

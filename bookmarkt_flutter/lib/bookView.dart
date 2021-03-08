@@ -345,10 +345,10 @@ Container bookHeader(args) {
 
 addReadingSessionAlert(BuildContext context, NavigatorArguments args) {
   TextEditingController pagesReadController = new TextEditingController();
-  TextEditingController hoursController = new TextEditingController();
-  TextEditingController minutesController = new TextEditingController();
 
   DateTime selectedDate = DateTime.now();
+
+  Duration duration = new Duration();
 
   final _formKey = GlobalKey<FormState>();
 
@@ -365,8 +365,7 @@ addReadingSessionAlert(BuildContext context, NavigatorArguments args) {
       if (_formKey.currentState.validate()) {
         String pagesRead = pagesReadController.text;
 
-        int timeRead = (int.parse(hoursController.text) * 60) +
-            int.parse(minutesController.text);
+        int timeRead = duration.inMinutes;
         args.book.totalTimeRead += timeRead;
 
         final response = await http.post(
@@ -408,49 +407,80 @@ addReadingSessionAlert(BuildContext context, NavigatorArguments args) {
                         return null;
                       },
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 60,
-                          padding: EdgeInsets.zero,
-                          child: TextFormField(
-                            controller: hoursController,
-                            textAlign: TextAlign.center,
-                            decoration: InputDecoration(
-                                hintText: "HH",
-                                contentPadding: EdgeInsets.zero),
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [
-                              new LengthLimitingTextInputFormatter(2)
-                            ],
-                            validator: (value) {
-                              if (value.isEmpty) return "Cannot be empty";
-                              return null;
-                            },
-                          ),
-                        ),
-                        Text(":"),
-                        Container(
-                          width: 60,
-                          padding: EdgeInsets.zero,
-                          child: TextFormField(
-                            controller: minutesController,
-                            textAlign: TextAlign.center,
-                            decoration: InputDecoration(hintText: "MM"),
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [
-                              new LengthLimitingTextInputFormatter(2)
-                            ],
-                            validator: (value) {
-                              if (value.isEmpty) return "Cannot be empty";
-                              if (int.parse(value) >= 60) return "Too Large";
-                              return null;
-                            },
-                          ),
-                        )
-                      ],
+                    FlatButton(
+                      child: Text("${duration.inHours.toString().padLeft(2, '0')} : ${(duration.inMinutes % 60).toString().padLeft(2, '0')}"),
+                      onPressed: () {
+                        showModalBottomSheet(
+                          context: context,
+                          builder: (BuildContext builder) {
+                            return Container(
+                              height: MediaQuery.of(context)
+                                  .copyWith()
+                                  .size
+                                  .height /
+                                  3,
+                              child: CupertinoTimerPicker(
+                                mode: CupertinoTimerPickerMode.hm,
+                                initialTimerDuration: duration,
+                                onTimerDurationChanged: (value) {
+                                  setState(() {
+                                    duration = value;
+                                  });
+                                },
+                              ),
+                            );
+                          },
+                        );
+                      },
                     ),
+
+
+
+
+
+                    // Row(
+                    //   mainAxisAlignment: MainAxisAlignment.center,
+                    //   children: [
+                    //     Container(
+                    //       width: 60,
+                    //       padding: EdgeInsets.zero,
+                    //       child: TextFormField(
+                    //         controller: hoursController,
+                    //         textAlign: TextAlign.center,
+                    //         decoration: InputDecoration(
+                    //             hintText: "HH",
+                    //             contentPadding: EdgeInsets.zero),
+                    //         keyboardType: TextInputType.number,
+                    //         inputFormatters: [
+                    //           new LengthLimitingTextInputFormatter(2)
+                    //         ],
+                    //         validator: (value) {
+                    //           if (value.isEmpty) return "Cannot be empty";
+                    //           return null;
+                    //         },
+                    //       ),
+                    //     ),
+                    //     Text(":"),
+                    //     Container(
+                    //       width: 60,
+                    //       padding: EdgeInsets.zero,
+                    //       child: TextFormField(
+                    //         controller: minutesController,
+                    //         textAlign: TextAlign.center,
+                    //         decoration: InputDecoration(hintText: "MM"),
+                    //         keyboardType: TextInputType.number,
+                    //         inputFormatters: [
+                    //           new LengthLimitingTextInputFormatter(2)
+                    //         ],
+                    //         validator: (value) {
+                    //           if (value.isEmpty) return "Cannot be empty";
+                    //           if (int.parse(value) >= 60) return "Too Large";
+                    //           return null;
+                    //         },
+                    //       ),
+                    //     )
+                    //   ],
+                    // ),
                     FlatButton(
                         onPressed: () async {
                           DateTime picked = await showDatePicker(
