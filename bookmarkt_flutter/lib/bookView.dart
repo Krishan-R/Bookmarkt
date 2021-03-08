@@ -21,10 +21,6 @@ class _bookViewState extends State<bookView> {
   Widget build(BuildContext context) {
     final NavigatorArguments args = ModalRoute.of(context).settings.arguments;
 
-    var data = 0;
-
-    // List<FlSpot> graphData = getReadingStatistics(args);
-
     return SafeArea(
         child: Scaffold(
       appBar: AppBar(
@@ -43,7 +39,6 @@ class _bookViewState extends State<bookView> {
                   Fluttertoast.showToast(msg: "Error deleting Book");
                 }
               } else if (value == "Edit") {
-                //todo go to edit book view
                 args.redirect = "edit";
                 Navigator.pushNamed(context, '/addBook', arguments: args)
                     .then((value) => setState(() {}));
@@ -433,54 +428,6 @@ addReadingSessionAlert(BuildContext context, NavigatorArguments args) {
                         );
                       },
                     ),
-
-
-
-
-
-                    // Row(
-                    //   mainAxisAlignment: MainAxisAlignment.center,
-                    //   children: [
-                    //     Container(
-                    //       width: 60,
-                    //       padding: EdgeInsets.zero,
-                    //       child: TextFormField(
-                    //         controller: hoursController,
-                    //         textAlign: TextAlign.center,
-                    //         decoration: InputDecoration(
-                    //             hintText: "HH",
-                    //             contentPadding: EdgeInsets.zero),
-                    //         keyboardType: TextInputType.number,
-                    //         inputFormatters: [
-                    //           new LengthLimitingTextInputFormatter(2)
-                    //         ],
-                    //         validator: (value) {
-                    //           if (value.isEmpty) return "Cannot be empty";
-                    //           return null;
-                    //         },
-                    //       ),
-                    //     ),
-                    //     Text(":"),
-                    //     Container(
-                    //       width: 60,
-                    //       padding: EdgeInsets.zero,
-                    //       child: TextFormField(
-                    //         controller: minutesController,
-                    //         textAlign: TextAlign.center,
-                    //         decoration: InputDecoration(hintText: "MM"),
-                    //         keyboardType: TextInputType.number,
-                    //         inputFormatters: [
-                    //           new LengthLimitingTextInputFormatter(2)
-                    //         ],
-                    //         validator: (value) {
-                    //           if (value.isEmpty) return "Cannot be empty";
-                    //           if (int.parse(value) >= 60) return "Too Large";
-                    //           return null;
-                    //         },
-                    //       ),
-                    //     )
-                    //   ],
-                    // ),
                     FlatButton(
                         onPressed: () async {
                           DateTime picked = await showDatePicker(

@@ -52,8 +52,6 @@ class _addBookState extends State<addBook> {
       appBarText = "Add New Book";
     }
 
-
-
     //sets book variables on first build
     if (!init) {
       print("setting variables");

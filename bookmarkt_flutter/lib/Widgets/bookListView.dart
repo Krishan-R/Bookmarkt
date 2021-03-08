@@ -1,10 +1,4 @@
-import 'dart:convert';
-import 'dart:io';
-
-import 'package:bookmarkt_flutter/Models/book.dart';
 import 'package:bookmarkt_flutter/Models/bookshelf.dart';
-import 'package:bookmarkt_flutter/allBooks.dart';
-import 'package:bookmarkt_flutter/drawer.dart';
 import 'package:bookmarkt_flutter/library.dart';
 import 'package:bookmarkt_flutter/navigatorArguments.dart';
 import 'package:flutter/cupertino.dart';
@@ -25,16 +19,16 @@ ListView bookListView(bookList, args) {
           child: Card(
             child: InkWell(
               onTap: () async {
-
                 List<Bookshelf> bookshelfList = await getBookshelfList(args);
 
-                Navigator.pushNamed(context, '/book', arguments: NavigatorArguments(args.user, args.url, bookshelfList: bookshelfList, book: bookList[index]));
+                Navigator.pushNamed(context, '/book',
+                    arguments: NavigatorArguments(args.user, args.url,
+                        bookshelfList: bookshelfList, book: bookList[index]));
               },
               onLongPress: () {
-                print(bookList[index].title);
-
-                longPressBookDialog(context, args, bookList[index].bookInstanceID, bookList[index].title);
-
+                args.book = bookList[index];
+                longPressBookDialog(context, args,
+                    bookList[index].bookInstanceID, bookList[index].title);
               },
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -46,7 +40,8 @@ ListView bookListView(bookList, args) {
                           "http://${args.url}:5000/getThumbnail?path=${bookList[index].thumbnail}"),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 10),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -77,7 +72,8 @@ ListView bookListView(bookList, args) {
   );
 }
 
-longPressBookDialog(BuildContext context, NavigatorArguments args, int bookInstanceID, String bookTitle) {
+longPressBookDialog(BuildContext context, NavigatorArguments args,
+    int bookInstanceID, String bookTitle) {
   // set up the buttons
   Widget cancelButton = FlatButton(
     child: Text("Cancel"),
@@ -88,24 +84,35 @@ longPressBookDialog(BuildContext context, NavigatorArguments args, int bookInsta
 
   // set up the AlertDialog
   AlertDialog alert = AlertDialog(
-    title: Text("Edit " + bookTitle),
+    title: Text(bookTitle),
     content: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         FlatButton(
-            child: Text("Delete"),
-            onPressed: () async {
+          child: Text("Edit"),
+          onPressed: () {
+            print(args.book.title);
+            print(args.book.bookInstanceID);
+            args.redirect = "edit";
+            Navigator.pushNamed(context, "/addBook", arguments: args)
+                .then((value) => Navigator.pop(context));
 
-              final response = await http.delete("http://${args.url}:5000/users/${args.user.userID.toString()}/books/delete?bookInstanceID=$bookInstanceID");
+          },
+        ),
+        FlatButton(
+          child: Text("Delete"),
+          onPressed: () async {
+            final response = await http.delete(
+                "http://${args.url}:5000/users/${args.user.userID.toString()}/books/delete?bookInstanceID=$bookInstanceID");
 
-              if (response.body == "deleted book instance") {
-                Navigator.pushReplacementNamed(context, "/allBooks", arguments: args);
-              } else {
-                print(response.body);
-                Fluttertoast.showToast(msg: "Error deleting Book");
-              }
-
-            },
+            if (response.body == "deleted book instance") {
+              Navigator.pushReplacementNamed(context, "/allBooks",
+                  arguments: args);
+            } else {
+              print(response.body);
+              Fluttertoast.showToast(msg: "Error deleting Book");
+            }
+          },
         ),
       ],
     ),

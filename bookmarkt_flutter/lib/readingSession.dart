@@ -1,17 +1,7 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
-
-import 'package:bookmarkt_flutter/Models/book.dart';
-import 'package:bookmarkt_flutter/allBooks.dart';
-import 'package:bookmarkt_flutter/drawer.dart';
 import 'package:bookmarkt_flutter/navigatorArguments.dart';
-import 'package:flutter/animation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_countdown_timer/countdown_timer_controller.dart';
-import 'package:flutter_countdown_timer/flutter_countdown_timer.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:http/http.dart' as http;
@@ -79,25 +69,25 @@ class _readingSessionState extends State<readingSession> {
                         color: Theme.of(context).primaryColor,
                         onPressed: () {
                           showModalBottomSheet(
-                              context: context,
-                              builder: (BuildContext builder) {
-                                return Container(
-                                  height: MediaQuery.of(context)
-                                          .copyWith()
-                                          .size
-                                          .height /
-                                      3,
-                                  child: CupertinoTimerPicker(
-                                    mode: CupertinoTimerPickerMode.hm,
-                                    initialTimerDuration: sessionDuration,
-                                    onTimerDurationChanged: (value) {
-                                      setState(() {
-                                        sessionDuration = value;
-                                      });
-                                    },
-                                  ),
-                                );
-                              },
+                            context: context,
+                            builder: (BuildContext builder) {
+                              return Container(
+                                height: MediaQuery.of(context)
+                                        .copyWith()
+                                        .size
+                                        .height /
+                                    3,
+                                child: CupertinoTimerPicker(
+                                  mode: CupertinoTimerPickerMode.hm,
+                                  initialTimerDuration: sessionDuration,
+                                  onTimerDurationChanged: (value) {
+                                    setState(() {
+                                      sessionDuration = value;
+                                    });
+                                  },
+                                ),
+                              );
+                            },
                           );
                         },
                       ),
@@ -163,27 +153,27 @@ class _readingSessionTimerState extends State<readingSessionTimer> {
       child: WillPopScope(
         onWillPop: () async {
           bool result = await showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: Text("Are you sure you want to leave this session?"),
-                  actions: [
-                    FlatButton(
-                      child: Text("No"),
-                      onPressed: () {
-                        Navigator.of(context).pop(false);
-                      },
-                    ),
-                    FlatButton(
-                      child: Text("Yes"),
-                      onPressed: () {
-                        Navigator.of(context).pop(true);
-                      },
-                    ),
-                  ],
-                );
-              });
-
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text("Are you sure you want to leave this session?"),
+                actions: [
+                  FlatButton(
+                    child: Text("No"),
+                    onPressed: () {
+                      Navigator.of(context).pop(false);
+                    },
+                  ),
+                  FlatButton(
+                    child: Text("Yes"),
+                    onPressed: () {
+                      Navigator.of(context).pop(true);
+                    },
+                  ),
+                ],
+              );
+            },
+          );
           if (result) stopWatchTimer.onExecute.add(StopWatchExecute.stop);
           return result;
         },
@@ -219,8 +209,6 @@ class _readingSessionTimerState extends State<readingSessionTimer> {
 
                     String seconds =
                         (value % 60).floor().toString().padLeft(2, '0');
-
-                    // print(value);
 
                     return CircularPercentIndicator(
                       circularStrokeCap: CircularStrokeCap.round,
@@ -311,10 +299,10 @@ class _readingSessionTimerState extends State<readingSessionTimer> {
                             new TextEditingController();
 
                         showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return StatefulBuilder(
-                                  builder: (context, setState) {
+                          context: context,
+                          builder: (BuildContext context) {
+                            return StatefulBuilder(
+                              builder: (context, setState) {
                                 return AlertDialog(
                                   title: Text("Finish Reading Session"),
                                   content: Form(
@@ -352,12 +340,13 @@ class _readingSessionTimerState extends State<readingSessionTimer> {
                                               MainAxisAlignment.center,
                                           children: [
                                             Checkbox(
-                                                value: completed,
-                                                onChanged: (value) {
-                                                  setState(() {
-                                                    completed = value;
-                                                  });
-                                                }),
+                                              value: completed,
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  completed = value;
+                                                });
+                                              },
+                                            ),
                                             Text("Completed book")
                                           ],
                                         )
@@ -369,29 +358,30 @@ class _readingSessionTimerState extends State<readingSessionTimer> {
                                       child: Text("Discard"),
                                       onPressed: () async {
                                         bool result = await showDialog(
-                                            context: context,
-                                            builder: (BuildContext context) {
-                                              return AlertDialog(
-                                                title: Text(
-                                                    "Are you sure you want to leave this session?"),
-                                                actions: [
-                                                  FlatButton(
-                                                    child: Text("No"),
-                                                    onPressed: () {
-                                                      Navigator.of(context)
-                                                          .pop(false);
-                                                    },
-                                                  ),
-                                                  FlatButton(
-                                                    child: Text("Yes"),
-                                                    onPressed: () {
-                                                      Navigator.of(context)
-                                                          .pop(true);
-                                                    },
-                                                  ),
-                                                ],
-                                              );
-                                            });
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return AlertDialog(
+                                              title: Text(
+                                                  "Are you sure you want to leave this session?"),
+                                              actions: [
+                                                FlatButton(
+                                                  child: Text("No"),
+                                                  onPressed: () {
+                                                    Navigator.of(context)
+                                                        .pop(false);
+                                                  },
+                                                ),
+                                                FlatButton(
+                                                  child: Text("Yes"),
+                                                  onPressed: () {
+                                                    Navigator.of(context)
+                                                        .pop(true);
+                                                  },
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
 
                                         if (result) {
                                           Navigator.popUntil(context,
@@ -441,8 +431,10 @@ class _readingSessionTimerState extends State<readingSessionTimer> {
                                     ),
                                   ],
                                 );
-                              });
-                            });
+                              },
+                            );
+                          },
+                        );
                       },
                     )
                   ],
@@ -487,26 +479,27 @@ class _readingSessionCountdownState extends State<readingSessionCountdown> {
       child: WillPopScope(
         onWillPop: () async {
           bool result = await showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: Text("Are you sure you want to leave this session?"),
-                  actions: [
-                    FlatButton(
-                      child: Text("No"),
-                      onPressed: () {
-                        Navigator.of(context).pop(false);
-                      },
-                    ),
-                    FlatButton(
-                      child: Text("Yes"),
-                      onPressed: () {
-                        Navigator.of(context).pop(true);
-                      },
-                    ),
-                  ],
-                );
-              });
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text("Are you sure you want to leave this session?"),
+                actions: [
+                  FlatButton(
+                    child: Text("No"),
+                    onPressed: () {
+                      Navigator.of(context).pop(false);
+                    },
+                  ),
+                  FlatButton(
+                    child: Text("Yes"),
+                    onPressed: () {
+                      Navigator.of(context).pop(true);
+                    },
+                  ),
+                ],
+              );
+            },
+          );
 
           return result;
         },
@@ -519,7 +512,11 @@ class _readingSessionCountdownState extends State<readingSessionCountdown> {
 
               if (value == -1) {
                 stopWatchTimer.onExecute.add(StopWatchExecute.stop);
-                return finishSession(args: widget.args, duration: snap.data, mins: stopWatchTimer.minuteTime.value,);
+                return finishSession(
+                  args: widget.args,
+                  duration: snap.data,
+                  mins: stopWatchTimer.minuteTime.value,
+                );
               }
 
               String hours =
@@ -587,7 +584,9 @@ class _readingSessionCountdownState extends State<readingSessionCountdown> {
                           },
                         ),
                       ),
-                      SizedBox(width: 10,),
+                      SizedBox(
+                        width: 10,
+                      ),
                       Container(
                         width: 70,
                         child: FlatButton(
@@ -596,12 +595,14 @@ class _readingSessionCountdownState extends State<readingSessionCountdown> {
                           color: Theme.of(context).primaryColor,
                           onPressed: () {
                             setState(() {
-                            widget.duration += 60;
-                          });
-                            },
+                              widget.duration += 60;
+                            });
+                          },
                         ),
                       ),
-                      SizedBox(width: 10,),
+                      SizedBox(
+                        width: 10,
+                      ),
                       Container(
                         width: 70,
                         child: FlatButton(
@@ -615,7 +616,9 @@ class _readingSessionCountdownState extends State<readingSessionCountdown> {
                           },
                         ),
                       ),
-                      SizedBox(width: 10,),
+                      SizedBox(
+                        width: 10,
+                      ),
                       Container(
                         width: 70,
                         child: FlatButton(
@@ -641,27 +644,28 @@ class _readingSessionCountdownState extends State<readingSessionCountdown> {
                         color: Theme.of(context).primaryColor,
                         onPressed: () async {
                           bool result = await showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title: Text(
-                                      "Are you sure you want to leave this session?"),
-                                  actions: [
-                                    FlatButton(
-                                      child: Text("No"),
-                                      onPressed: () {
-                                        Navigator.of(context).pop(false);
-                                      },
-                                    ),
-                                    FlatButton(
-                                      child: Text("Yes"),
-                                      onPressed: () {
-                                        Navigator.of(context).pop(true);
-                                      },
-                                    ),
-                                  ],
-                                );
-                              });
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text(
+                                    "Are you sure you want to leave this session?"),
+                                actions: [
+                                  FlatButton(
+                                    child: Text("No"),
+                                    onPressed: () {
+                                      Navigator.of(context).pop(false);
+                                    },
+                                  ),
+                                  FlatButton(
+                                    child: Text("Yes"),
+                                    onPressed: () {
+                                      Navigator.of(context).pop(true);
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
 
                           if (result) Navigator.pop(context);
                         },
@@ -828,7 +832,8 @@ class finishSession extends StatefulWidget {
   int duration;
   int mins;
 
-  finishSession({Key key, this.args, this.duration, this.mins}) : super(key: key);
+  finishSession({Key key, this.args, this.duration, this.mins})
+      : super(key: key);
 
   @override
   _finishSessionState createState() => _finishSessionState();
@@ -868,7 +873,9 @@ class _finishSessionState extends State<finishSession> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 10,),
+              SizedBox(
+                height: 10,
+              ),
               Text(() {
                 if (hours == "00")
                   return "You Read for $mins Minutes and $seconds Seconds";
@@ -913,17 +920,18 @@ class _finishSessionState extends State<finishSession> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   FlatButton(
-                    child: Text("Discard",
-                        style: TextStyle(color: Colors.white)),
+                    child:
+                        Text("Discard", style: TextStyle(color: Colors.white)),
                     color: Theme.of(context).primaryColor,
                     onPressed: () {
                       Navigator.pop(context);
                     },
                   ),
-                  SizedBox(width: 20,),
+                  SizedBox(
+                    width: 20,
+                  ),
                   FlatButton(
-                    child: Text("Add",
-                        style: TextStyle(color: Colors.white)),
+                    child: Text("Add", style: TextStyle(color: Colors.white)),
                     color: Theme.of(context).primaryColor,
                     onPressed: () async {
                       if (_formKey.currentState.validate()) {
@@ -944,7 +952,8 @@ class _finishSessionState extends State<finishSession> {
                           widget.args.book.currentPage =
                               int.parse(currentPageController.text);
 
-                          Navigator.popUntil(context, ModalRoute.withName('/book'));
+                          Navigator.popUntil(
+                              context, ModalRoute.withName('/book'));
                         } else {
                           Fluttertoast.showToast(
                               msg: "Error adding reading session");

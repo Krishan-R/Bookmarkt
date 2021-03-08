@@ -5,10 +5,10 @@ import 'package:bookmarkt_flutter/Models/bookshelf.dart';
 class NavigatorArguments {
   final User user;
   final String url;
-  final int bookshelfID;
-  final String bookshelfName;
-  final int bookInstanceID;
-  final Book book;
+  int bookshelfID;
+  String bookshelfName;
+  int bookInstanceID;
+  Book book;
   List<Bookshelf> bookshelfList;
   String redirect;
 
