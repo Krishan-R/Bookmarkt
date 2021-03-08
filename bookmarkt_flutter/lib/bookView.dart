@@ -678,7 +678,7 @@ Future<Map> getReadingStatistics(NavigatorArguments args) async {
 
   try {
     final response = await http.get(
-        "http://${args.url}:5000/users/${args.user.userID}/books/${args.book.bookInstanceID}/stats?time=10");
+        "http://${args.url}:5000/users/${args.user.userID}/books/${args.book.bookInstanceID}/stats?time=30");
 
     Iterable time = json.decode(response.body)["statistics"]["time"];
 
@@ -720,9 +720,7 @@ Future<Map> getReadingStatistics(NavigatorArguments args) async {
       "dateData": dateData,
       "pageData": pageData
     };
-
-    print(returnData);
-
+    
     return returnData;
   } on SocketException {
     print("error connecting to server");

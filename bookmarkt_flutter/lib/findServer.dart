@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:bookmarkt_flutter/navigatorArguments.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class findServer extends StatefulWidget {
   @override
@@ -10,13 +11,14 @@ class findServer extends StatefulWidget {
 }
 
 class _findServerState extends State<findServer> {
-  TextEditingController serverURLController = new TextEditingController();
+  String url;
   bool serverURLError = false;
 
   final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
+
     return SafeArea(
       child: Scaffold(
           appBar: AppBar(
@@ -28,15 +30,32 @@ class _findServerState extends State<findServer> {
               key: _formKey,
               child: Column(
                 children: [
-                  TextFormField(
-                    controller: serverURLController,
-                    validator: (value) {
-                      if (value.isEmpty) {
-                        return "Server URL must not be empty";
+                  FutureBuilder(
+                    future: getSavedURL(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        print(snapshot.data);
+                        url = snapshot.data;
+
+                        return TextFormField(
+                          initialValue: snapshot.data,
+                          validator: (value) {
+                            if (url.isEmpty) {
+                              return "Server URL must not be empty";
+                            }
+                            return null;
+                          },
+                          onChanged: (value) {
+                            url = value;
+                          },
+                          decoration: InputDecoration(hintText: "Enter Server URL"),
+                        );
+
+                      } else if (snapshot.hasError) {
+                        return Text(snapshot.error);
                       }
-                      return null;
+                      return Text("loading");
                     },
-                    decoration: InputDecoration(hintText: "Enter Server URL"),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -54,15 +73,17 @@ class _findServerState extends State<findServer> {
                     onPressed: () async {
                       if (_formKey.currentState.validate()) {
                         bool serverFound =
-                            await connectToServer(serverURLController.text);
+                            await connectToServer(url);
 
                         if (serverFound) {
                           setState(() {
                             serverURLError = false;
                           });
+
+                          saveURL(url);
                           Navigator.pushNamed(context, '/login',
                               arguments: NavigatorArguments(
-                                  null, serverURLController.text));
+                                  null, url));
                         } else {
                           setState(() {
                             serverURLError = true;
@@ -94,3 +115,17 @@ Future<bool> connectToServer(url) async {
 
   return Future.value(false);
 }
+
+Future<String> getSavedURL() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String savedURL = prefs.getString("url") ?? "";
+
+  return savedURL;
+  }
+
+
+saveURL(String url) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  prefs.setString("url", url);
+}
+

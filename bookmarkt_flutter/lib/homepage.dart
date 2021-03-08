@@ -1,6 +1,5 @@
 import 'package:bookmarkt_flutter/drawer.dart';
 import 'package:bookmarkt_flutter/navigatorArguments.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class homepage extends StatefulWidget {
