@@ -918,49 +918,49 @@ def getUserWeeklyStats(userID):
         "userID": userID,
         "stats": [
             {
-                "day": "monday",
+                "day": 1,
                 "time": 0,
-                "page": 0
+                "pages": 0
             },
             {
-                "day": "tuesday",
+                "day": 2,
                 "time": 0,
-                "page": 0
+                "pages": 0
             },
             {
-                "day": "wednesday",
+                "day": 3,
                 "time": 0,
-                "page": 0
+                "pages": 0
             },
             {
-                "day": "thursday",
+                "day": 4,
                 "time": 0,
-                "page": 0
+                "pages": 0
             },
             {
-                "day": "friday",
+                "day": 5,
                 "time": 0,
-                "page": 0
+                "pages": 0
             },
             {
-                "day": "saturday",
+                "day": 6,
                 "time": 0,
-                "page": 0
+                "pages": 0
             },
             {
-                "day": "sunday",
+                "day": 7,
                 "time": 0,
-                "page": 0
+                "pages": 0
             },
 
         ]
     }
 
     for session in ReadingSession.query.filter(ReadingSession.userID == userID) \
-            .filter(ReadingSession.date >= start_date) \
+            .filter(ReadingSession.date > start_date) \
             .all():
         returnJson["stats"][session.date.weekday()]["time"] += session.timeRead
-        returnJson["stats"][session.date.weekday()]["page"] += session.pagesRead
+        returnJson["stats"][session.date.weekday()]["pages"] += session.pagesRead
 
     return returnJson, 200
 

@@ -40,7 +40,7 @@ class myDrawer extends StatelessWidget {
                     fit: BoxFit.cover)),
           ),
           ListTile(
-            title: Text("Home"),
+            title: Text("Dashboard"),
             onTap: () {
               Navigator.pushNamedAndRemoveUntil(
                   context, "/home", (route) => false,

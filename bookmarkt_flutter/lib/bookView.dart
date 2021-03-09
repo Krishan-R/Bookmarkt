@@ -270,17 +270,13 @@ class _bookViewState extends State<bookView> {
                             ),
                           ],
                         ),
-                        SizedBox(
-                          height: 5,
-                        ),
+                        SizedBox(height: 20),
                         Text(
                           "Pages Read",
                           style: TextStyle(
                               fontSize: 15, fontWeight: FontWeight.bold),
                         ),
-                        SizedBox(
-                          height: 5,
-                        ),
+                        SizedBox(height: 5),
                         Stack(
                           children: <Widget>[
                             AspectRatio(
