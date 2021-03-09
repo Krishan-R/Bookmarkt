@@ -15,7 +15,7 @@ import 'package:flutter/material.dart';
 void main() => runApp(MaterialApp(
   initialRoute: '/',
   routes: {
-    '/': (context) => findServer(),
+    '/': (context) => Loading(),
     '/findServer': (context) => findServer(),
     '/login': (context) => Login(),
     '/signUp': (context) => SignUp(),

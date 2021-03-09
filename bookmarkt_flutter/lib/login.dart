@@ -121,17 +121,22 @@ Future<User> loginToServer(url, username, password) async {
         username +
         "&password=" +
         password);
-    print(response.body);
 
     if (response.body == "User cannot be found" ||
         response.body == "incorrect credentials") {
       return null;
     } else {
       var jsonData = json.decode(response.body);
-      return User(
+      User user = User(
           userID: jsonData["userID"],
           email: jsonData["email"],
           username: jsonData["username"]);
+
+      final prefs = await SharedPreferences.getInstance();
+
+      prefs.setString("user", json.encode(user));
+
+      return user;
     }
   } on SocketException {
     print("Error communicating to server");

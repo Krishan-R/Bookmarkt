@@ -103,18 +103,9 @@ Future<List<Book>> getBookshelfBookData(args) async {
       return bookList;
     }
 
-    Iterable i = json.decode(response.body);
+    Iterable i = json.decode(response.body)["books"];
 
-    // print(i);
     bookList = List<Book>.from(i.map((model) => Book.fromJson(model)));
-
-    // for (var i = 0; i < bookList.length; i++) {
-    //   print(bookList[i].ISBN.toString() +
-    //       " " +
-    //       bookList[i].totalTimeRead.toString());
-    // }
-
-    // print(bookList[0].totalTimeRead.toString());
 
     return bookList;
   } on SocketException {

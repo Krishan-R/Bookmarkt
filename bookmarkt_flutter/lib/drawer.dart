@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:bookmarkt_flutter/navigatorArguments.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class myDrawer extends StatelessWidget {
   myDrawer(this.args);
@@ -89,7 +90,12 @@ logOutAlertDialog(BuildContext context) {
   );
   Widget continueButton = FlatButton(
     child: Text("Log Out"),
-    onPressed: () {
+    onPressed: () async {
+
+      final prefs = await SharedPreferences.getInstance();
+
+      prefs.setString("user", "");
+
       Navigator.pushNamedAndRemoveUntil(context, "/", (route) => false);
     },
   );

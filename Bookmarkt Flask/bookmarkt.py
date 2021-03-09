@@ -720,7 +720,13 @@ def getBooksFromBookshelf(userID, bookshelfID):
                 "automaticallyScraped": book.automaticallyScraped
             }
 
-    return jsonify(JsonList), 200
+    returnJson = {
+        "bookshelfID": bookshelfID,
+        "name": bookshelf.name,
+        "books": JsonList
+    }
+
+    return returnJson, 200
 
 
 @app.route("/users/<userID>/bookshelf/<bookshelfID>/add", methods=["POST"])

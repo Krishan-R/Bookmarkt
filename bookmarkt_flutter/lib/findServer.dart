@@ -34,7 +34,6 @@ class _findServerState extends State<findServer> {
                     future: getSavedURL(),
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
-                        print(snapshot.data);
                         url = snapshot.data;
 
                         return TextFormField(
@@ -105,11 +104,9 @@ Future<bool> connectToServer(url) async {
   try {
     final response = await http.get("http://" + url + ":5000");
     if (response.body == "True") {
-      print("Server found");
       return Future.value(true);
     }
   } on SocketException {
-    print("server does not exist");
     return Future.value(false);
   }
 

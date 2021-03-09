@@ -183,7 +183,9 @@ class _bookViewState extends State<bookView> {
                 ),
               ],
             ),
-            Divider(thickness: 2,),
+            Divider(
+              thickness: 2,
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -232,15 +234,12 @@ class _bookViewState extends State<bookView> {
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-
                           Text("No reading data found for this time period"),
                         ],
                       );
                     }
                     return Column(
                       children: [
-
-
                         Text(
                           "Time Spent Reading",
                           style: TextStyle(
@@ -387,6 +386,24 @@ Container bookHeader(args) {
                             "http://${args.url}:5000/users/${args.user.userID}/books/${args.book.bookInstanceID}/edit?rating=${rating * 2}");
                       }),
                 ),
+                SizedBox(
+                  height: 5,
+                ),
+                FutureBuilder(
+                  future: getBookshelfName(args, args.book.bookshelfID),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      return Text(
+                          snapshot.data,
+                        style: TextStyle(fontSize: 15, color: Colors.grey, fontStyle: FontStyle.italic),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Text("${snapshot.error}");
+                    }
+                    return Text("No bookshelf");
+
+                  },
+                )
               ],
             ),
           ),
@@ -394,6 +411,17 @@ Container bookHeader(args) {
       ],
     ),
   );
+}
+
+Future<String> getBookshelfName(NavigatorArguments args, int bookshelfID) async {
+
+  print(bookshelfID);
+  if (bookshelfID == null) return "";
+
+  final response = await http.get("http://${args.url}:5000/users/${args.user.userID}/bookshelf/$bookshelfID");
+
+  return json.decode(response.body)["name"];
+
 }
 
 addReadingSessionAlert(BuildContext context, NavigatorArguments args) {
