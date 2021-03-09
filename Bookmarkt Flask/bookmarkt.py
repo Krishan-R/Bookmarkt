@@ -355,6 +355,10 @@ def deleteBookInstance():
         return "Book Instance does not exist", 422
 
     BookInstance.query.filter(BookInstance.bookInstanceID == bookInstanceID).delete()
+
+    # deletes relevant rows in ReadingSession table
+    ReadingSession.query.filter(ReadingSession.bookInstanceID == bookInstanceID).delete()
+
     db.session.commit()
 
     return f"deleted book instance id {bookInstanceID}", 200
@@ -374,6 +378,10 @@ def deleteUserBookInstance(userID):
         return f"Book Instance {bookInstanceID} does not belong to user {userID}", 403
 
     BookInstance.query.filter(BookInstance.bookInstanceID == bookInstanceID).delete()
+
+    # deletes relevant rows in ReadingSession table
+    ReadingSession.query.filter(ReadingSession.bookInstanceID == bookInstanceID).delete()
+
     db.session.commit()
 
     return f"deleted book instance", 200
@@ -899,8 +907,6 @@ def getUserWeeklyStats(userID):
     time = int(time)
 
     start_date = (datetime.datetime.now() - datetime.timedelta(days=time)).date()
-    end_date = datetime.date.today()
-    delta = datetime.timedelta(days=1)
 
     returnJson = {
         "userID": userID,
@@ -950,6 +956,5 @@ def getUserWeeklyStats(userID):
 
         returnJson["stats"][session.date.weekday()]["time"] += session.timeRead
         returnJson["stats"][session.date.weekday()]["page"] += session.pagesRead
-    # print(returnJson["stats"])
 
     return returnJson, 200
