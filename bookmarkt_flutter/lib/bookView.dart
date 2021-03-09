@@ -58,9 +58,10 @@ class _bookViewState extends State<bookView> {
         ],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(10.0),
+        padding: const EdgeInsets.symmetric(horizontal: 10),
         child: ListView(
           children: [
+            SizedBox(height:10),
             bookHeader(args),
             SizedBox(
               height: 10,
@@ -308,6 +309,7 @@ class _bookViewState extends State<bookView> {
                   }
                   return CircularProgressIndicator();
                 }),
+            SizedBox(height:10),
           ],
         ),
       ),

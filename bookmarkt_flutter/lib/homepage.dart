@@ -29,12 +29,14 @@ class _homepageState extends State<homepage> {
           drawer: myDrawer(args),
           // body: Text("homepage"),
           body: Padding(
-            padding: const EdgeInsets.all(10.0),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
             child: ListView(
               children: [
+                SizedBox(height:10),
                 recentDashboard(args: args),
                 Divider(thickness: 2),
-                DayofWeek(args: args)
+                DayofWeek(args: args),
+                SizedBox(height:10),
               ],
             ),
           )),
