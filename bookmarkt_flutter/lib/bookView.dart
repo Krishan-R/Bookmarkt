@@ -183,9 +183,7 @@ class _bookViewState extends State<bookView> {
                 ),
               ],
             ),
-            Divider(
-              thickness: 2,
-            ),
+            Divider(thickness: 2),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -346,7 +344,7 @@ Container bookHeader(args) {
                   args.book.title,
                   style: TextStyle(fontSize: 30),
                   overflow: TextOverflow.ellipsis,
-                  maxLines: 3,
+                  maxLines: 2,
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(
@@ -394,14 +392,16 @@ Container bookHeader(args) {
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
                       return Text(
-                          snapshot.data,
-                        style: TextStyle(fontSize: 15, color: Colors.grey, fontStyle: FontStyle.italic),
+                        snapshot.data,
+                        style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.grey,
+                            fontStyle: FontStyle.italic),
                       );
                     } else if (snapshot.hasError) {
                       return Text("${snapshot.error}");
                     }
                     return Text("No bookshelf");
-
                   },
                 )
               ],
@@ -413,15 +413,14 @@ Container bookHeader(args) {
   );
 }
 
-Future<String> getBookshelfName(NavigatorArguments args, int bookshelfID) async {
-
-  print(bookshelfID);
+Future<String> getBookshelfName(
+    NavigatorArguments args, int bookshelfID) async {
   if (bookshelfID == null) return "";
 
-  final response = await http.get("http://${args.url}:5000/users/${args.user.userID}/bookshelf/$bookshelfID");
+  final response = await http.get(
+      "http://${args.url}:5000/users/${args.user.userID}/bookshelf/$bookshelfID");
 
   return json.decode(response.body)["name"];
-
 }
 
 addReadingSessionAlert(BuildContext context, NavigatorArguments args) {

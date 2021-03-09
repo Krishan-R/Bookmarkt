@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 ListView bookListView(bookList, args) {
   //todo convert to stateful widget
   return ListView.builder(
+
     itemCount: bookList.length,
     itemBuilder: (context, index) {
       return Padding(
@@ -91,8 +92,6 @@ longPressBookDialog(BuildContext context, NavigatorArguments args,
         FlatButton(
           child: Text("Edit"),
           onPressed: () {
-            print(args.book.title);
-            print(args.book.bookInstanceID);
             args.redirect = "edit";
             Navigator.pushNamed(context, "/addBook", arguments: args)
                 .then((value) => Navigator.pop(context));

@@ -959,8 +959,58 @@ def getUserWeeklyStats(userID):
     for session in ReadingSession.query.filter(ReadingSession.userID == userID) \
             .filter(ReadingSession.date >= start_date) \
             .all():
-
         returnJson["stats"][session.date.weekday()]["time"] += session.timeRead
         returnJson["stats"][session.date.weekday()]["page"] += session.pagesRead
 
     return returnJson, 200
+
+
+@app.route("/users/<userID>/recent", methods=["GET"])
+def getUserRecent(userID):
+    userID = int(userID)
+
+    returnJson = []
+
+    last5Books = []
+    index = 0
+
+    for session in ReadingSession.query.filter(ReadingSession.userID == userID).order_by(ReadingSession.date.desc()):
+
+        if session.bookInstanceID not in last5Books:
+            instance = BookInstance.query.filter(BookInstance.bookInstanceID == session.bookInstanceID).first()
+            book = Book.query.filter(Book.isbn == instance.isbn).first()
+
+            returnJson.append({
+                "index": index + 1,
+                "data": {
+                    "bookData": {
+                        "isbn": book.isbn,
+                        "title": book.title,
+                        "description": book.description,
+                        "author": book.authorName,
+                        "googleID": book.googleID,
+                        "thumbnail": book.thumbnail,
+                        "totalPages": book.totalPages,
+                        "publishedDate": book.publishedDate,
+                        "automaticallyScraped": book.automaticallyScraped
+                    },
+                    "userData": {
+                        "isbn": instance.isbn,
+                        "bookInstanceID": instance.bookInstanceID,
+                        "currentPage": instance.currentPage,
+                        "completed": instance.completed,
+                        "userID": instance.userID,
+                        "bookshelfID": instance.bookshelfID,
+                        "rating": instance.rating,
+                        "totalTimeRead": instance.totalTimeRead
+                    }
+                }
+            })
+
+            last5Books.append(session.bookInstanceID)
+            index += 1
+
+        if len(last5Books) == 5:
+            break
+
+    return jsonify(returnJson), 200

@@ -80,12 +80,6 @@ Future<List<Book>> getAllBookData(args) async {
 
     bookList = List<Book>.from(i.map((model) => Book.fromJson(model)));
 
-    // for (var i = 0; i < bookList.length; i++) {
-    //   print(bookList[i].ISBN.toString() +
-    //       " " +
-    //       bookList[i].thumbnail);
-    // }
-
     return bookList;
   } on SocketException {
     print("Error connecting to server");
