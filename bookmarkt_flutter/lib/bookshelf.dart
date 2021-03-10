@@ -93,7 +93,7 @@ class _BookshelfState extends State<Bookshelf> {
 }
 
 Future<List<Book>> getBookshelfBookData(args) async {
-  List<Book> bookList = new List<Book>();
+  List<Book> bookList = [];
 
   try {
     final response = await http.get(

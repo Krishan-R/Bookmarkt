@@ -8,12 +8,12 @@ import 'package:http/http.dart' as http;
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 
-class readingSession extends StatefulWidget {
+class readingSessionCoverPage extends StatefulWidget {
   @override
-  _readingSessionState createState() => _readingSessionState();
+  _readingSessionCoverPageState createState() => _readingSessionCoverPageState();
 }
 
-class _readingSessionState extends State<readingSession> {
+class _readingSessionCoverPageState extends State<readingSessionCoverPage> {
   Duration sessionDuration = new Duration();
 
   @override

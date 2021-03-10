@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:bookmarkt_flutter/Models/book.dart';
+import 'package:bookmarkt_flutter/Models/readingSession.dart';
+import 'package:bookmarkt_flutter/Widgets/readingSessionWidget.dart';
 import 'package:bookmarkt_flutter/bookshelf.dart';
 import 'package:bookmarkt_flutter/library.dart';
 import 'package:bookmarkt_flutter/navigatorArguments.dart';
@@ -68,6 +70,7 @@ class _bookViewState extends State<bookView> {
             SizedBox(height: 10),
             bookDescription(args: args),
             readingSessionDetails(args, context, setState),
+            lastReadingSession(args: args),
             Divider(thickness: 2),
             bookViewGraph(args: args),
             SizedBox(height: 10),
@@ -454,6 +457,76 @@ class _bookViewGraphState extends State<bookViewGraph> {
       ],
     );
   }
+}
+
+class lastReadingSession extends StatefulWidget {
+  NavigatorArguments args;
+
+  lastReadingSession({Key key, this.args}) : super(key: key);
+
+  @override
+  _lastReadingSessionState createState() => _lastReadingSessionState();
+}
+
+class _lastReadingSessionState extends State<lastReadingSession> {
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: getReadingSessions(widget.args, widget.args.book.bookInstanceID),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+
+          if (snapshot.data.length == 0) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Divider(thickness: 2),
+                Text("Reading Sessions (${snapshot.data.length})",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+              ],
+            );
+          }
+
+          ReadingSession session = snapshot.data[0];
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Divider(thickness: 2),
+              Text("Reading Sessions (${snapshot.data.length})",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+              GestureDetector(
+                onTap: () {
+                  print("tapped");
+                  widget.args.sessionList = snapshot.data;
+                  Navigator.pushNamed(context, "/readingSessionHistory", arguments: widget.args);
+                },
+                child: readingSessionWidget(session: session),
+              ),
+            ],
+          );
+        } else if (snapshot.hasError) {
+          return Text("${snapshot.error}");
+        }
+        return CircularProgressIndicator();
+      },
+    );
+  }
+}
+
+Future<List<ReadingSession>> getReadingSessions(
+    NavigatorArguments args, int bookInstanceID) async {
+  List<ReadingSession> sessionList = [];
+
+  final response = await http.get(
+      "http://${args.url}:5000/users/${args.user.userID}/books/$bookInstanceID/sessions");
+
+  Iterable i = json.decode(response.body)["sessions"];
+
+  sessionList = List<ReadingSession>.from(
+      i.map((model) => ReadingSession.fromJson(model)));
+
+  return sessionList;
 }
 
 Future<String> getBookshelfName(

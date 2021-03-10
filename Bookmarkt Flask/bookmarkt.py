@@ -898,8 +898,7 @@ def getBookInstanceSessions(userID, bookInstanceID):
         "sessions": []
     }
 
-    for session in ReadingSession.query.filter(ReadingSession.bookInstanceID == bookInstanceID).order_by(ReadingSession.date):
+    for session in ReadingSession.query.filter(ReadingSession.bookInstanceID == bookInstanceID).order_by(ReadingSession.date.desc()):
         returnJson["sessions"].append(session.toJson())
-
 
     return returnJson, 200

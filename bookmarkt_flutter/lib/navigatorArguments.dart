@@ -1,4 +1,5 @@
 import 'package:bookmarkt_flutter/Models/book.dart';
+import 'package:bookmarkt_flutter/Models/readingSession.dart';
 import 'package:bookmarkt_flutter/Models/user.dart';
 import 'package:bookmarkt_flutter/Models/bookshelf.dart';
 
@@ -10,6 +11,7 @@ class NavigatorArguments {
   int bookInstanceID;
   Book book;
   List<Bookshelf> bookshelfList;
+  List<ReadingSession> sessionList;
   String redirect;
 
   NavigatorArguments(
