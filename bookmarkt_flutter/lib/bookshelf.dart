@@ -77,7 +77,7 @@ class _BookshelfState extends State<Bookshelf> {
                     List<Book> bookList = snapshot.data;
                     if (bookList.isEmpty)
                       return Text("This bookshelf is empty");
-                    return bookListView(bookList, args);
+                    return bookListView(args: args, bookList: bookList);
                   } else if (snapshot.hasError) {
                     return Text("${snapshot.error}");
                   }

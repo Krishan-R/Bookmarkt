@@ -50,7 +50,7 @@ class _AllBooksState extends State<AllBooks> {
                     List<Book> bookList = snapshot.data;
 
                     if (bookList.isEmpty) return Text("No books have been added to your account");
-                    else return bookListView(bookList, args);
+                    else return bookListView(args: args, bookList: bookList);
                   } else if (snapshot.hasError) {
                     return Text("${snapshot.error}");
                   }
