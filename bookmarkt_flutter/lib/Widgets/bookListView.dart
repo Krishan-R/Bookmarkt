@@ -35,31 +35,37 @@ ListView bookListView(bookList, args) {
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
                   children: [
-                    Hero(
-                      tag: bookList[index].bookInstanceID,
-                      child: Image.network(
-                          "http://${args.url}:5000/getThumbnail?path=${bookList[index].thumbnail}"),
+                    Expanded(
+                      child: Hero(
+                        tag: bookList[index].bookInstanceID,
+                        child: Image.network(
+                            "http://${args.url}:5000/getThumbnail?path=${bookList[index].thumbnail}"),
+                      ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 10),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            bookList[index].title,
-                            style: TextStyle(fontSize: 20),
-                          ),
-                          Text(
-                            bookList[index].author,
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                          Text(
-                            "${bookList[index].currentPage.toString()}/${bookList[index].totalPages}",
-                            style: TextStyle(color: Colors.grey),
-                          )
-                        ],
+                    Expanded(
+                      flex: 5,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 10),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              bookList[index].title,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(fontSize: 20),
+                            ),
+                            Text(
+                              bookList[index].author,
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                            Text(
+                              "${bookList[index].currentPage.toString()}/${bookList[index].totalPages}",
+                              style: TextStyle(color: Colors.grey),
+                            )
+                          ],
+                        ),
                       ),
                     )
                   ],
@@ -91,8 +97,12 @@ longPressBookDialog(BuildContext context, NavigatorArguments args,
       children: [
         FlatButton(
           child: Text("Edit"),
-          onPressed: () {
+          onPressed: () async {
             args.redirect = "edit";
+
+            List<Bookshelf> bookshelfList = await getBookshelfList(args);
+            args.bookshelfList = bookshelfList;
+
             Navigator.pushNamed(context, "/addBook", arguments: args)
                 .then((value) => Navigator.pop(context));
 

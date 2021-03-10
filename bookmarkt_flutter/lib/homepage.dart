@@ -258,6 +258,7 @@ class _DayofWeekState extends State<DayofWeek> {
                                   right: 18.0, left: 12.0, top: 24, bottom: 12),
                               child: LineChart(
                                 dayOfWeek(snapshot.data, "time"),
+
                               ),
                             ),
                           ),

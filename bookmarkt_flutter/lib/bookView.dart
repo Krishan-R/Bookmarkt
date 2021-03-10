@@ -42,6 +42,7 @@ class _bookViewState extends State<bookView> {
                 }
               } else if (value == "Edit") {
                 args.redirect = "edit";
+                args.printStuff();
                 Navigator.pushNamed(context, '/addBook', arguments: args)
                     .then((value) => setState(() {}));
               }
@@ -97,6 +98,7 @@ class _bookViewState extends State<bookView> {
               child: Text(
                 args.book.description,
                 maxLines: 3,
+                overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
               ),
             ),
