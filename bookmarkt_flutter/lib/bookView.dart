@@ -18,6 +18,8 @@ class bookView extends StatefulWidget {
 
 class _bookViewState extends State<bookView> {
   int graphDuration = 30;
+  String graphFocus = "pages";
+  List<bool> isSelected = [true, false];
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +64,7 @@ class _bookViewState extends State<bookView> {
         padding: const EdgeInsets.symmetric(horizontal: 10),
         child: ListView(
           children: [
-            SizedBox(height:10),
+            SizedBox(height: 10),
             bookHeader(args),
             SizedBox(
               height: 10,
@@ -190,9 +192,35 @@ class _bookViewState extends State<bookView> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  "History",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Text(
+                      "History",
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                    ),
+                    SizedBox(width: 5),
+                    Container(
+                      height: 30,
+                      child: ToggleButtons(
+                        children: [Text("Pages"), Text("Time")],
+                        isSelected: isSelected,
+                        borderColor: Colors.white,
+                        onPressed: (int index) {
+                          setState(() {
+                            isSelected[0] = !isSelected[0];
+                            isSelected[1] = !isSelected[1];
+
+                            if (isSelected[0])
+                              graphFocus = "pages";
+                            else
+                              graphFocus = "time";
+                          });
+                        },
+                      ),
+                    ),
+                  ],
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -231,7 +259,7 @@ class _bookViewState extends State<bookView> {
                 future: getReadingStatistics(args, graphDuration),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    if (snapshot.data["timeData"]["maxY"] == 0) {
+                    if (snapshot.data[graphFocus]["maxY"] == 0) {
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -241,14 +269,6 @@ class _bookViewState extends State<bookView> {
                     }
                     return Column(
                       children: [
-                        Text(
-                          "Time Spent Reading",
-                          style: TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(
-                          height: 5,
-                        ),
                         Stack(
                           children: <Widget>[
                             AspectRatio(
@@ -266,38 +286,7 @@ class _bookViewState extends State<bookView> {
                                       top: 24,
                                       bottom: 12),
                                   child: LineChart(
-                                    timeReadData(snapshot.data),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 20),
-                        Text(
-                          "Pages Read",
-                          style: TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(height: 5),
-                        Stack(
-                          children: <Widget>[
-                            AspectRatio(
-                              aspectRatio: 1.70,
-                              child: Container(
-                                decoration: const BoxDecoration(
-                                    borderRadius: BorderRadius.all(
-                                      Radius.circular(18),
-                                    ),
-                                    color: Color(0xff232d37)),
-                                child: Padding(
-                                  padding: const EdgeInsets.only(
-                                      right: 18.0,
-                                      left: 12.0,
-                                      top: 24,
-                                      bottom: 12),
-                                  child: LineChart(
-                                    pagesReadData(snapshot.data),
+                                    bookGraphData(snapshot.data, graphFocus),
                                   ),
                                 ),
                               ),
@@ -311,7 +300,7 @@ class _bookViewState extends State<bookView> {
                   }
                   return CircularProgressIndicator();
                 }),
-            SizedBox(height:10),
+            SizedBox(height: 10),
           ],
         ),
       ),
@@ -541,7 +530,7 @@ addReadingSessionAlert(BuildContext context, NavigatorArguments args) {
       });
 }
 
-LineChartData timeReadData(data) {
+LineChartData bookGraphData(data, focus) {
   List<Color> gradientColors = [
     const Color(0xff23b6e6),
     const Color(0xff02d39a),
@@ -594,13 +583,13 @@ LineChartData timeReadData(data) {
           fontSize: 15,
         ),
         getTitles: (value) {
-          if (data["timeData"]["maxY"] >= 200) {
+          if (data[focus]["maxY"] >= 200) {
             if (value % 50 == 0) return value.toInt().toString();
-          } else if (data["timeData"]["maxY"] >= 100) {
+          } else if (data[focus]["maxY"] >= 100) {
             if (value % 25 == 0) return value.toInt().toString();
-          } else if (data["timeData"]["maxY"] >= 50) {
+          } else if (data[focus]["maxY"] >= 50) {
             if (value % 25 == 0) return value.toInt().toString();
-          } else if (data["timeData"]["maxY"] >= 10) {
+          } else if (data[focus]["maxY"] >= 10) {
             if (value % 10 == 0) return value.toInt().toString();
           }
 
@@ -614,109 +603,12 @@ LineChartData timeReadData(data) {
         show: true,
         border: Border.all(color: const Color(0xff37434d), width: 1)),
     minX: 0,
-    maxX: data["timeData"]["maxX"],
+    maxX: data[focus]["maxX"],
     minY: 0,
-    maxY: data["timeData"]["maxY"],
+    maxY: data[focus]["maxY"],
     lineBarsData: [
       LineChartBarData(
-        spots: data["timeData"]["data"],
-        isCurved: false,
-        colors: gradientColors,
-        barWidth: 2,
-        isStrokeCapRound: true,
-        dotData: FlDotData(
-          show: false,
-        ),
-        belowBarData: BarAreaData(
-          show: true,
-          colors:
-              gradientColors.map((color) => color.withOpacity(0.3)).toList(),
-        ),
-      ),
-    ],
-  );
-}
-
-LineChartData pagesReadData(data) {
-  List<Color> gradientColors = [
-    const Color(0xff23b6e6),
-    const Color(0xff02d39a),
-  ];
-
-  return LineChartData(
-    lineTouchData: LineTouchData(
-      enabled: true,
-    ),
-    gridData: FlGridData(
-      show: true,
-      drawVerticalLine: true,
-      getDrawingHorizontalLine: (value) {
-        return FlLine(
-          color: const Color(0xff37434d),
-          strokeWidth: 1,
-        );
-      },
-      getDrawingVerticalLine: (value) {
-        return FlLine(
-          color: const Color(0xff37434d),
-          strokeWidth: 1,
-        );
-      },
-    ),
-    titlesData: FlTitlesData(
-      show: true,
-      bottomTitles: SideTitles(
-        rotateAngle: 0,
-        showTitles: true,
-        reservedSize: 22,
-        getTextStyles: (value) => const TextStyle(
-            color: Color(0xff68737d),
-            fontWeight: FontWeight.bold,
-            fontSize: 14),
-        getTitles: (value) {
-          if (value % 7 == 0)
-            return data["dateData"][value]
-                .substring(5, data["dateData"][value].length)
-                .replaceAll("-", "/");
-
-          return '';
-        },
-        margin: 8,
-      ),
-      leftTitles: SideTitles(
-        showTitles: true,
-        getTextStyles: (value) => const TextStyle(
-          color: Color(0xff67727d),
-          fontWeight: FontWeight.bold,
-          fontSize: 15,
-        ),
-        getTitles: (value) {
-          if (data["pageData"]["maxY"] >= 200) {
-            if (value % 50 == 0) return value.toInt().toString();
-          } else if (data["pageData"]["maxY"] >= 100) {
-            if (value % 25 == 0) return value.toInt().toString();
-          } else if (data["pageData"]["maxY"] >= 50) {
-            if (value % 25 == 0) return value.toInt().toString();
-          } else if (data["pageData"]["maxY"] >= 10) {
-            if (value % 10 == 0) return value.toInt().toString();
-          }
-
-          return '';
-        },
-        reservedSize: 28,
-        margin: 12,
-      ),
-    ),
-    borderData: FlBorderData(
-        show: true,
-        border: Border.all(color: const Color(0xff37434d), width: 1)),
-    minX: 0,
-    maxX: data["pageData"]["maxX"],
-    minY: 0,
-    maxY: data["pageData"]["maxY"],
-    lineBarsData: [
-      LineChartBarData(
-        spots: data["pageData"]["data"],
+        spots: data[focus]["data"],
         isCurved: false,
         colors: gradientColors,
         barWidth: 2,
@@ -779,9 +671,9 @@ Future<Map> getReadingStatistics(NavigatorArguments args, int duration) async {
     };
 
     Map returnData = {
-      "timeData": timeData,
+      "time": timeData,
+      "pages": pageData,
       "dateData": dateData,
-      "pageData": pageData
     };
 
     return returnData;
