@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:bookmarkt_flutter/Models/book.dart';
+import 'package:bookmarkt_flutter/bookshelf.dart';
+import 'package:bookmarkt_flutter/library.dart';
 import 'package:bookmarkt_flutter/navigatorArguments.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
@@ -147,12 +150,29 @@ Container bookHeader(args) {
                   future: getBookshelfName(args, args.book.bookshelfID),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
-                      return Text(
-                        snapshot.data,
-                        style: TextStyle(
-                            fontSize: 15,
-                            color: Colors.grey,
-                            fontStyle: FontStyle.italic),
+                      if (snapshot.data == "")
+                        return Text("No bookshelf",
+                            style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.grey,
+                                fontStyle: FontStyle.italic));
+
+                      return InkWell(
+                        onTap: () async {
+                          args.bookshelfID = args.book.bookshelfID;
+
+                          Navigator.pushNamed(context, "/bookshelf",
+                              arguments: NavigatorArguments(args.user, args.url,
+                                  bookshelfID: args.book.bookshelfID,
+                                  bookshelfName: snapshot.data));
+                        },
+                        child: Text(
+                          snapshot.data,
+                          style: TextStyle(
+                              fontSize: 15,
+                              color: Colors.grey,
+                              fontStyle: FontStyle.italic),
+                        ),
                       );
                     } else if (snapshot.hasError) {
                       return Text("${snapshot.error}");

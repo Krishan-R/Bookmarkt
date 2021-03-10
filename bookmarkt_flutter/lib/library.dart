@@ -266,7 +266,7 @@ renameDialog(BuildContext context, NavigatorArguments args, int bookshelfID,
 }
 
 Future<List<Bookshelf>> getBookshelfList(args) async {
-  List<Bookshelf> bookshelfList = new List<Bookshelf>();
+  List<Bookshelf> bookshelfList = [];
   try {
     final response = await http.get("http://" +
         args.url +
