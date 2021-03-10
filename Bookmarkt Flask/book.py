@@ -46,6 +46,19 @@ class Book(db.Model):
         else:
             print("no isbn or google books ID provided, automatic scraping will not occur")
 
+    def toJson(self):
+        return {
+            "isbn": self.isbn,
+            "title": self.title,
+            "description": self.description,
+            "author": self.authorName,
+            "googleID": self.googleID,
+            "thumbnail": self.thumbnail,
+            "totalPages": self.totalPages,
+            "publishedDate": self.publishedDate,
+            "automaticallyScraped": self.automaticallyScraped
+        }
+
     def __scrapeBookDataISBN(self):
         """Adds relevant book fields from information retrieved by searching ISBN on Google Books API"""
 

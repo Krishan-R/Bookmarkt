@@ -105,29 +105,10 @@ def getAllUserBooks(userID):
         JsonList.append({"userData": {},
                          "bookData": {}})
 
-        JsonList[index]["userData"] = {
-            "isbn": instance.isbn,
-            "bookInstanceID": instance.bookInstanceID,
-            "currentPage": instance.currentPage,
-            "completed": instance.completed,
-            "userID": instance.userID,
-            "bookshelfID": instance.bookshelfID,
-            "rating": instance.rating,
-            "totalTimeRead": instance.totalTimeRead
-        }
+        JsonList[index]["userData"] = instance.toJson()
 
         for book in Book.query.filter(Book.isbn == instance.isbn):
-            JsonList[index]["bookData"] = {
-                "isbn": book.isbn,
-                "title": book.title,
-                "description": book.description,
-                "author": book.authorName,
-                "thumbnail": book.thumbnail,
-                "googleID": book.googleID,
-                "totalPages": book.totalPages,
-                "publishedDate": book.publishedDate,
-                "automaticallyScraped": book.automaticallyScraped
-            }
+            JsonList[index]["bookData"] = book.toJson()
 
     return jsonify(JsonList), 200
 
@@ -147,31 +128,8 @@ def getSpecificUserBook(userID, bookInstanceID):
         return "That book does not belong to user", 403
 
     json = {
-        "userData": {},
-        "bookData": {}
-    }
-
-    json["userData"] = {
-        "isbn": bookInstance.isbn,
-        "bookInstanceID": bookInstance.bookInstanceID,
-        "currentPage": bookInstance.currentPage,
-        "completed": bookInstance.completed,
-        "userID": bookInstance.userID,
-        "bookshelfID": bookInstance.bookshelfID,
-        "rating": bookInstance.rating,
-        "totalTimeRead": bookInstance.totalTimeRead
-    }
-
-    json["bookData"] = {
-        "isbn": book.isbn,
-        "title": book.title,
-        "description": book.description,
-        "author": book.authorName,
-        "thumbnail": book.thumbnail,
-        "googleID": book.googleID,
-        "totalPages": book.totalPages,
-        "publishedDate": book.publishedDate,
-        "automaticallyScraped": book.automaticallyScraped
+        "userData": bookInstance.toJson(),
+        "bookData": book.toJson()
     }
 
     return jsonify(json), 200
@@ -186,27 +144,10 @@ def getAllBookInstances():
         JsonList.append({"userData": {},
                          "bookData": {}})
 
-        JsonList[index]["userData"] = {
-            "isbn": instance.isbn,
-            "bookInstanceID": instance.bookInstanceID,
-            "currentPage": instance.currentPage,
-            "completed": instance.completed,
-            "userID": instance.userID,
-            "bookshelfID": instance.bookshelfID,
-            "rating": instance.rating,
-            "totalTimeRead": instance.totalTimeRead
-        }
+        JsonList[index]["userData"] = instance.toJson()
 
         for book in Book.query.filter(Book.isbn == instance.isbn):
-            JsonList[index]["bookData"] = {
-                "isbn": book.isbn,
-                "title": book.title,
-                "description": book.description,
-                "author": book.authorName,
-                "googleID": book.googleID,
-                "publishedDate": book.publishedDate,
-                "automaticallyScraped": book.automaticallyScraped
-            }
+            JsonList[index]["bookData"] = book.toJson()
 
     return jsonify(JsonList), 200
 
@@ -535,17 +476,7 @@ def getAllBooks():
     jsonList = []
     try:
         for book in Book.query.all():
-            jsonList.append({
-                "isbn": book.isbn,
-                "title": book.title,
-                "description": book.description,
-                "author": book.authorName,
-                "googleID": book.googleID,
-                "thumbnail": book.thumbnail,
-                "totalPages": book.totalPages,
-                "publishedDate": book.publishedDate,
-                "automaticallyScraped": book.automaticallyScraped
-            })
+            jsonList.append(book.toJson())
     except Exception as e:
         print(e)
         print("error occurred")
@@ -696,29 +627,10 @@ def getBooksFromBookshelf(userID, bookshelfID):
         JsonList.append({"userData": {},
                          "bookData": {}})
 
-        JsonList[index]["userData"] = {
-            "isbn": instance.isbn,
-            "bookInstanceID": instance.bookInstanceID,
-            "currentPage": instance.currentPage,
-            "completed": instance.completed,
-            "userID": instance.userID,
-            "bookshelfID": instance.bookshelfID,
-            "rating": instance.rating,
-            "totalTimeRead": instance.totalTimeRead
-        }
+        JsonList[index]["userData"] = instance.toJson()
 
         for book in Book.query.filter(Book.isbn == instance.isbn):
-            JsonList[index]["bookData"] = {
-                "isbn": book.isbn,
-                "title": book.title,
-                "description": book.description,
-                "author": book.authorName,
-                "googleID": book.googleID,
-                "thumbnail": book.thumbnail,
-                "totalPages": book.totalPages,
-                "publishedDate": book.publishedDate,
-                "automaticallyScraped": book.automaticallyScraped
-            }
+            JsonList[index]["bookData"] = book.toJson()
 
     returnJson = {
         "bookshelfID": bookshelfID,
@@ -768,13 +680,7 @@ def getAllAuthors():
         }
 
         for book in author.books:
-            JsonList[index]["books"].append({
-                "isbn": book.isbn,
-                "title": book.title,
-                "description": book.description,
-                "author": book.authorName,
-                "googleID": book.googleID
-            })
+            JsonList[index]["books"].append(book.toJson())
 
     return jsonify(JsonList), 200
 
@@ -797,13 +703,7 @@ def getSpecificAuthor(authorID):
     }
 
     for book in author.books:
-        JsonList[0]["books"].append({
-            "isbn": book.isbn,
-            "title": book.title,
-            "description": book.description,
-            "author": book.authorName,
-            "googleID": book.googleID
-        })
+        JsonList[0]["books"].append(book.toJson())
 
     return jsonify(JsonList), 200
 
@@ -845,16 +745,7 @@ def scrapeBook():
 
         return "Cannot be found", 404
 
-    return jsonify({
-        "isbn": book.isbn,
-        "title": book.title,
-        "description": book.description,
-        "author": book.authorName,
-        "googleID": book.googleID,
-        "thumbnail": book.thumbnail,
-        "totalPages": book.totalPages,
-        "publishedDate": book.publishedDate
-    }), 200
+    return book.toJson(), 200
 
 
 @app.route("/users/<userID>/books/<bookInstanceID>/stats", methods=["GET"])
@@ -983,27 +874,8 @@ def getUserRecent(userID):
             returnJson.append({
                 "index": index + 1,
                 "data": {
-                    "bookData": {
-                        "isbn": book.isbn,
-                        "title": book.title,
-                        "description": book.description,
-                        "author": book.authorName,
-                        "googleID": book.googleID,
-                        "thumbnail": book.thumbnail,
-                        "totalPages": book.totalPages,
-                        "publishedDate": book.publishedDate,
-                        "automaticallyScraped": book.automaticallyScraped
-                    },
-                    "userData": {
-                        "isbn": instance.isbn,
-                        "bookInstanceID": instance.bookInstanceID,
-                        "currentPage": instance.currentPage,
-                        "completed": instance.completed,
-                        "userID": instance.userID,
-                        "bookshelfID": instance.bookshelfID,
-                        "rating": instance.rating,
-                        "totalTimeRead": instance.totalTimeRead
-                    }
+                    "bookData": book.toJson(),
+                    "userData": instance.toJson()
                 }
             })
 
@@ -1014,3 +886,20 @@ def getUserRecent(userID):
             break
 
     return jsonify(returnJson), 200
+
+
+@app.route("/users/<userID>/books/<bookInstanceID>/sessions")
+def getBookInstanceSessions(userID, bookInstanceID):
+    userID = int(userID)
+    bookInstanceID = int(bookInstanceID)
+
+    returnJson = {
+        "bookInstanceID": bookInstanceID,
+        "sessions": []
+    }
+
+    for session in ReadingSession.query.filter(ReadingSession.bookInstanceID == bookInstanceID).order_by(ReadingSession.date):
+        returnJson["sessions"].append(session.toJson())
+
+
+    return returnJson, 200

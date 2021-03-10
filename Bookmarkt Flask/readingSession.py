@@ -1,3 +1,5 @@
+import json
+
 from exts import db
 import datetime
 
@@ -24,3 +26,16 @@ class ReadingSession(db.Model):
 
     def __repr__(self):
         return "<ReadingSession> %r" % self.readingSessionID
+
+    def toJson(self):
+
+        sessionJson = {
+            "readingSessionID": self.readingSessionID,
+            "bookInstanceID": self.bookInstanceID,
+            "userID": self.userID,
+            "pagesRead": self.pagesRead,
+            "timeRead": self.timeRead,
+            "date": self.date.strftime("%Y-%m-%d"),
+        }
+
+        return sessionJson

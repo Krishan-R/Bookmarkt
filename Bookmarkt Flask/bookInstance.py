@@ -29,5 +29,17 @@ class BookInstance(db.Model):
         self.rating = rating
         self.totalTimeRead = totalTimeRead
 
+    def toJson(self):
+        return {
+            "isbn": self.isbn,
+            "bookInstanceID": self.bookInstanceID,
+            "currentPage": self.currentPage,
+            "completed": self.completed,
+            "userID": self.userID,
+            "bookshelfID": self.bookshelfID,
+            "rating": self.rating,
+            "totalTimeRead": self.totalTimeRead
+        }
+
     def __repr__(self):
         return "<BookInstance %r>" % self.bookInstanceID
