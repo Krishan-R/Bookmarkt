@@ -17,10 +17,6 @@ class bookView extends StatefulWidget {
 }
 
 class _bookViewState extends State<bookView> {
-  int graphDuration = 30;
-  String graphFocus = "pages";
-  List<bool> isSelected = [true, false];
-
   @override
   Widget build(BuildContext context) {
     final NavigatorArguments args = ModalRoute.of(context).settings.arguments;
@@ -66,240 +62,11 @@ class _bookViewState extends State<bookView> {
           children: [
             SizedBox(height: 10),
             bookHeader(args),
-            SizedBox(
-              height: 10,
-            ),
-            InkWell(
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return StatefulBuilder(builder: (context, setState) {
-                      return AlertDialog(
-                        content: Expanded(
-                          child: SingleChildScrollView(
-                            child: Text(
-                              args.book.description,
-                              style: TextStyle(fontSize: 15),
-                            ),
-                          ),
-                        ),
-                        actions: [
-                          FlatButton(
-                            child: Text("OK"),
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                          )
-                        ],
-                      );
-                    });
-                  },
-                );
-              },
-              child: Text(
-                args.book.description,
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-              ),
-            ),
-            Container(
-              height: 100,
-              // color: Colors.pink,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("Pages Read:",
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      Text(
-                        "${args.book.currentPage}/${args.book.totalPages}",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  CircularPercentIndicator(
-                    radius: 50,
-                    lineWidth: 5,
-                    percent: (args.book.currentPage / args.book.totalPages),
-                    center:
-                        Icon(Icons.book, color: Theme.of(context).primaryColor),
-                    progressColor: Colors.green,
-                    backgroundColor: Colors.grey,
-                  ),
-                  SizedBox(
-                    width: 50,
-                  ),
-                  CircularPercentIndicator(
-                    radius: 50,
-                    lineWidth: 5,
-                    percent: 1,
-                    center: Icon(Icons.watch,
-                        color: Theme.of(context).primaryColor),
-                    progressColor: Colors.green,
-                    backgroundColor: Colors.grey,
-                  ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("Time Read:",
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      Text(
-                        "${args.book.totalTimeRead} minutes",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                FlatButton(
-                    onPressed: () {
-                      addReadingSessionAlert(context, args);
-                    },
-                    child: Text(
-                      "Add Reading Session",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    color: Theme.of(context).primaryColor),
-                FlatButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/readingSession',
-                            arguments: args)
-                        .then((value) => setState(() {}));
-                  },
-                  child: Text("Start Reading Session",
-                      style: TextStyle(color: Colors.white)),
-                  color: Theme.of(context).primaryColor,
-                ),
-              ],
-            ),
+            SizedBox(height: 10),
+            bookDescription(args: args),
+            readingSessionDetails(args, context, setState),
             Divider(thickness: 2),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Text(
-                      "History",
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                    ),
-                    SizedBox(width: 5),
-                    Container(
-                      height: 30,
-                      child: ToggleButtons(
-                        children: [Text("Pages"), Text("Time")],
-                        isSelected: isSelected,
-                        borderColor: Colors.white,
-                        onPressed: (int index) {
-                          setState(() {
-                            isSelected[0] = !isSelected[0];
-                            isSelected[1] = !isSelected[1];
-
-                            if (isSelected[0])
-                              graphFocus = "pages";
-                            else
-                              graphFocus = "time";
-                          });
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text("last"),
-                    Container(
-                        width: 40,
-                        child: TextFormField(
-                          decoration: new InputDecoration(
-                            border: InputBorder.none,
-                            focusedBorder: InputBorder.none,
-                            enabledBorder: InputBorder.none,
-                            errorBorder: InputBorder.none,
-                            disabledBorder: InputBorder.none,
-                          ),
-                          initialValue: graphDuration.toString(),
-                          textAlign: TextAlign.center,
-                          keyboardType: TextInputType.number,
-                          onChanged: (value) {
-                            setState(() {
-                              // if 0, graphs are removed due to lack of data
-                              if (int.parse(value) == 0) {
-                                graphDuration = 1;
-                              } else {
-                                graphDuration = int.parse(value);
-                              }
-                            });
-                          },
-                        )),
-                    Text("days")
-                  ],
-                ),
-              ],
-            ),
-            FutureBuilder(
-                future: getReadingStatistics(args, graphDuration),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    if (snapshot.data[graphFocus]["maxY"] == 0) {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("No reading data found for this time period"),
-                        ],
-                      );
-                    }
-                    return Column(
-                      children: [
-                        Stack(
-                          children: <Widget>[
-                            AspectRatio(
-                              aspectRatio: 1.70,
-                              child: Container(
-                                decoration: const BoxDecoration(
-                                    borderRadius: BorderRadius.all(
-                                      Radius.circular(18),
-                                    ),
-                                    color: Color(0xff232d37)),
-                                child: Padding(
-                                  padding: const EdgeInsets.only(
-                                      right: 18.0,
-                                      left: 12.0,
-                                      top: 24,
-                                      bottom: 12),
-                                  child: LineChart(
-                                    bookGraphData(snapshot.data, graphFocus),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    );
-                  } else if (snapshot.hasError) {
-                    return Text("${snapshot.error}");
-                  }
-                  return CircularProgressIndicator();
-                }),
+            bookViewGraph(args: args),
             SizedBox(height: 10),
           ],
         ),
@@ -400,6 +167,273 @@ Container bookHeader(args) {
       ],
     ),
   );
+}
+
+Column readingSessionDetails(
+    NavigatorArguments args, BuildContext context, setState) {
+  return Column(
+    children: [
+      Container(
+        height: 100,
+        // color: Colors.pink,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Pages Read:",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(
+                  "${args.book.currentPage}/${args.book.totalPages}",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            SizedBox(
+              width: 10,
+            ),
+            CircularPercentIndicator(
+              radius: 50,
+              lineWidth: 5,
+              percent: (args.book.currentPage / args.book.totalPages),
+              center: Icon(Icons.book, color: Theme.of(context).primaryColor),
+              progressColor: Colors.green,
+              backgroundColor: Colors.grey,
+            ),
+            SizedBox(
+              width: 50,
+            ),
+            CircularPercentIndicator(
+              radius: 50,
+              lineWidth: 5,
+              percent: 1,
+              center: Icon(Icons.watch, color: Theme.of(context).primaryColor),
+              progressColor: Colors.green,
+              backgroundColor: Colors.grey,
+            ),
+            SizedBox(
+              width: 10,
+            ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Time Read:",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(
+                  "${args.book.totalTimeRead} minutes",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          FlatButton(
+              onPressed: () {
+                addReadingSessionAlert(context, args);
+              },
+              child: Text(
+                "Add Reading Session",
+                style: TextStyle(color: Colors.white),
+              ),
+              color: Theme.of(context).primaryColor),
+          FlatButton(
+            onPressed: () {
+              Navigator.pushNamed(context, '/readingSession', arguments: args)
+                  .then((value) => setState(() {}));
+            },
+            child: Text("Start Reading Session",
+                style: TextStyle(color: Colors.white)),
+            color: Theme.of(context).primaryColor,
+          ),
+        ],
+      ),
+    ],
+  );
+}
+
+class bookDescription extends StatelessWidget {
+  const bookDescription({
+    Key key,
+    @required this.args,
+  }) : super(key: key);
+
+  final NavigatorArguments args;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return StatefulBuilder(builder: (context, setState) {
+              return AlertDialog(
+                content: Expanded(
+                  child: SingleChildScrollView(
+                    child: Text(
+                      args.book.description,
+                      style: TextStyle(fontSize: 15),
+                    ),
+                  ),
+                ),
+                actions: [
+                  FlatButton(
+                    child: Text("OK"),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  )
+                ],
+              );
+            });
+          },
+        );
+      },
+      child: Text(
+        args.book.description,
+        maxLines: 3,
+        overflow: TextOverflow.ellipsis,
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+}
+
+class bookViewGraph extends StatefulWidget {
+  NavigatorArguments args;
+
+  bookViewGraph({Key key, this.args}) : super(key: key);
+
+  @override
+  _bookViewGraphState createState() => _bookViewGraphState();
+}
+
+class _bookViewGraphState extends State<bookViewGraph> {
+  int graphDuration = 30;
+  String graphFocus = "pages";
+  List<bool> isSelected = [true, false];
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Text(
+                  "History",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                ),
+                SizedBox(width: 5),
+                Container(
+                  height: 30,
+                  child: ToggleButtons(
+                    children: [Text("Pages"), Text("Time")],
+                    isSelected: isSelected,
+                    borderColor: Colors.white,
+                    onPressed: (int index) {
+                      setState(() {
+                        isSelected[0] = !isSelected[0];
+                        isSelected[1] = !isSelected[1];
+
+                        if (isSelected[0])
+                          graphFocus = "pages";
+                        else
+                          graphFocus = "time";
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("last"),
+                Container(
+                    width: 40,
+                    child: TextFormField(
+                      decoration: new InputDecoration(
+                        border: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        errorBorder: InputBorder.none,
+                        disabledBorder: InputBorder.none,
+                      ),
+                      initialValue: graphDuration.toString(),
+                      textAlign: TextAlign.center,
+                      keyboardType: TextInputType.number,
+                      onChanged: (value) {
+                        setState(() {
+                          // if 0, graphs are removed due to lack of data
+                          if (int.parse(value) == 0) {
+                            graphDuration = 1;
+                          } else {
+                            graphDuration = int.parse(value);
+                          }
+                        });
+                      },
+                    )),
+                Text("days")
+              ],
+            ),
+          ],
+        ),
+        FutureBuilder(
+            future: getReadingStatistics(widget.args, graphDuration),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                if (snapshot.data[graphFocus]["maxY"] == 0) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("No reading data found for this time period"),
+                    ],
+                  );
+                }
+                return Column(
+                  children: [
+                    Stack(
+                      children: <Widget>[
+                        AspectRatio(
+                          aspectRatio: 1.70,
+                          child: Container(
+                            decoration: const BoxDecoration(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(18),
+                                ),
+                                color: Color(0xff232d37)),
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                  right: 18.0, left: 12.0, top: 24, bottom: 12),
+                              child: LineChart(
+                                bookGraphData(snapshot.data, graphFocus),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                );
+              } else if (snapshot.hasError) {
+                return Text("${snapshot.error}");
+              }
+              return CircularProgressIndicator();
+            }),
+      ],
+    );
+  }
 }
 
 Future<String> getBookshelfName(
