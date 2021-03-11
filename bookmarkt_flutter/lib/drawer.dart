@@ -3,6 +3,7 @@ import 'package:bookmarkt_flutter/navigatorArguments.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:bookmarkt_flutter/bookView.dart';
 
 class myDrawer extends StatelessWidget {
   myDrawer(this.args);
@@ -60,6 +61,17 @@ class myDrawer extends StatelessWidget {
             onTap: () {
               Navigator.pushNamedAndRemoveUntil(
                   context, "/allBooks", (route) => false,
+                  arguments: NavigatorArguments(args.user, args.url));
+            },
+          ),
+          ListTile(
+            title: Text("Reading Sessions"),
+            onTap: () async {
+
+              getAll
+
+              Navigator.pushNamedAndRemoveUntil(
+                  context, "/readingSessionHistory", (route) => false,
                   arguments: NavigatorArguments(args.user, args.url));
             },
           ),

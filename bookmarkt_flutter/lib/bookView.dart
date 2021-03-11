@@ -306,95 +306,6 @@ class _readingSessionDetailsState extends State<readingSessionDetails> {
   }
 }
 
-// Column readingSessionDetails(
-//     NavigatorArguments args, BuildContext context, setState) {
-//   return Column(
-//     children: [
-//       Container(
-//         height: 100,
-//         // color: Colors.pink,
-//         child: Row(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: [
-//             Column(
-//               mainAxisAlignment: MainAxisAlignment.center,
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 Text("Pages Read:",
-//                     style: TextStyle(fontWeight: FontWeight.bold)),
-//                 Text(
-//                   "${args.book.currentPage}/${args.book.totalPages}",
-//                   style: TextStyle(fontWeight: FontWeight.bold),
-//                 ),
-//               ],
-//             ),
-//             SizedBox(
-//               width: 10,
-//             ),
-//             CircularPercentIndicator(
-//               radius: 50,
-//               lineWidth: 5,
-//               percent: (args.book.currentPage / args.book.totalPages),
-//               center: Icon(Icons.book, color: Theme.of(context).primaryColor),
-//               progressColor: Colors.green,
-//               backgroundColor: Colors.grey,
-//             ),
-//             SizedBox(
-//               width: 50,
-//             ),
-//             CircularPercentIndicator(
-//               radius: 50,
-//               lineWidth: 5,
-//               percent: 1,
-//               center: Icon(Icons.watch, color: Theme.of(context).primaryColor),
-//               progressColor: Colors.green,
-//               backgroundColor: Colors.grey,
-//             ),
-//             SizedBox(
-//               width: 10,
-//             ),
-//             Column(
-//               mainAxisAlignment: MainAxisAlignment.center,
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 Text("Time Read:",
-//                     style: TextStyle(fontWeight: FontWeight.bold)),
-//                 Text(
-//                   "${args.book.totalTimeRead} minutes",
-//                   style: TextStyle(fontWeight: FontWeight.bold),
-//                 ),
-//               ],
-//             ),
-//           ],
-//         ),
-//       ),
-//       Row(
-//         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//         children: [
-//           FlatButton(
-//               onPressed: () {
-//                 addReadingSessionAlert(context, args);
-//               },
-//               child: Text(
-//                 "Add Reading Session",
-//                 style: TextStyle(color: Colors.white),
-//               ),
-//               color: Theme.of(context).primaryColor),
-//           FlatButton(
-//             onPressed: () {
-//               Navigator.pushNamed(context, '/readingSession', arguments: args)
-//                   .then((value) => setState(() {}));
-//             },
-//             child: Text("Start Reading Session",
-//                 style: TextStyle(color: Colors.white)),
-//             color: Theme.of(context).primaryColor,
-//           ),
-//         ],
-//       ),
-//     ],
-//   );
-// }
-
 class bookDescription extends StatelessWidget {
   const bookDescription({
     Key key,
@@ -639,6 +550,21 @@ Future<List<ReadingSession>> getReadingSessions(
 
   final response = await http.get(
       "http://${args.url}:5000/users/${args.user.userID}/books/$bookInstanceID/sessions");
+
+  Iterable i = json.decode(response.body)["sessions"];
+
+  sessionList = List<ReadingSession>.from(
+      i.map((model) => ReadingSession.fromJson(model)));
+
+  return sessionList;
+}
+
+Future<List<ReadingSession>> getAllReadingSessions(
+    NavigatorArguments args) async {
+  List<ReadingSession> sessionList = [];
+
+  final response = await http.get(
+      "http://${args.url}:5000/users/${args.user.userID}/readingSessions/all");
 
   Iterable i = json.decode(response.body)["sessions"];
 

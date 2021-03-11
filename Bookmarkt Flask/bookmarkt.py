@@ -904,6 +904,21 @@ def getBookInstanceSessions(userID, bookInstanceID):
     return returnJson, 200
 
 
+@app.route("/users/<userID>/readingSessions/all", methods=["GET"])
+def getAllUserReadingSessions(userID):
+    userID = int(userID)
+
+    returnJson = {
+        "userID": userID,
+        "sessions": []
+    }
+
+    for session in ReadingSession.query.filter(ReadingSession.userID == userID).order_by(ReadingSession.date.desc()):
+        returnJson["sessions"].append(session.toJson())
+
+    return returnJson, 200
+
+
 @app.route("/users/<userID>/readingSessions/edit", methods=["PUT"])
 def editReadingSession(userID):
 
