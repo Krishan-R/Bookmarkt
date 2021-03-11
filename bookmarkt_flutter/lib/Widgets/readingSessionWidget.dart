@@ -1,14 +1,18 @@
+import 'dart:convert';
+
 import 'package:bookmarkt_flutter/Models/book.dart';
 import 'package:bookmarkt_flutter/Models/readingSession.dart';
+import 'package:bookmarkt_flutter/navigatorArguments.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class readingSessionWidget extends StatelessWidget {
-  const readingSessionWidget({Key key, @required this.session, this.book})
-      : super(key: key);
+import 'package:http/http.dart' as http;
 
-  final ReadingSession session;
-  final Book book;
+class readingSessionWidget extends StatelessWidget {
+  ReadingSession session;
+  NavigatorArguments args;
+
+  readingSessionWidget({Key key, this.session, this.args}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -40,13 +44,25 @@ class readingSessionWidget extends StatelessWidget {
                   }(),
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                 ),
-                Flexible(
-                  child: Text(
-                    " - ${book.title}",
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                        fontStyle: FontStyle.italic, color: Colors.grey),
-                  ),
+                FutureBuilder(
+                  future: getBook(this.args, session.bookInstanceID),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      return Flexible(
+                        child: Text(
+                          " - ${snapshot.data.title}",
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              fontStyle: FontStyle.italic, color: Colors.grey),
+                        ),
+                      );
+                    }
+                    if (snapshot.hasError) {
+                      return Text("${snapshot.error}");
+                    }
+
+                    return CircularProgressIndicator();
+                  },
                 )
               ],
             ),
@@ -73,4 +89,15 @@ class readingSessionWidget extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<Book> getBook(NavigatorArguments args, int bookInstanceID) async {
+  Book book;
+
+  final response = await http.get(
+      "http://${args.url}:5000/users/${args.user.userID}/books/$bookInstanceID");
+
+  book = Book.fromJson(json.decode(response.body));
+
+  return book;
 }

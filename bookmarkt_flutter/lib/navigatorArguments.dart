@@ -23,6 +23,8 @@ class NavigatorArguments {
       this.bookInstanceID,
       this.book,
       this.bookshelfList,
+      this.sessionList,
+      this.readingSession,
       this.redirect});
 
   void printStuff() {

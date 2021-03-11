@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:bookmarkt_flutter/Models/readingSession.dart';
 import 'package:bookmarkt_flutter/navigatorArguments.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -68,11 +69,11 @@ class myDrawer extends StatelessWidget {
             title: Text("Reading Sessions"),
             onTap: () async {
 
-              getAll
+              List<ReadingSession> sessionList = await getAllReadingSessions(args);
 
               Navigator.pushNamedAndRemoveUntil(
-                  context, "/readingSessionHistory", (route) => false,
-                  arguments: NavigatorArguments(args.user, args.url));
+                  context, "/allReadingSessions", (route) => false,
+                  arguments: NavigatorArguments(args.user, args.url, sessionList: sessionList));
             },
           ),
           Divider(

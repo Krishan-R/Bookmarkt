@@ -1,6 +1,7 @@
 import 'package:bookmarkt_flutter/Models/readingSession.dart';
 import 'package:bookmarkt_flutter/Widgets/readingSessionWidget.dart';
 import 'package:bookmarkt_flutter/bookView.dart';
+import 'package:bookmarkt_flutter/drawer.dart';
 import 'package:bookmarkt_flutter/navigatorArguments.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -30,23 +31,57 @@ class _readingSessionHistoryState extends State<readingSessionHistory> {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              ListView.builder(
-                scrollDirection: Axis.vertical,
-                shrinkWrap: true,
-                itemCount: args.sessionList.length,
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                      onTap: () {
-                        readingSessionActions(
-                            context, setState, args, args.sessionList[index], index);
-                      },
-                      child: readingSessionWidget(
-                          session: args.sessionList[index], book: args.book,));
-                },
-              )
-            ],
+          child: ListView.builder(
+            scrollDirection: Axis.vertical,
+            shrinkWrap: true,
+            itemCount: args.sessionList.length,
+            itemBuilder: (context, index) {
+              return GestureDetector(
+                  onTap: () {
+                    readingSessionActions(context, setState, args,
+                        args.sessionList[index], index);
+                  },
+                  child: readingSessionWidget(
+                      session: args.sessionList[index], args: args));
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class allSessionHistory extends StatefulWidget {
+  @override
+  _allSessionHistoryState createState() => _allSessionHistoryState();
+}
+
+class _allSessionHistoryState extends State<allSessionHistory> {
+  @override
+  Widget build(BuildContext context) {
+    final NavigatorArguments args = ModalRoute.of(context).settings.arguments;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Reading Sessions"),
+      ),
+      drawer: myDrawer(args),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ListView.builder(
+            scrollDirection: Axis.vertical,
+            shrinkWrap: true,
+            itemCount: args.sessionList.length,
+            itemBuilder: (context, index) {
+              return GestureDetector(
+                  onTap: () {
+                    readingSessionActions(context, setState, args,
+                        args.sessionList[index], index);
+                  },
+                  child: readingSessionWidget(
+                      session: args.sessionList[index], args: args));
+            },
           ),
         ),
       ),
@@ -73,10 +108,9 @@ readingSessionActions(BuildContext context, setState, NavigatorArguments args,
         FlatButton(
           child: Text("Edit"),
           onPressed: () async {
-
             args.readingSession = session;
-            Navigator.pushNamed(context, "/editReadingSession",
-                arguments: args).then((value) {
+            Navigator.pushNamed(context, "/editReadingSession", arguments: args)
+                .then((value) {
               setState(() {});
               Navigator.pop(context);
             });
@@ -85,9 +119,8 @@ readingSessionActions(BuildContext context, setState, NavigatorArguments args,
         FlatButton(
           child: Text("Delete"),
           onPressed: () async {
-            //todo delete reading session
-
-            final response = await http.delete("http://${args.url}:5000/users/${args.user.userID}/readingSessions/delete?readingSessionID=${session.readingSessionID}");
+            final response = await http.delete(
+                "http://${args.url}:5000/users/${args.user.userID}/readingSessions/delete?readingSessionID=${session.readingSessionID}");
 
             if (response.body == "Deleted reading session") {
               args.book.totalTimeRead -= session.timeRead;
@@ -95,9 +128,10 @@ readingSessionActions(BuildContext context, setState, NavigatorArguments args,
 
               if (args.sessionList.length == 0) {
                 Navigator.popUntil(context, ModalRoute.withName("/book"));
-              } else{
+              } else {
                 Navigator.pop(context);
-                Navigator.popAndPushNamed(context, '/readingSessionHistory', arguments: args);
+                Navigator.popAndPushNamed(context, '/readingSessionHistory',
+                    arguments: args);
               }
             }
           },
@@ -143,15 +177,15 @@ class _editReadingSessionState extends State<editReadingSession> {
           FlatButton(
             child: Text("Save"),
             onPressed: () async {
+              args.book.totalTimeRead +=
+                  (args.readingSession.timeRead - oldTime);
 
-              args.book.totalTimeRead += (args.readingSession.timeRead - oldTime);
-              
-              final response = await http.put("http://${args.url}:5000/users/${args.user.userID}/readingSessions/edit?readingSessionID=${args.readingSession.readingSessionID}&pagesRead=${args.readingSession.pagesRead}&timeRead=${args.readingSession.timeRead}&date=${args.readingSession.date.year}-${args.readingSession.date.month}-${args.readingSession.date.day}");
+              final response = await http.put(
+                  "http://${args.url}:5000/users/${args.user.userID}/readingSessions/edit?readingSessionID=${args.readingSession.readingSessionID}&pagesRead=${args.readingSession.pagesRead}&timeRead=${args.readingSession.timeRead}&date=${args.readingSession.date.year}-${args.readingSession.date.month}-${args.readingSession.date.day}");
 
               if (response.body == "Successfully edited reading session") {
                 Navigator.pop(context);
               }
-
             },
           )
         ],

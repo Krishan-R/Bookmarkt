@@ -531,7 +531,7 @@ class _lastReadingSessionState extends State<lastReadingSession> {
                     widget.callback(widget.args);
                   });
                 },
-                child: readingSessionWidget(session: session, book: widget.args.book,),
+                child: readingSessionWidget(session: session, args: widget.args),
               ),
             ],
           );
