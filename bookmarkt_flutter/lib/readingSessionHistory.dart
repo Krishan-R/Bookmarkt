@@ -1,20 +1,11 @@
-import 'dart:convert';
-import 'dart:io';
-
-import 'package:bookmarkt_flutter/Models/book.dart';
 import 'package:bookmarkt_flutter/Models/readingSession.dart';
 import 'package:bookmarkt_flutter/Widgets/readingSessionWidget.dart';
-import 'package:bookmarkt_flutter/bookshelf.dart';
-import 'package:bookmarkt_flutter/library.dart';
+import 'package:bookmarkt_flutter/bookView.dart';
 import 'package:bookmarkt_flutter/navigatorArguments.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+
 import 'package:http/http.dart' as http;
-import 'package:percent_indicator/circular_percent_indicator.dart';
 
 class readingSessionHistory extends StatefulWidget {
   @override
@@ -24,11 +15,192 @@ class readingSessionHistory extends StatefulWidget {
 class _readingSessionHistoryState extends State<readingSessionHistory> {
   @override
   Widget build(BuildContext context) {
+    final NavigatorArguments args = ModalRoute.of(context).settings.arguments;
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Reading Sessions"),
       ),
-      body: Text("readingSessionHistory"),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          addReadingSessionAlert(context, args);
+        },
+        child: Icon(Icons.add),
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            children: [
+              ListView.builder(
+                scrollDirection: Axis.vertical,
+                shrinkWrap: true,
+                itemCount: args.sessionList.length,
+                itemBuilder: (context, index) {
+                  return GestureDetector(
+                      onTap: () {
+                        readingSessionActions(
+                            context, setState, args, args.sessionList[index], index);
+                      },
+                      child: readingSessionWidget(
+                          session: args.sessionList[index]));
+                },
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+readingSessionActions(BuildContext context, setState, NavigatorArguments args,
+    ReadingSession session, int index) {
+  // set up the buttons
+  Widget cancelButton = FlatButton(
+    child: Text("Cancel"),
+    onPressed: () {
+      Navigator.of(context).pop();
+    },
+  );
+
+  // set up the AlertDialog
+  AlertDialog alert = AlertDialog(
+    title: Text("Edit Reading Session"),
+    content: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        FlatButton(
+          child: Text("Edit"),
+          onPressed: () async {
+
+            args.readingSession = session;
+            Navigator.pushNamed(context, "/editReadingSession",
+                arguments: args).then((value) {
+              setState(() {});
+              Navigator.pop(context);
+            });
+          },
+        ),
+        FlatButton(
+          child: Text("Delete"),
+          onPressed: () async {
+            //todo delete reading session
+
+            final response = await http.delete("http://${args.url}:5000/users/${args.user.userID}/readingSessions/delete?readingSessionID=${session.readingSessionID}");
+
+            if (response.body == "Deleted reading session") {
+              args.book.totalTimeRead -= session.timeRead;
+              args.sessionList.removeAt(index);
+
+              if (args.sessionList.length == 0) {
+                Navigator.popUntil(context, ModalRoute.withName("/book"));
+              } else{
+                Navigator.pop(context);
+                Navigator.popAndPushNamed(context, '/readingSessionHistory', arguments: args);
+              }
+            }
+          },
+        ),
+      ],
+    ),
+    actions: [
+      cancelButton,
+    ],
+  );
+
+  // show the dialog
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return alert;
+    },
+  );
+}
+
+class editReadingSession extends StatefulWidget {
+  @override
+  _editReadingSessionState createState() => _editReadingSessionState();
+}
+
+class _editReadingSessionState extends State<editReadingSession> {
+  final _formKey = GlobalKey<FormState>();
+  bool firstInit = true;
+  int oldTime;
+
+  @override
+  Widget build(BuildContext context) {
+    final NavigatorArguments args = ModalRoute.of(context).settings.arguments;
+
+    if (firstInit) {
+      oldTime = args.readingSession.timeRead;
+      firstInit = false;
+    }
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Edit Reading Session"),
+        actions: [
+          FlatButton(
+            child: Text("Save"),
+            onPressed: () async {
+
+              args.book.totalTimeRead += (args.readingSession.timeRead - oldTime);
+              
+              final response = await http.put("http://${args.url}:5000/users/${args.user.userID}/readingSessions/edit?readingSessionID=${args.readingSession.readingSessionID}&pagesRead=${args.readingSession.pagesRead}&timeRead=${args.readingSession.timeRead}&date=${args.readingSession.date.year}-${args.readingSession.date.month}-${args.readingSession.date.day}");
+
+              if (response.body == "Successfully edited reading session") {
+                Navigator.pop(context);
+              }
+
+            },
+          )
+        ],
+      ),
+      body: SafeArea(
+          child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Pages Read:"),
+              TextFormField(
+                initialValue: args.readingSession.pagesRead.toString(),
+                keyboardType: TextInputType.number,
+                onChanged: (value) {
+                  args.readingSession.pagesRead = int.parse(value);
+                },
+              ),
+              SizedBox(height: 10),
+              Text("Time Read:"),
+              TextFormField(
+                initialValue: args.readingSession.timeRead.toString(),
+                keyboardType: TextInputType.number,
+                onChanged: (value) {
+                  args.readingSession.timeRead = int.parse(value);
+                },
+              ),
+              SizedBox(height: 10),
+              Text("Date:"),
+              FlatButton(
+                  onPressed: () async {
+                    DateTime picked = await showDatePicker(
+                        context: context,
+                        initialDate: args.readingSession.date,
+                        firstDate: DateTime(1900),
+                        lastDate: DateTime.now());
+                    if (picked != null && picked != args.readingSession.date)
+                      setState(() {
+                        args.readingSession.date = picked;
+                      });
+                  },
+                  child: Text(
+                      "${args.readingSession.date.year}-${args.readingSession.date.month.toString().padLeft(2, '0')}-${args.readingSession.date.day.toString().padLeft(2, '0')}"))
+            ],
+          ),
+        ),
+      )),
     );
   }
 }

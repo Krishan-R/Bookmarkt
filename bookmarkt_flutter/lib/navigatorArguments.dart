@@ -12,6 +12,7 @@ class NavigatorArguments {
   Book book;
   List<Bookshelf> bookshelfList;
   List<ReadingSession> sessionList;
+  ReadingSession readingSession;
   String redirect;
 
   NavigatorArguments(

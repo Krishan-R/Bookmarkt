@@ -888,7 +888,7 @@ def getUserRecent(userID):
     return jsonify(returnJson), 200
 
 
-@app.route("/users/<userID>/books/<bookInstanceID>/sessions")
+@app.route("/users/<userID>/books/<bookInstanceID>/sessions", methods=["GET"])
 def getBookInstanceSessions(userID, bookInstanceID):
     userID = int(userID)
     bookInstanceID = int(bookInstanceID)
@@ -902,3 +902,64 @@ def getBookInstanceSessions(userID, bookInstanceID):
         returnJson["sessions"].append(session.toJson())
 
     return returnJson, 200
+
+
+@app.route("/users/<userID>/readingSessions/edit", methods=["PUT"])
+def editReadingSession(userID):
+
+    userID = int(userID)
+
+    readingSessionID = request.args.get("readingSessionID", None)
+    pagesRead = request.args.get("pagesRead", None)
+    timeRead = request.args.get("timeRead", None)
+    date = request.args.get("date", None)
+
+    timeRead = int(timeRead)
+
+    if readingSessionID is None:
+        return "Please give readingSessionID", 400
+
+    readingSession = ReadingSession.query.filter(ReadingSession.readingSessionID == readingSessionID).first()
+    instance = BookInstance.query.filter(BookInstance.bookInstanceID == readingSession.bookInstanceID).first()
+
+    if readingSession is None:
+        return "Cannot find reading session", 404
+
+    if readingSession.userID != userID:
+        return "Reading session does not belong to that user", 403
+
+    if pagesRead is not None:
+        readingSession.pagesRead = pagesRead
+    if timeRead is not None:
+        instance.totalTimeRead += timeRead - readingSession.timeRead
+        readingSession.timeRead = timeRead
+    if date is not None:
+        dateObj = datetime.datetime.strptime(date, "%Y-%m-%d")
+        readingSession.date = dateObj
+
+    db.session.commit()
+
+    return "Successfully edited reading session", 200
+
+
+@app.route("/users/<userID>/readingSessions/delete", methods=["DELETE"])
+def deleteReadingSession(userID):
+    userID = int(userID)
+
+    readingSessionID = request.args.get("readingSessionID", None)
+
+    session = ReadingSession.query.filter(ReadingSession.readingSessionID == readingSessionID).first()
+    instance = BookInstance.query.filter(BookInstance.bookInstanceID == session.bookInstanceID).first()
+
+    if session is None:
+        return "Cannot find reading session", 404
+
+    if session.userID != userID:
+        return "Reading session does not belong to that user", 403
+
+    instance.totalTimeRead -= session.timeRead
+    ReadingSession.query.filter(ReadingSession.readingSessionID == readingSessionID).delete()
+
+    db.session.commit()
+
+    return "Deleted reading session", 200

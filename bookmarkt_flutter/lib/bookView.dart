@@ -22,9 +22,19 @@ class bookView extends StatefulWidget {
 }
 
 class _bookViewState extends State<bookView> {
+  NavigatorArguments args;
+
+  callback(NavigatorArguments newArgs) {
+    setState(() {
+      args = newArgs;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final NavigatorArguments args = ModalRoute.of(context).settings.arguments;
+    args = ModalRoute.of(context).settings.arguments;
+
+    print(args.book.totalTimeRead);
 
     return SafeArea(
         child: Scaffold(
@@ -69,8 +79,9 @@ class _bookViewState extends State<bookView> {
             bookHeader(args),
             SizedBox(height: 10),
             bookDescription(args: args),
-            readingSessionDetails(args, context, setState),
-            lastReadingSession(args: args),
+            Divider(thickness: 2),
+            readingSessionDetails(args: args),
+            lastReadingSession(args: args, callback: callback),
             Divider(thickness: 2),
             bookViewGraph(args: args),
             SizedBox(height: 10),
@@ -192,94 +203,199 @@ Container bookHeader(args) {
   );
 }
 
-Column readingSessionDetails(
-    NavigatorArguments args, BuildContext context, setState) {
-  return Column(
-    children: [
-      Container(
-        height: 100,
-        // color: Colors.pink,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+class readingSessionDetails extends StatefulWidget {
+  NavigatorArguments args;
+
+  readingSessionDetails({
+    Key key,
+    this.args,
+  }) : super(key: key);
+
+  @override
+  _readingSessionDetailsState createState() => _readingSessionDetailsState();
+}
+
+class _readingSessionDetailsState extends State<readingSessionDetails> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          height: 100,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Pages Read:",
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text(
+                    "${widget.args.book.currentPage}/${widget.args.book.totalPages}",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              CircularPercentIndicator(
+                radius: 50,
+                lineWidth: 5,
+                percent: (widget.args.book.currentPage /
+                    widget.args.book.totalPages),
+                center: Icon(Icons.book, color: Theme.of(context).primaryColor),
+                progressColor: Colors.green,
+                backgroundColor: Colors.grey,
+              ),
+              SizedBox(
+                width: 50,
+              ),
+              CircularPercentIndicator(
+                radius: 50,
+                lineWidth: 5,
+                percent: 1,
+                center:
+                    Icon(Icons.watch, color: Theme.of(context).primaryColor),
+                progressColor: Colors.green,
+                backgroundColor: Colors.grey,
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Time Read:",
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text(
+                    "${widget.args.book.totalTimeRead} minutes",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Pages Read:",
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                Text(
-                  "${args.book.currentPage}/${args.book.totalPages}",
-                  style: TextStyle(fontWeight: FontWeight.bold),
+            FlatButton(
+                onPressed: () {
+                  addReadingSessionAlert(context, widget.args);
+                },
+                child: Text(
+                  "Add Reading Session",
+                  style: TextStyle(color: Colors.white),
                 ),
-              ],
-            ),
-            SizedBox(
-              width: 10,
-            ),
-            CircularPercentIndicator(
-              radius: 50,
-              lineWidth: 5,
-              percent: (args.book.currentPage / args.book.totalPages),
-              center: Icon(Icons.book, color: Theme.of(context).primaryColor),
-              progressColor: Colors.green,
-              backgroundColor: Colors.grey,
-            ),
-            SizedBox(
-              width: 50,
-            ),
-            CircularPercentIndicator(
-              radius: 50,
-              lineWidth: 5,
-              percent: 1,
-              center: Icon(Icons.watch, color: Theme.of(context).primaryColor),
-              progressColor: Colors.green,
-              backgroundColor: Colors.grey,
-            ),
-            SizedBox(
-              width: 10,
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Time Read:",
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                Text(
-                  "${args.book.totalTimeRead} minutes",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ],
+                color: Theme.of(context).primaryColor),
+            FlatButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/readingSession',
+                        arguments: widget.args)
+                    .then((value) => setState(() {}));
+              },
+              child: Text("Start Reading Session",
+                  style: TextStyle(color: Colors.white)),
+              color: Theme.of(context).primaryColor,
             ),
           ],
         ),
-      ),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          FlatButton(
-              onPressed: () {
-                addReadingSessionAlert(context, args);
-              },
-              child: Text(
-                "Add Reading Session",
-                style: TextStyle(color: Colors.white),
-              ),
-              color: Theme.of(context).primaryColor),
-          FlatButton(
-            onPressed: () {
-              Navigator.pushNamed(context, '/readingSession', arguments: args)
-                  .then((value) => setState(() {}));
-            },
-            child: Text("Start Reading Session",
-                style: TextStyle(color: Colors.white)),
-            color: Theme.of(context).primaryColor,
-          ),
-        ],
-      ),
-    ],
-  );
+      ],
+    );
+  }
 }
+
+// Column readingSessionDetails(
+//     NavigatorArguments args, BuildContext context, setState) {
+//   return Column(
+//     children: [
+//       Container(
+//         height: 100,
+//         // color: Colors.pink,
+//         child: Row(
+//           mainAxisAlignment: MainAxisAlignment.center,
+//           children: [
+//             Column(
+//               mainAxisAlignment: MainAxisAlignment.center,
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 Text("Pages Read:",
+//                     style: TextStyle(fontWeight: FontWeight.bold)),
+//                 Text(
+//                   "${args.book.currentPage}/${args.book.totalPages}",
+//                   style: TextStyle(fontWeight: FontWeight.bold),
+//                 ),
+//               ],
+//             ),
+//             SizedBox(
+//               width: 10,
+//             ),
+//             CircularPercentIndicator(
+//               radius: 50,
+//               lineWidth: 5,
+//               percent: (args.book.currentPage / args.book.totalPages),
+//               center: Icon(Icons.book, color: Theme.of(context).primaryColor),
+//               progressColor: Colors.green,
+//               backgroundColor: Colors.grey,
+//             ),
+//             SizedBox(
+//               width: 50,
+//             ),
+//             CircularPercentIndicator(
+//               radius: 50,
+//               lineWidth: 5,
+//               percent: 1,
+//               center: Icon(Icons.watch, color: Theme.of(context).primaryColor),
+//               progressColor: Colors.green,
+//               backgroundColor: Colors.grey,
+//             ),
+//             SizedBox(
+//               width: 10,
+//             ),
+//             Column(
+//               mainAxisAlignment: MainAxisAlignment.center,
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 Text("Time Read:",
+//                     style: TextStyle(fontWeight: FontWeight.bold)),
+//                 Text(
+//                   "${args.book.totalTimeRead} minutes",
+//                   style: TextStyle(fontWeight: FontWeight.bold),
+//                 ),
+//               ],
+//             ),
+//           ],
+//         ),
+//       ),
+//       Row(
+//         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+//         children: [
+//           FlatButton(
+//               onPressed: () {
+//                 addReadingSessionAlert(context, args);
+//               },
+//               child: Text(
+//                 "Add Reading Session",
+//                 style: TextStyle(color: Colors.white),
+//               ),
+//               color: Theme.of(context).primaryColor),
+//           FlatButton(
+//             onPressed: () {
+//               Navigator.pushNamed(context, '/readingSession', arguments: args)
+//                   .then((value) => setState(() {}));
+//             },
+//             child: Text("Start Reading Session",
+//                 style: TextStyle(color: Colors.white)),
+//             color: Theme.of(context).primaryColor,
+//           ),
+//         ],
+//       ),
+//     ],
+//   );
+// }
 
 class bookDescription extends StatelessWidget {
   const bookDescription({
@@ -461,8 +577,9 @@ class _bookViewGraphState extends State<bookViewGraph> {
 
 class lastReadingSession extends StatefulWidget {
   NavigatorArguments args;
+  Function callback;
 
-  lastReadingSession({Key key, this.args}) : super(key: key);
+  lastReadingSession({Key key, this.args, this.callback}) : super(key: key);
 
   @override
   _lastReadingSessionState createState() => _lastReadingSessionState();
@@ -475,14 +592,14 @@ class _lastReadingSessionState extends State<lastReadingSession> {
       future: getReadingSessions(widget.args, widget.args.book.bookInstanceID),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-
           if (snapshot.data.length == 0) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Divider(thickness: 2),
                 Text("Reading Sessions (${snapshot.data.length})",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
               ],
             );
           }
@@ -497,9 +614,13 @@ class _lastReadingSessionState extends State<lastReadingSession> {
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
               GestureDetector(
                 onTap: () {
-                  print("tapped");
                   widget.args.sessionList = snapshot.data;
-                  Navigator.pushNamed(context, "/readingSessionHistory", arguments: widget.args);
+                  Navigator.pushNamed(context, "/readingSessionHistory",
+                          arguments: widget.args)
+                      .then((value) {
+                    // setState(() {});
+                    widget.callback(widget.args);
+                  });
                 },
                 child: readingSessionWidget(session: session),
               ),
@@ -541,9 +662,7 @@ Future<String> getBookshelfName(
 
 addReadingSessionAlert(BuildContext context, NavigatorArguments args) {
   TextEditingController pagesReadController = new TextEditingController();
-
   DateTime selectedDate = DateTime.now();
-
   Duration duration = new Duration();
 
   final _formKey = GlobalKey<FormState>();
@@ -577,84 +696,82 @@ addReadingSessionAlert(BuildContext context, NavigatorArguments args) {
 
   // show the dialog
   showDialog(
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(builder: (context, setState) {
-          return AlertDialog(
-            title: Text("Add Reading Session"),
-            content: Form(
-              key: _formKey,
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Text(
-                      "(Will not update book progress)",
-                      style: TextStyle(fontSize: 15, color: Colors.grey),
-                    ),
-                    TextFormField(
-                      controller: pagesReadController,
-                      decoration:
-                          InputDecoration(hintText: "Num. of pages read"),
-                      keyboardType: TextInputType.number,
-                      validator: (value) {
-                        if (value.isEmpty) return "Pages read cannot be empty";
-                        if (int.parse(value) > args.book.totalPages)
-                          return "Cannot be greater than total pages in book";
-                        return null;
-                      },
-                    ),
-                    FlatButton(
-                      child: Text(
-                          "${duration.inHours.toString().padLeft(2, '0')} : ${(duration.inMinutes % 60).toString().padLeft(2, '0')}"),
-                      onPressed: () {
-                        showModalBottomSheet(
-                          context: context,
-                          builder: (BuildContext builder) {
-                            return Container(
-                              height: MediaQuery.of(context)
-                                      .copyWith()
-                                      .size
-                                      .height /
-                                  3,
-                              child: CupertinoTimerPicker(
-                                mode: CupertinoTimerPickerMode.hm,
-                                initialTimerDuration: duration,
-                                onTimerDurationChanged: (value) {
-                                  setState(() {
-                                    duration = value;
-                                  });
-                                },
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    ),
-                    FlatButton(
-                        onPressed: () async {
-                          DateTime picked = await showDatePicker(
-                              context: context,
-                              initialDate: selectedDate,
-                              firstDate: DateTime(1900),
-                              lastDate: DateTime.now());
-                          if (picked != null && picked != selectedDate)
-                            setState(() {
-                              selectedDate = picked;
-                            });
+    context: context,
+    builder: (context) {
+      return StatefulBuilder(builder: (context, setState) {
+        return AlertDialog(
+          title: Text("Add Reading Session"),
+          content: Form(
+            key: _formKey,
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Text(
+                    "(Will not update book progress)",
+                    style: TextStyle(fontSize: 15, color: Colors.grey),
+                  ),
+                  TextFormField(
+                    controller: pagesReadController,
+                    decoration: InputDecoration(hintText: "Num. of pages read"),
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value.isEmpty) return "Pages read cannot be empty";
+                      if (int.parse(value) > args.book.totalPages)
+                        return "Cannot be greater than total pages in book";
+                      return null;
+                    },
+                  ),
+                  FlatButton(
+                    child: Text(
+                        "${duration.inHours.toString().padLeft(2, '0')} : ${(duration.inMinutes % 60).toString().padLeft(2, '0')}"),
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (BuildContext builder) {
+                          return Container(
+                            height:
+                                MediaQuery.of(context).copyWith().size.height /
+                                    3,
+                            child: CupertinoTimerPicker(
+                              mode: CupertinoTimerPickerMode.hm,
+                              initialTimerDuration: duration,
+                              onTimerDurationChanged: (value) {
+                                setState(() {
+                                  duration = value;
+                                });
+                              },
+                            ),
+                          );
                         },
-                        child: Text(
-                            "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}"))
-                  ],
-                ),
+                      );
+                    },
+                  ),
+                  FlatButton(
+                      onPressed: () async {
+                        DateTime picked = await showDatePicker(
+                            context: context,
+                            initialDate: selectedDate,
+                            firstDate: DateTime(1900),
+                            lastDate: DateTime.now());
+                        if (picked != null && picked != selectedDate)
+                          setState(() {
+                            selectedDate = picked;
+                          });
+                      },
+                      child: Text(
+                          "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}"))
+                ],
               ),
             ),
-            actions: [
-              cancelButton,
-              continueButton,
-            ],
-          );
-        });
+          ),
+          actions: [
+            cancelButton,
+            continueButton,
+          ],
+        );
       });
+    },
+  );
 }
 
 LineChartData bookGraphData(data, focus) {

@@ -27,7 +27,8 @@ void main() => runApp(MaterialApp(
     '/book': (context) => bookView(),
     '/readingSession': (context) => readingSessionCoverPage(),
     '/addBook': (context) => addBook(),
-    '/readingSessionHistory': (context) => readingSessionHistory()
+    '/readingSessionHistory': (context) => readingSessionHistory(),
+    '/editReadingSession': (context) => editReadingSession()
   },
 ));
 
