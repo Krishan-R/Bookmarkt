@@ -43,7 +43,7 @@ class _readingSessionHistoryState extends State<readingSessionHistory> {
                             context, setState, args, args.sessionList[index], index);
                       },
                       child: readingSessionWidget(
-                          session: args.sessionList[index]));
+                          session: args.sessionList[index], book: args.book,));
                 },
               )
             ],

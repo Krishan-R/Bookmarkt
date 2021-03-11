@@ -34,8 +34,6 @@ class _bookViewState extends State<bookView> {
   Widget build(BuildContext context) {
     args = ModalRoute.of(context).settings.arguments;
 
-    print(args.book.totalTimeRead);
-
     return SafeArea(
         child: Scaffold(
       appBar: AppBar(
@@ -592,6 +590,7 @@ class _lastReadingSessionState extends State<lastReadingSession> {
       future: getReadingSessions(widget.args, widget.args.book.bookInstanceID),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
+
           if (snapshot.data.length == 0) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -605,7 +604,6 @@ class _lastReadingSessionState extends State<lastReadingSession> {
           }
 
           ReadingSession session = snapshot.data[0];
-
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -622,7 +620,7 @@ class _lastReadingSessionState extends State<lastReadingSession> {
                     widget.callback(widget.args);
                   });
                 },
-                child: readingSessionWidget(session: session),
+                child: readingSessionWidget(session: session, book: widget.args.book,),
               ),
             ],
           );
