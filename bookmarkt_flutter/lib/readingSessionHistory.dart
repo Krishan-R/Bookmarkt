@@ -18,32 +18,34 @@ class _readingSessionHistoryState extends State<readingSessionHistory> {
   Widget build(BuildContext context) {
     final NavigatorArguments args = ModalRoute.of(context).settings.arguments;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Reading Sessions"),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          addReadingSessionAlert(context, args);
-        },
-        child: Icon(Icons.add),
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: ListView.builder(
-            scrollDirection: Axis.vertical,
-            shrinkWrap: true,
-            itemCount: args.sessionList.length,
-            itemBuilder: (context, index) {
-              return GestureDetector(
-                  onTap: () {
-                    readingSessionActions(context, setState, args,
-                        args.sessionList[index], index);
-                  },
-                  child: readingSessionWidget(
-                      session: args.sessionList[index], args: args));
-            },
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text("Reading Sessions"),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            addReadingSessionAlert(context, args);
+          },
+          child: Icon(Icons.add),
+        ),
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ListView.builder(
+              scrollDirection: Axis.vertical,
+              shrinkWrap: true,
+              itemCount: args.sessionList.length,
+              itemBuilder: (context, index) {
+                return GestureDetector(
+                    onTap: () {
+                      readingSessionActions(context, setState, args,
+                          args.sessionList[index], index);
+                    },
+                    child: readingSessionWidget(
+                        session: args.sessionList[index], args: args));
+              },
+            ),
           ),
         ),
       ),
@@ -61,27 +63,29 @@ class _allSessionHistoryState extends State<allSessionHistory> {
   Widget build(BuildContext context) {
     final NavigatorArguments args = ModalRoute.of(context).settings.arguments;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Reading Sessions"),
-      ),
-      drawer: myDrawer(args),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: ListView.builder(
-            scrollDirection: Axis.vertical,
-            shrinkWrap: true,
-            itemCount: args.sessionList.length,
-            itemBuilder: (context, index) {
-              return GestureDetector(
-                  onTap: () {
-                    readingSessionActions(context, setState, args,
-                        args.sessionList[index], index);
-                  },
-                  child: readingSessionWidget(
-                      session: args.sessionList[index], args: args));
-            },
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text("Reading Sessions"),
+        ),
+        drawer: myDrawer(args),
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ListView.builder(
+              scrollDirection: Axis.vertical,
+              shrinkWrap: true,
+              itemCount: args.sessionList.length,
+              itemBuilder: (context, index) {
+                return GestureDetector(
+                    onTap: () {
+                      readingSessionActions(context, setState, args,
+                          args.sessionList[index], index);
+                    },
+                    child: readingSessionWidget(
+                        session: args.sessionList[index], args: args));
+              },
+            ),
           ),
         ),
       ),
