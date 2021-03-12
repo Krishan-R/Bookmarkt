@@ -8,11 +8,11 @@ import 'package:flutter/material.dart';
 
 import 'package:http/http.dart' as http;
 
-class readingSessionWidget extends StatelessWidget {
+class readingSessionCard extends StatelessWidget {
   ReadingSession session;
   NavigatorArguments args;
 
-  readingSessionWidget({Key key, this.session, this.args}) : super(key: key);
+  readingSessionCard({Key key, this.session, this.args}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

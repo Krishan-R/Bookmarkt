@@ -1,5 +1,5 @@
 import 'package:bookmarkt_flutter/Models/readingSession.dart';
-import 'package:bookmarkt_flutter/Widgets/readingSessionWidget.dart';
+import 'package:bookmarkt_flutter/Widgets/readingSessionCard.dart';
 import 'package:bookmarkt_flutter/bookView.dart';
 import 'package:bookmarkt_flutter/drawer.dart';
 import 'package:bookmarkt_flutter/navigatorArguments.dart';
@@ -42,7 +42,7 @@ class _readingSessionHistoryState extends State<readingSessionHistory> {
                       readingSessionActions(context, setState, args,
                           args.sessionList[index], index);
                     },
-                    child: readingSessionWidget(
+                    child: readingSessionCard(
                         session: args.sessionList[index], args: args));
               },
             ),
@@ -82,7 +82,7 @@ class _allSessionHistoryState extends State<allSessionHistory> {
                       readingSessionActions(context, setState, args,
                           args.sessionList[index], index);
                     },
-                    child: readingSessionWidget(
+                    child: readingSessionCard(
                         session: args.sessionList[index], args: args));
               },
             ),
@@ -165,6 +165,7 @@ class _editReadingSessionState extends State<editReadingSession> {
   final _formKey = GlobalKey<FormState>();
   bool firstInit = true;
   int oldTime;
+  Duration duration = new Duration();
 
   @override
   Widget build(BuildContext context) {
@@ -172,6 +173,7 @@ class _editReadingSessionState extends State<editReadingSession> {
 
     if (firstInit) {
       oldTime = args.readingSession.timeRead;
+      duration = Duration(minutes: args.readingSession.timeRead);
       firstInit = false;
     }
     return Scaffold(
@@ -182,7 +184,9 @@ class _editReadingSessionState extends State<editReadingSession> {
             child: Text("Save"),
             onPressed: () async {
               args.book.totalTimeRead +=
-                  (args.readingSession.timeRead - oldTime);
+                  (duration.inMinutes - oldTime);
+
+              args.readingSession.timeRead = duration.inMinutes;
 
               final response = await http.put(
                   "http://${args.url}:5000/users/${args.user.userID}/readingSessions/edit?readingSessionID=${args.readingSession.readingSessionID}&pagesRead=${args.readingSession.pagesRead}&timeRead=${args.readingSession.timeRead}&date=${args.readingSession.date.year}-${args.readingSession.date.month}-${args.readingSession.date.day}");
@@ -212,11 +216,29 @@ class _editReadingSessionState extends State<editReadingSession> {
               ),
               SizedBox(height: 10),
               Text("Time Read:"),
-              TextFormField(
-                initialValue: args.readingSession.timeRead.toString(),
-                keyboardType: TextInputType.number,
-                onChanged: (value) {
-                  args.readingSession.timeRead = int.parse(value);
+              FlatButton(
+                child: Text(
+                    "${duration.inHours.toString().padLeft(2, '0')} : ${(duration.inMinutes % 60).toString().padLeft(2, '0')}"),
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    builder: (BuildContext builder) {
+                      return Container(
+                        height:
+                        MediaQuery.of(context).copyWith().size.height /
+                            3,
+                        child: CupertinoTimerPicker(
+                          mode: CupertinoTimerPickerMode.hm,
+                          initialTimerDuration: duration,
+                          onTimerDurationChanged: (value) {
+                            setState(() {
+                              duration = value;
+                            });
+                          },
+                        ),
+                      );
+                    },
+                  );
                 },
               ),
               SizedBox(height: 10),

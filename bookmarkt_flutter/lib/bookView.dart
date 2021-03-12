@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:bookmarkt_flutter/Models/book.dart';
 import 'package:bookmarkt_flutter/Models/readingSession.dart';
-import 'package:bookmarkt_flutter/Widgets/readingSessionWidget.dart';
+import 'package:bookmarkt_flutter/Widgets/readingSessionCard.dart';
 import 'package:bookmarkt_flutter/bookshelf.dart';
 import 'package:bookmarkt_flutter/library.dart';
 import 'package:bookmarkt_flutter/navigatorArguments.dart';
@@ -531,7 +531,7 @@ class _lastReadingSessionState extends State<lastReadingSession> {
                     widget.callback(widget.args);
                   });
                 },
-                child: readingSessionWidget(session: session, args: widget.args),
+                child: readingSessionCard(session: session, args: widget.args),
               ),
             ],
           );
