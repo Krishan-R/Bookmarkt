@@ -290,14 +290,24 @@ def updateBookInstance(userID, bookInstanceID):
         bookInstance.goalDate = dateObj
 
     if borrowingTime is not None:
-        dateObj = datetime.datetime.strptime(borrowingTime, "%Y-%m-%d")
+
+        if borrowingTime == "null":
+            dateObj = None
+        else:
+            dateObj = datetime.datetime.strptime(borrowingTime, "%Y-%m-%d")
         bookInstance.borrowingTime = dateObj
 
     if borrowingFrom is not None:
-        bookInstance.borrowingFrom = borrowingFrom
+        if borrowingFrom == "null":
+            bookInstance.borrowingFrom = None
+        else:
+            bookInstance.borrowingFrom = borrowingFrom
 
     if borrowingTo is not None:
-        bookInstance.borrowingTo = borrowingTo
+        if borrowingTo == "null":
+            bookInstance.borrowingTo = None
+        else:
+            bookInstance.borrowingTo = borrowingTo
 
     if rating is not None:
         try:

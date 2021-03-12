@@ -167,8 +167,11 @@ class _addBookState extends State<addBook> {
                           borrowing += "&borrowingTime=${borrowingDate.year}-${borrowingDate.month.toString().padLeft(2, '0')}-${borrowingDate.day.toString().padLeft(2, '0')}";
                           args.book.borrowingTime = borrowingDate;
                         }
+                      } else {
+                        args.book.borrowingTo = null;
+                        args.book.borrowingFrom = null;
+                        args.book.borrowingTime = null;
                       }
-
 
                       final response = await http.post(
                           "http://${args.url}:5000/users/${args.user.userID.toString()}/books/add?isbn=${args.book.ISBN}$bookshelfID$currentPage$completed$rating$title$author$description$totalPages$publishedDate$borrowing");
@@ -240,6 +243,11 @@ class _addBookState extends State<addBook> {
                           borrowing += "&borrowingTime=${borrowingDate.year}-${borrowingDate.month.toString().padLeft(2, '0')}-${borrowingDate.day.toString().padLeft(2, '0')}";
                           args.book.borrowingTime = borrowingDate;
                         }
+                      } else {
+                        args.book.borrowingTo = null;
+                        args.book.borrowingFrom = null;
+                        args.book.borrowingTime = null;
+                        borrowing = "&borrowingFrom=null&borrowingTo=null&borrowingTime=null";
                       }
 
                       final response = await http.put(
