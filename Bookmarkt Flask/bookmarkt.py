@@ -231,6 +231,12 @@ def updateBookInstance(userID, bookInstanceID):
     bookshelfID = request.args.get("bookshelfID", None)
     rating = request.args.get("rating", None)
     totalTimeRead = request.args.get("totalTimeRead", None)
+    goalDate = request.args.get("goalDate", None)
+    dateCompleted = request.args.get("dateCompleted", datetime.date.today())
+    borrowingTime = request.args.get("borrowingTime", None)
+    borrowingFrom = request.args.get("borrowingFrom", None)
+    borrowingTo = request.args.get("borrowingTo", None)
+
     bookInstance = BookInstance.query.filter(BookInstance.bookInstanceID == bookInstanceID).first()
 
     if bookInstance is None:
@@ -254,7 +260,28 @@ def updateBookInstance(userID, bookInstanceID):
         bookInstance.completed = completed
     elif completed is not None and completed.lower() == "true":
         completed = True
+
+        try:
+            dateObj = datetime.datetime.strptime(dateCompleted, "%Y-%m-%d")
+        except TypeError:
+            dateObj = dateCompleted
+
+        bookInstance.dateCompleted = dateObj
         bookInstance.completed = completed
+
+    if goalDate is not None:
+        dateObj = datetime.datetime.strptime(goalDate, "%Y-%m-%d")
+        bookInstance.goalDate = dateObj
+
+    if borrowingTime is not None:
+        dateObj = datetime.datetime.strptime(borrowingTime, "%Y-%m-%d")
+        bookInstance.borrowingTime = dateObj
+
+    if borrowingFrom is not None:
+        bookInstance.borrowingFrom = borrowingFrom
+
+    if borrowingTo is not None:
+        bookInstance.borrowingTo = borrowingTo
 
     if rating is not None:
         try:

@@ -59,9 +59,9 @@ class Book {
         rating = json["userData"]["rating"],
         borrowingFrom = json["userData"]["borrowingFrom"],
         borrowingTo = json["userData"]["borrowingTo"],
-        borrowingTime = DateTime.parse(json["userData"]["borrowingTime"]),
-        completedDate = DateTime.parse(json["userData"]["completedDate"]),
-        goalDate = DateTime.parse(json["userData"]["goalDate"]),
+        borrowingTime = json["userData"]["borrowingTime"] == null ? null : DateTime.parse(json["userData"]["borrowingTime"]),
+        completedDate = json["userData"]["completedDate"] == null ? null : DateTime.parse(json["userData"]["completedDate"]),
+        goalDate = json["userData"]["goalDate"] == null ? null : DateTime.parse(json["userData"]["goalDate"]),
         automaticallyScraped = json["bookData"]["automaticallyScraped"];
 
   Book.fromJsonBookData(Map<String, dynamic> json)

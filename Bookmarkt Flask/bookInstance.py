@@ -35,6 +35,20 @@ class BookInstance(db.Model):
         self.totalTimeRead = totalTimeRead
 
     def toJson(self):
+
+        self.returnGoalDate = None
+        self.returnDateCompleted = None
+        self.returnBorrowingTime = None
+
+        if self.goalDate is not None:
+            self.returnGoalDate = self.goalDate.strftime("%Y-%m-%d")
+
+        if self.dateCompleted is not None:
+            self.returnDateCompleted = self.dateCompleted.strftime("%Y-%m-%d")
+
+        if self.returnBorrowingTime is not None:
+            self.returnBorrowingTime = self.returnBorrowingTime.strftime("%Y-%m-%d")
+
         return {
             "isbn": self.isbn,
             "bookInstanceID": self.bookInstanceID,
@@ -44,11 +58,11 @@ class BookInstance(db.Model):
             "bookshelfID": self.bookshelfID,
             "rating": self.rating,
             "totalTimeRead": self.totalTimeRead,
-            "goalDate": self.goalDate.strftime("%Y-%m-%d") or None,
-            "dateCompleted": self.dateCompleted.strftime("%Y-%m-%d") or None,
+            "goalDate": self.returnGoalDate,
+            "dateCompleted": self.returnDateCompleted,
             "borrowingFrom": self.borrowingFrom,
             "borrowingTo": self.borrowingTo,
-            "borrowingTime": self.borrowingTime
+            "borrowingTime": self.returnBorrowingTime
         }
 
     def __repr__(self):
