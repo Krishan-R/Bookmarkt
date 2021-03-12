@@ -165,6 +165,11 @@ def addUserBook(userID):
     publishedDate = request.args.get("publishedDate", None)
     description = request.args.get("description", None)
     totalPages = request.args.get("totalPages", 1)
+    dateCompleted = request.args.get("dateCompleted", datetime.date.today())
+    borrowingTime = request.args.get("borrowingTime", None)
+    borrowingFrom = request.args.get("borrowingFrom", None)
+    borrowingTo = request.args.get("borrowingTo", None)
+    goalDate = request.args.get("goalDate", None)
 
     if currentPage is not None:
         try:
@@ -180,6 +185,16 @@ def addUserBook(userID):
         completed = False
     elif completed.lower() == "true":
         completed = True
+
+    if dateCompleted is not None:
+        dateCompleted = datetime.datetime.strptime(dateCompleted, "%Y-%m-%d")
+
+    if borrowingTime is not None:
+        borrowingTime = datetime.datetime.strptime(borrowingTime, "%Y-%m-%d")
+
+    if goalDate is not None:
+        goalDate = datetime.datetime.strptime(goalDate, "%Y-%m-%d")
+
 
     if bookshelfID is not None:
         try:
@@ -211,11 +226,9 @@ def addUserBook(userID):
         db.session.add(newBook)
         db.session.commit()
 
-    # if completed:
-    #     currentPage = totalPages
-
     newBookInstance = BookInstance(isbn, userID, completed=completed, currentPage=currentPage, bookshelfID=bookshelfID,
-                                   rating=rating, totalTimeRead=totalTimeRead)
+                                   rating=rating, totalTimeRead=totalTimeRead, dateCompleted=dateCompleted,
+                                   borrowingFrom=borrowingFrom, borrowingTo=borrowingTo, borrowingTime=borrowingTime, goalDate=goalDate)
     db.session.add(newBookInstance)
     db.session.commit()
 
@@ -937,7 +950,8 @@ def getBookInstanceSessions(userID, bookInstanceID):
         "sessions": []
     }
 
-    for session in ReadingSession.query.filter(ReadingSession.bookInstanceID == bookInstanceID).order_by(ReadingSession.date.desc()):
+    for session in ReadingSession.query.filter(ReadingSession.bookInstanceID == bookInstanceID).order_by(
+            ReadingSession.date.desc()):
         returnJson["sessions"].append(session.toJson())
 
     return returnJson, 200
@@ -960,7 +974,6 @@ def getAllUserReadingSessions(userID):
 
 @app.route("/users/<userID>/readingSessions/edit", methods=["PUT"])
 def editReadingSession(userID):
-
     userID = int(userID)
 
     readingSessionID = request.args.get("readingSessionID", None)

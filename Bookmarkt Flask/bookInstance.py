@@ -25,7 +25,8 @@ class BookInstance(db.Model):
     borrowingTo = db.Column(db.String(50))
     borrowingTime = db.Column(db.Date)
 
-    def __init__(self, isbn, userID, currentPage=0, completed=False, bookshelfID=None, rating=0, totalTimeRead=0):
+    def __init__(self, isbn, userID, currentPage=0, completed=False, bookshelfID=None, rating=0, totalTimeRead=0,
+                 dateCompleted=None, borrowingFrom=None, borrowingTo=None, borrowingTime=None, goalDate=None):
         self.isbn = isbn
         self.userID = userID
         self.completed = completed
@@ -33,6 +34,11 @@ class BookInstance(db.Model):
         self.bookshelfID = bookshelfID
         self.rating = rating
         self.totalTimeRead = totalTimeRead
+        self.dateCompleted = dateCompleted
+        self.borrowingFrom = borrowingFrom
+        self.borrowingTo = borrowingTo
+        self.borrowingTime = borrowingTime
+        self.goalDate = goalDate
 
     def toJson(self):
 
