@@ -498,11 +498,11 @@ class readingPrediction extends StatefulWidget {
 class _readingPredictionState extends State<readingPrediction> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      child: Column(
-        children: [
-          Card(
+    return Column(
+      children: [
+        Container(
+          width: double.infinity,
+          child: Card(
             child: Padding(
               padding: const EdgeInsets.all(20.0),
               child: Text(
@@ -528,39 +528,39 @@ class _readingPredictionState extends State<readingPrediction> {
               ),
             ),
           ),
-          Visibility(
-            visible: ((widget.args.book.goalDate != null) &&
-                !widget.args.book.completed),
-            child: Container(
-              width: double.infinity,
-              child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Text(
-                    () {
-                      try {
-                        Duration remainingDays = widget.args.book.goalDate
-                            .difference(DateTime.now());
+        ),
+        Visibility(
+          visible: ((widget.args.book.goalDate != null) &&
+              !widget.args.book.completed),
+          child: Container(
+            width: double.infinity,
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Text(
+                  () {
+                    try {
+                      Duration remainingDays = widget.args.book.goalDate
+                          .difference(DateTime.now());
 
-                        int pagesLeft = widget.args.book.totalPages -
-                            widget.args.book.currentPage;
+                      int pagesLeft = widget.args.book.totalPages -
+                          widget.args.book.currentPage;
 
-                        return "There are ${remainingDays.inDays} days left to hit your reading target!\nYou need to read ${(pagesLeft / remainingDays.inDays).ceil()} pages a day";
-                      } catch (e) {
-                        print(e);
-                        print("^^expected error");
-                      }
-                      return "";
-                    }(),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 15, fontStyle: FontStyle.italic),
-                  ),
+                      return "There are ${remainingDays.inDays} days left to hit your reading target!\nYou need to read ${(pagesLeft / remainingDays.inDays).ceil()} pages a day";
+                    } catch (e) {
+                      print(e);
+                      print("^^expected error");
+                    }
+                    return "";
+                  }(),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 15, fontStyle: FontStyle.italic),
                 ),
               ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
