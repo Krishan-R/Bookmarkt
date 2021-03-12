@@ -64,7 +64,7 @@ class _addBookState extends State<addBook> {
           currentPageController.text = args.book.currentPage.toString();
       } else {
         print("not scraped");
-        if (args.book.totalPages == null) args.book.totalPages = 1;
+        // if (args.book.totalPages == null) args.book.totalPages = 1;
         if (args.book.rating == null) args.book.rating = 0;
         if (args.book.currentPage != null)
           currentPageController.text = args.book.currentPage.toString();
@@ -154,7 +154,6 @@ class _addBookState extends State<addBook> {
 
                       String borrowing = "";
                       if (borrowingCheckBox) {
-
                         if (borrowingDropdownValue == "from") {
                           borrowing += "&borrowingFrom=$borrowingName";
                           args.book.borrowingFrom = borrowingName;
@@ -163,8 +162,10 @@ class _addBookState extends State<addBook> {
                           args.book.borrowingTo = borrowingName;
                         }
 
-                        if ("${borrowingDate.year}-${borrowingDate.month.toString().padLeft(2, '0')}-${borrowingDate.day.toString().padLeft(2, '0')}" != "${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}-${DateTime.now().day.toString().padLeft(2, '0')}") {
-                          borrowing += "&borrowingTime=${borrowingDate.year}-${borrowingDate.month.toString().padLeft(2, '0')}-${borrowingDate.day.toString().padLeft(2, '0')}";
+                        if ("${borrowingDate.year}-${borrowingDate.month.toString().padLeft(2, '0')}-${borrowingDate.day.toString().padLeft(2, '0')}" !=
+                            "${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}-${DateTime.now().day.toString().padLeft(2, '0')}") {
+                          borrowing +=
+                              "&borrowingTime=${borrowingDate.year}-${borrowingDate.month.toString().padLeft(2, '0')}-${borrowingDate.day.toString().padLeft(2, '0')}";
                           args.book.borrowingTime = borrowingDate;
                         }
                       } else {
@@ -230,7 +231,6 @@ class _addBookState extends State<addBook> {
 
                       String borrowing = "";
                       if (borrowingCheckBox) {
-
                         if (borrowingDropdownValue == "from") {
                           borrowing += "&borrowingFrom=$borrowingName";
                           args.book.borrowingFrom = borrowingName;
@@ -239,15 +239,18 @@ class _addBookState extends State<addBook> {
                           args.book.borrowingTo = borrowingName;
                         }
 
-                        if ("${borrowingDate.year}-${borrowingDate.month.toString().padLeft(2, '0')}-${borrowingDate.day.toString().padLeft(2, '0')}" != "${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}-${DateTime.now().day.toString().padLeft(2, '0')}") {
-                          borrowing += "&borrowingTime=${borrowingDate.year}-${borrowingDate.month.toString().padLeft(2, '0')}-${borrowingDate.day.toString().padLeft(2, '0')}";
+                        if ("${borrowingDate.year}-${borrowingDate.month.toString().padLeft(2, '0')}-${borrowingDate.day.toString().padLeft(2, '0')}" !=
+                            "${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}-${DateTime.now().day.toString().padLeft(2, '0')}") {
+                          borrowing +=
+                              "&borrowingTime=${borrowingDate.year}-${borrowingDate.month.toString().padLeft(2, '0')}-${borrowingDate.day.toString().padLeft(2, '0')}";
                           args.book.borrowingTime = borrowingDate;
                         }
                       } else {
                         args.book.borrowingTo = null;
                         args.book.borrowingFrom = null;
                         args.book.borrowingTime = null;
-                        borrowing = "&borrowingFrom=null&borrowingTo=null&borrowingTime=null";
+                        borrowing =
+                            "&borrowingFrom=null&borrowingTo=null&borrowingTime=null";
                       }
 
                       final response = await http.put(
@@ -318,42 +321,12 @@ class _addBookState extends State<addBook> {
                       args.book.description = value;
                     },
                   ),
-                  TextFormField(
-                    enabled: !scraped,
-                    initialValue: args.book.totalPages.toString(),
-                    decoration: InputDecoration(hintText: "Number of Pages"),
-                    validator: (value) {
-                      if (value.isEmpty)
-                        return "Number of pages cannot be empty";
-                      return null;
-                    },
-                    keyboardType: TextInputType.number,
-                    onChanged: (value) {
-                      args.book.totalPages = int.parse(value);
-                    },
-                  ),
-                  FlatButton(
-                      onPressed: () async {
-                        DateTime picked = await showDatePicker(
-                            context: context,
-                            initialDate: selectedDate,
-                            firstDate: DateTime(1900),
-                            lastDate: DateTime.now());
-                        if (picked != null && picked != selectedDate)
-                          setState(() {
-                            selectedDate = picked;
-                          });
-                      },
-                      child: Text(
-                          "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}")),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text("Completed"),
                       Checkbox(
                           value: completedCheckBox,
                           onChanged: (val) {
-                            // print(val);
                             setState(() {
                               completedCheckBox = val;
                               args.book.completed = completedCheckBox;
@@ -369,29 +342,72 @@ class _addBookState extends State<addBook> {
                               }
                             });
                           }),
+                      Text("Completed"),
                     ],
                   ),
-                  TextFormField(
-                    enabled: !completedCheckBox,
-                    controller: currentPageController,
-                    decoration: InputDecoration(
-                        hintText: "Current Page",
-                        contentPadding: EdgeInsets.symmetric(horizontal: 10)),
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value.isNotEmpty &&
-                          int.parse(value) > args.book.totalPages)
-                        return "Current Page is larger than total";
-                      return null;
-                    },
-                    onChanged: (value) {
-                      if (value.isEmpty) args.book.currentPage = 1;
-                      args.book.currentPage = int.parse(value);
-                    },
+                  Row(
+                    children: [
+                      Flexible(
+                        child: TextFormField(
+                          enabled: !completedCheckBox,
+                          controller: currentPageController,
+                          textAlign: TextAlign.center,
+                          decoration: InputDecoration(
+                              hintText: "Current Page",
+                              contentPadding:
+                                  EdgeInsets.symmetric(horizontal: 10)),
+                          keyboardType: TextInputType.number,
+                          validator: (value) {
+                            if (value.isNotEmpty &&
+                                int.parse(value) > args.book.totalPages)
+                              return "Current Page is larger than total";
+                            return null;
+                          },
+                          onChanged: (value) {
+                            if (value.isEmpty) args.book.currentPage = 1;
+                            args.book.currentPage = int.parse(value);
+                          },
+                        ),
+                      ),
+                      Flexible(
+                        child: TextFormField(
+                          enabled: !scraped,
+                          initialValue: ((){
+                            if (args.book.totalPages == null) return null;
+                            else {
+                              return args.book.totalPages.toString();
+                            }
+                          }()),
+                          textAlign: TextAlign.center,
+                          decoration:
+                              InputDecoration(hintText: "Number of Pages"),
+                          validator: (value) {
+                            if (value.isEmpty)
+                              return "Number of pages cannot be empty";
+                            return null;
+                          },
+                          keyboardType: TextInputType.number,
+                          onChanged: (value) {
+                            args.book.totalPages = int.parse(value);
+                          },
+                        ),
+                      ),
+                    ],
                   ),
-                  SizedBox(
-                    height: 10,
-                  ),
+                  FlatButton(
+                      onPressed: () async {
+                        DateTime picked = await showDatePicker(
+                            context: context,
+                            initialDate: selectedDate,
+                            firstDate: DateTime(1900),
+                            lastDate: DateTime.now());
+                        if (picked != null && picked != selectedDate)
+                          setState(() {
+                            selectedDate = picked;
+                          });
+                      },
+                      child: Text(
+                          "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}")),
                   Visibility(
                     visible: args.redirect != "edit",
                     child: Container(
