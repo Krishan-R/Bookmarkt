@@ -187,7 +187,10 @@ def addUserBook(userID):
         completed = True
 
     if dateCompleted is not None:
-        dateCompleted = datetime.datetime.strptime(dateCompleted, "%Y-%m-%d")
+        try:
+            dateCompleted = datetime.datetime.strptime(dateCompleted, "%Y-%m-%d")
+        except:
+            dateCompleted = dateCompleted
 
     if borrowingTime is not None:
         borrowingTime = datetime.datetime.strptime(borrowingTime, "%Y-%m-%d")

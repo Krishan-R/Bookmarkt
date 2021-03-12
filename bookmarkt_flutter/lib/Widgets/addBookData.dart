@@ -70,7 +70,9 @@ class _addBookState extends State<addBook> {
           currentPageController.text = args.book.currentPage.toString();
       }
 
-      completedCheckBox = args.book.completed;
+      if (args.book.completed != null) {
+        completedCheckBox = args.book.completed;
+      }
 
       // sets borrowing information
       if (args.book.borrowingTo != null) {
@@ -155,12 +157,15 @@ class _addBookState extends State<addBook> {
 
                         if (borrowingDropdownValue == "from") {
                           borrowing += "&borrowingFrom=$borrowingName";
+                          args.book.borrowingFrom = borrowingName;
                         } else {
                           borrowing += "&borrowingTo=$borrowingName";
+                          args.book.borrowingTo = borrowingName;
                         }
 
                         if ("${borrowingDate.year}-${borrowingDate.month.toString().padLeft(2, '0')}-${borrowingDate.day.toString().padLeft(2, '0')}" != "${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}-${DateTime.now().day.toString().padLeft(2, '0')}") {
                           borrowing += "&borrowingTime=${borrowingDate.year}-${borrowingDate.month.toString().padLeft(2, '0')}-${borrowingDate.day.toString().padLeft(2, '0')}";
+                          args.book.borrowingTime = borrowingDate;
                         }
                       }
 
@@ -225,12 +230,15 @@ class _addBookState extends State<addBook> {
 
                         if (borrowingDropdownValue == "from") {
                           borrowing += "&borrowingFrom=$borrowingName";
+                          args.book.borrowingFrom = borrowingName;
                         } else {
                           borrowing += "&borrowingTo=$borrowingName";
+                          args.book.borrowingTo = borrowingName;
                         }
 
                         if ("${borrowingDate.year}-${borrowingDate.month.toString().padLeft(2, '0')}-${borrowingDate.day.toString().padLeft(2, '0')}" != "${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}-${DateTime.now().day.toString().padLeft(2, '0')}") {
                           borrowing += "&borrowingTime=${borrowingDate.year}-${borrowingDate.month.toString().padLeft(2, '0')}-${borrowingDate.day.toString().padLeft(2, '0')}";
+                          args.book.borrowingTime = borrowingDate;
                         }
                       }
 

@@ -84,6 +84,7 @@ class _bookViewState extends State<bookView> {
               lastReadingSession(args: args, callback: callback),
               Divider(thickness: 2),
               bookViewGraph(args: args),
+              borrowing(args: args),
               SizedBox(height: 10),
             ],
           ),
@@ -257,8 +258,8 @@ class _readingSessionDetailsState extends State<readingSessionDetails> {
                 radius: 50,
                 lineWidth: 5,
                 percent: 1,
-                center:
-                    Icon(Icons.watch_later, color: Theme.of(context).primaryColor),
+                center: Icon(Icons.watch_later,
+                    color: Theme.of(context).primaryColor),
                 progressColor: Colors.green,
                 backgroundColor: Colors.grey,
               ),
@@ -510,8 +511,12 @@ class _readingPredictionState extends State<readingPrediction> {
                 return "Please read this book to find out estimate finish";
               }
 
-              double pagesPerMinute =  widget.args.book.totalTimeRead / widget.args.book.currentPage;
-              int estimateTime = ((pagesPerMinute * widget.args.book.totalPages) - widget.args.book.totalTimeRead).round();
+              double pagesPerMinute =
+                  widget.args.book.totalTimeRead / widget.args.book.currentPage;
+              int estimateTime =
+                  ((pagesPerMinute * widget.args.book.totalPages) -
+                          widget.args.book.totalTimeRead)
+                      .round();
 
               return "Reading at a similar pace, you will finish this book in $estimateTime minutes";
             }(),
@@ -545,9 +550,10 @@ class _lastReadingSessionState extends State<lastReadingSession> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Reading Sessions (${snapshot.data.length})",
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                Text(
+                  "Reading Sessions (${snapshot.data.length})",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                ),
               ],
             );
           }
@@ -577,6 +583,66 @@ class _lastReadingSessionState extends State<lastReadingSession> {
         }
         return CircularProgressIndicator();
       },
+    );
+  }
+}
+
+class borrowing extends StatefulWidget {
+  NavigatorArguments args;
+
+  borrowing({Key key, this.args}) : super(key: key);
+
+  @override
+  _borrowingState createState() => _borrowingState();
+}
+
+class _borrowingState extends State<borrowing> {
+  @override
+  Widget build(BuildContext context) {
+    return Visibility(
+      visible: widget.args.book.borrowingFrom != null ||
+          widget.args.book.borrowingTo != null,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Divider(thickness: 2),
+          Text(
+            "Borrowing",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+          ),
+          Container(
+            width: double.infinity,
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: [
+                    Text(
+                      () {
+                        if (widget.args.book.borrowingFrom != null) {
+                          return "You are borrowing this book from ${widget.args.book.borrowingFrom}";
+                        } else if (widget.args.book.borrowingTo != null) {
+                          return "You are lending this book to ${widget.args.book.borrowingTo}";
+                        }
+
+                        return "";
+                      }(),
+                      textAlign: TextAlign.center,
+                    ),
+                    Text(() {
+                      if (widget.args.book.borrowingTime != null) {
+                        return "It is due on ${widget.args.book.borrowingTime.year}-${widget.args.book.borrowingTime.month.toString().padLeft(2, '0')}-${widget.args.book.borrowingTime.day.toString().padLeft(2, '0')}";
+                      } else {
+                        return "There is no due date";
+                      }
+                    }())
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -689,26 +755,36 @@ addReadingSessionAlert(BuildContext context, NavigatorArguments args) {
                   SizedBox(height: 10),
                   Row(
                     children: [
-                      Checkbox(value: updateCurrentPage, onChanged: (value) {
-                        setState(() {
-                          updateCurrentPage = !updateCurrentPage;
-                          if (!updateCurrentPage) completed = false;
-                        });
-                      }),
-                      Text("Update Current Page?", style: TextStyle(fontSize: 15),)
+                      Checkbox(
+                          value: updateCurrentPage,
+                          onChanged: (value) {
+                            setState(() {
+                              updateCurrentPage = !updateCurrentPage;
+                              if (!updateCurrentPage) completed = false;
+                            });
+                          }),
+                      Text(
+                        "Update Current Page?",
+                        style: TextStyle(fontSize: 15),
+                      )
                     ],
                   ),
                   Visibility(
                     visible: updateCurrentPage,
                     child: Row(
                       children: [
-                        Checkbox(value: completed, onChanged: (value) {
-                          setState(() {
-                            completed = !completed;
-                          });
-                        },
+                        Checkbox(
+                          value: completed,
+                          onChanged: (value) {
+                            setState(() {
+                              completed = !completed;
+                            });
+                          },
                         ),
-                        Text("Completed?", style: TextStyle(fontSize: 15),)
+                        Text(
+                          "Completed?",
+                          style: TextStyle(fontSize: 15),
+                        )
                       ],
                     ),
                   ),

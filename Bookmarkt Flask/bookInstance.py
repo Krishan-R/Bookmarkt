@@ -52,8 +52,8 @@ class BookInstance(db.Model):
         if self.dateCompleted is not None:
             self.returnDateCompleted = self.dateCompleted.strftime("%Y-%m-%d")
 
-        if self.returnBorrowingTime is not None:
-            self.returnBorrowingTime = self.returnBorrowingTime.strftime("%Y-%m-%d")
+        if self.borrowingTime is not None:
+            self.returnBorrowingTime = self.borrowingTime.strftime("%Y-%m-%d")
 
         return {
             "isbn": self.isbn,
