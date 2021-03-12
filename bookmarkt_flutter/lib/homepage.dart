@@ -18,6 +18,12 @@ class homepage extends StatefulWidget {
 }
 
 class _homepageState extends State<homepage> {
+
+  callback() {
+    setState(() {
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final NavigatorArguments args = ModalRoute.of(context).settings.arguments;
@@ -33,7 +39,7 @@ class _homepageState extends State<homepage> {
             child: ListView(
               children: [
                 SizedBox(height:10),
-                recentDashboard(args: args),
+                recentDashboard(args: args, callback: callback),
                 Divider(thickness: 2),
                 DayofWeek(args: args),
                 SizedBox(height:10),
@@ -46,8 +52,9 @@ class _homepageState extends State<homepage> {
 
 class recentDashboard extends StatefulWidget {
   NavigatorArguments args;
+  Function callback;
 
-  recentDashboard({Key key, this.args}) : super(key: key);
+  recentDashboard({Key key, this.args, this.callback}) : super(key: key);
 
   @override
   _recentDashboardState createState() => _recentDashboardState();
@@ -94,7 +101,7 @@ class _recentDashboardState extends State<recentDashboard> {
                                         widget.args.user, widget.args.url,
                                         bookshelfList: bookshelfList,
                                         book: bookList[index]))
-                                .then((value) => setState(() {}));
+                                .then((value) => widget.callback());
                           },
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -154,6 +161,8 @@ class DayofWeek extends StatefulWidget {
 
 class _DayofWeekState extends State<DayofWeek> {
   int graphDuration = 30;
+  String graphFocus = "pages";
+  List<bool> isSelected = [true, false];
 
   @override
   Widget build(BuildContext context) {
@@ -165,9 +174,34 @@ class _DayofWeekState extends State<DayofWeek> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                "Read by day of the week",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Text(
+                    "Daily Statistics",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                  ),
+                  SizedBox(width: 5),
+                  Container(
+                    height: 30,
+                    child: ToggleButtons(
+                      children: [Text("Pages"), Text("Time")],
+                      isSelected: isSelected,
+                      borderColor: Colors.white,
+                      onPressed: (int index) {
+                        setState(() {
+                          isSelected[0] = !isSelected[0];
+                          isSelected[1] = !isSelected[1];
+
+                          if (isSelected[0])
+                            graphFocus = "pages";
+                          else
+                            graphFocus = "time";
+                        });
+                      },
+                    ),
+                  ),
+                ],
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -209,11 +243,7 @@ class _DayofWeekState extends State<DayofWeek> {
                 return Column(
                   children: [
                     SizedBox(height: 10),
-                    Text(
-                      "Pages Read",
-                      style: TextStyle(
-                          fontSize: 15, fontWeight: FontWeight.bold),
-                    ),
+
                     SizedBox(height: 5),
                     Stack(
                       children: <Widget>[
@@ -229,7 +259,7 @@ class _DayofWeekState extends State<DayofWeek> {
                               padding: const EdgeInsets.only(
                                   right: 18.0, left: 12.0, top: 24, bottom: 12),
                               child: LineChart(
-                                dayOfWeek(snapshot.data, "pages"),
+                                dayOfWeek(snapshot.data, graphFocus),
                               ),
                             ),
                           ),
@@ -237,34 +267,6 @@ class _DayofWeekState extends State<DayofWeek> {
                       ],
                     ),
                     SizedBox(height: 20),
-                    Text(
-                      "Pages Read",
-                      style: TextStyle(
-                          fontSize: 15, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(height: 5),
-                    Stack(
-                      children: <Widget>[
-                        AspectRatio(
-                          aspectRatio: 1.70,
-                          child: Container(
-                            decoration: const BoxDecoration(
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(18),
-                                ),
-                                color: Color(0xff232d37)),
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                  right: 18.0, left: 12.0, top: 24, bottom: 12),
-                              child: LineChart(
-                                dayOfWeek(snapshot.data, "time"),
-
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
                   ],
                 );
               } else if (snapshot.hasError) {
