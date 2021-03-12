@@ -286,7 +286,11 @@ def updateBookInstance(userID, bookInstanceID):
         bookInstance.completed = completed
 
     if goalDate is not None:
-        dateObj = datetime.datetime.strptime(goalDate, "%Y-%m-%d")
+
+        if goalDate == "null":
+            dateObj = None
+        else:
+            dateObj = datetime.datetime.strptime(goalDate, "%Y-%m-%d")
         bookInstance.goalDate = dateObj
 
     if borrowingTime is not None:
@@ -1038,6 +1042,14 @@ def deleteReadingSession(userID):
         return "Reading session does not belong to that user", 403
 
     instance.totalTimeRead -= session.timeRead
+    instance.currentPage -= session.pagesRead
+
+    if instance.totalTimeRead < 0:
+        instance.totalTimeRead = 0
+
+    if instance.currentPage < 0:
+        instance.currentPage = 0
+
     ReadingSession.query.filter(ReadingSession.readingSessionID == readingSessionID).delete()
 
     db.session.commit()

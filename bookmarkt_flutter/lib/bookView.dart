@@ -499,31 +499,67 @@ class _readingPredictionState extends State<readingPrediction> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Text(
-            () {
-              if (widget.args.book.completed) {
-                return "You have completed this book, Congratulations!";
-              } else if (widget.args.book.currentPage == 1 ||
-                  widget.args.book.totalTimeRead == 0) {
-                return "Please read this book to find out estimate finish";
-              }
+      width: double.infinity,
+      child: Column(
+        children: [
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Text(
+                () {
+                  if (widget.args.book.completed) {
+                    return "You have completed this book, Congratulations!";
+                  } else if (widget.args.book.currentPage == 1 ||
+                      widget.args.book.totalTimeRead == 0) {
+                    return "Please read this book to find out estimate finish";
+                  }
 
-              double pagesPerMinute =
-                  widget.args.book.totalTimeRead / widget.args.book.currentPage;
-              int estimateTime =
-                  ((pagesPerMinute * widget.args.book.totalPages) -
-                          widget.args.book.totalTimeRead)
-                      .round();
+                  double pagesPerMinute = widget.args.book.totalTimeRead /
+                      widget.args.book.currentPage;
+                  int estimateTime =
+                      ((pagesPerMinute * widget.args.book.totalPages) -
+                              widget.args.book.totalTimeRead)
+                          .round();
 
-              return "Reading at a similar pace, you will finish this book in $estimateTime minutes";
-            }(),
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 15, fontStyle: FontStyle.italic),
+                  return "Reading at a similar pace, you will finish this book in $estimateTime minutes";
+                }(),
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 15, fontStyle: FontStyle.italic),
+              ),
+            ),
           ),
-        ),
+          Visibility(
+            visible: ((widget.args.book.goalDate != null) &&
+                !widget.args.book.completed),
+            child: Container(
+              width: double.infinity,
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Text(
+                    () {
+                      try {
+                        Duration remainingDays = widget.args.book.goalDate
+                            .difference(DateTime.now());
+
+                        int pagesLeft = widget.args.book.totalPages -
+                            widget.args.book.currentPage;
+
+                        return "There are ${remainingDays.inDays} days left to hit your reading target!\nYou need to read ${(pagesLeft / remainingDays.inDays).ceil()} pages a day";
+                      } catch (e) {
+                        print(e);
+                        print("^^expected error");
+                      }
+                      return "";
+                    }(),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 15, fontStyle: FontStyle.italic),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -691,7 +727,6 @@ addReadingSessionAlert(BuildContext context, NavigatorArguments args) {
   TextEditingController pagesReadController = new TextEditingController();
   DateTime selectedDate = DateTime.now();
   Duration duration = new Duration();
-  bool updateCurrentPage = false;
   bool completed = false;
 
   final _formKey = GlobalKey<FormState>();
@@ -719,7 +754,7 @@ addReadingSessionAlert(BuildContext context, NavigatorArguments args) {
         }
 
         final response = await http.post(
-            "http://${args.url}:5000/users/${args.user.userID}/books/${args.book.bookInstanceID}/read?pagesRead=${pagesRead}&timeRead=${timeRead}&date=${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}&updateProgress=$updateCurrentPage&completed=$completed");
+            "http://${args.url}:5000/users/${args.user.userID}/books/${args.book.bookInstanceID}/read?pagesRead=${pagesRead}&timeRead=${timeRead}&date=${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}&updateProgress=true&completed=$completed");
 
         if (response.body == "added reading session") {
           Navigator.popUntil(context, ModalRoute.withName("/book"));
@@ -756,37 +791,18 @@ addReadingSessionAlert(BuildContext context, NavigatorArguments args) {
                   Row(
                     children: [
                       Checkbox(
-                          value: updateCurrentPage,
-                          onChanged: (value) {
-                            setState(() {
-                              updateCurrentPage = !updateCurrentPage;
-                              if (!updateCurrentPage) completed = false;
-                            });
-                          }),
+                        value: completed,
+                        onChanged: (value) {
+                          setState(() {
+                            completed = !completed;
+                          });
+                        },
+                      ),
                       Text(
-                        "Update Current Page?",
+                        "Completed?",
                         style: TextStyle(fontSize: 15),
                       )
                     ],
-                  ),
-                  Visibility(
-                    visible: updateCurrentPage,
-                    child: Row(
-                      children: [
-                        Checkbox(
-                          value: completed,
-                          onChanged: (value) {
-                            setState(() {
-                              completed = !completed;
-                            });
-                          },
-                        ),
-                        Text(
-                          "Completed?",
-                          style: TextStyle(fontSize: 15),
-                        )
-                      ],
-                    ),
                   ),
                   FlatButton(
                     child: Text(

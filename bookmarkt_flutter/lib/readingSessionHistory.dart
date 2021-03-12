@@ -128,6 +128,10 @@ readingSessionActions(BuildContext context, setState, NavigatorArguments args,
 
             if (response.body == "Deleted reading session") {
               args.book.totalTimeRead -= session.timeRead;
+              args.book.currentPage -= session.pagesRead;
+
+              if (args.book.currentPage < 0) args.book.currentPage = 0;
+
               args.sessionList.removeAt(index);
 
               if (args.sessionList.length == 0) {

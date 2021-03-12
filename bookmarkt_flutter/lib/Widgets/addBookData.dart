@@ -136,7 +136,7 @@ class _addBookState extends State<addBook> {
                       }
 
                       if (args.book.currentPage == null) {
-                        args.book.currentPage = 1;
+                        args.book.currentPage = 0;
                       }
 
                       String currentPage =
@@ -209,7 +209,7 @@ class _addBookState extends State<addBook> {
                       }
 
                       if (args.book.currentPage == null) {
-                        args.book.currentPage = 1;
+                        args.book.currentPage = 0;
                       }
 
                       String currentPage =
@@ -338,7 +338,7 @@ class _addBookState extends State<addBook> {
                                   args.book.currentPage =
                                       int.parse(currentPageController.text);
                                 } else
-                                  args.book.currentPage = 1;
+                                  args.book.currentPage = 0;
                               }
                             });
                           }),
@@ -364,7 +364,7 @@ class _addBookState extends State<addBook> {
                             return null;
                           },
                           onChanged: (value) {
-                            if (value.isEmpty) args.book.currentPage = 1;
+                            if (value.isEmpty) args.book.currentPage = 0;
                             args.book.currentPage = int.parse(value);
                           },
                         ),
