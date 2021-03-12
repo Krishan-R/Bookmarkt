@@ -404,6 +404,7 @@ class _readingSessionTimerState extends State<readingSessionTimer> {
                                           String completedString = "";
                                           if (completed) {
                                             completedString = "&completed=True";
+                                            widget.args.book.completed = true;
                                           }
 
                                           final response = await http.post(

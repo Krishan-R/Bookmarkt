@@ -35,58 +35,62 @@ class _bookViewState extends State<bookView> {
     args = ModalRoute.of(context).settings.arguments;
 
     return SafeArea(
-        child: Scaffold(
-      appBar: AppBar(
-        actions: <Widget>[
-          PopupMenuButton<String>(
-            onSelected: (value) async {
-              if (value == "Delete") {
-                final response = await http.delete(
-                    "http://${args.url}:5000/users/${args.user.userID.toString()}/books/delete?bookInstanceID=${args.book.bookInstanceID}");
+      child: Scaffold(
+        appBar: AppBar(
+          actions: <Widget>[
+            PopupMenuButton<String>(
+              onSelected: (value) async {
+                if (value == "Delete") {
+                  final response = await http.delete(
+                      "http://${args.url}:5000/users/${args.user.userID.toString()}/books/delete?bookInstanceID=${args.book.bookInstanceID}");
 
-                if (response.body == "deleted book instance") {
-                  Navigator.pushReplacementNamed(context, "/allBooks",
-                      arguments: args);
-                } else {
-                  print(response.body);
-                  Fluttertoast.showToast(msg: "Error deleting Book");
+                  if (response.body == "deleted book instance") {
+                    Navigator.pushReplacementNamed(context, "/allBooks",
+                        arguments: args);
+                  } else {
+                    print(response.body);
+                    Fluttertoast.showToast(msg: "Error deleting Book");
+                  }
+                } else if (value == "Edit") {
+                  args.redirect = "edit";
+                  args.printStuff();
+                  Navigator.pushNamed(context, '/addBook', arguments: args)
+                      .then((value) => setState(() {}));
                 }
-              } else if (value == "Edit") {
-                args.redirect = "edit";
-                args.printStuff();
-                Navigator.pushNamed(context, '/addBook', arguments: args)
-                    .then((value) => setState(() {}));
-              }
-            },
-            itemBuilder: (BuildContext context) {
-              return {'Edit', 'Delete'}.map((String choice) {
-                return PopupMenuItem<String>(
-                  value: choice,
-                  child: Text(choice),
-                );
-              }).toList();
-            },
-          ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        child: ListView(
-          children: [
-            SizedBox(height: 10),
-            bookHeader(args),
-            SizedBox(height: 10),
-            bookDescription(args: args),
-            Divider(thickness: 2),
-            readingSessionDetails(args: args),
-            lastReadingSession(args: args, callback: callback),
-            Divider(thickness: 2),
-            bookViewGraph(args: args),
-            SizedBox(height: 10),
+              },
+              itemBuilder: (BuildContext context) {
+                return {'Edit', 'Delete'}.map((String choice) {
+                  return PopupMenuItem<String>(
+                    value: choice,
+                    child: Text(choice),
+                  );
+                }).toList();
+              },
+            ),
           ],
         ),
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: ListView(
+            children: [
+              SizedBox(height: 10),
+              bookHeader(args),
+              SizedBox(height: 10),
+              bookDescription(args: args),
+              Divider(thickness: 2),
+              readingSessionDetails(args: args),
+              Divider(thickness: 2),
+              readingPrediction(args: args),
+              Divider(thickness: 2),
+              lastReadingSession(args: args, callback: callback),
+              Divider(thickness: 2),
+              bookViewGraph(args: args),
+              SizedBox(height: 10),
+            ],
+          ),
+        ),
       ),
-    ));
+    );
   }
 }
 
@@ -255,7 +259,7 @@ class _readingSessionDetailsState extends State<readingSessionDetails> {
                 lineWidth: 5,
                 percent: 1,
                 center:
-                    Icon(Icons.watch, color: Theme.of(context).primaryColor),
+                    Icon(Icons.watch_later, color: Theme.of(context).primaryColor),
                 progressColor: Colors.green,
                 backgroundColor: Colors.grey,
               ),
@@ -323,12 +327,10 @@ class bookDescription extends StatelessWidget {
           builder: (context) {
             return StatefulBuilder(builder: (context, setState) {
               return AlertDialog(
-                content: Expanded(
-                  child: SingleChildScrollView(
-                    child: Text(
-                      args.book.description,
-                      style: TextStyle(fontSize: 15),
-                    ),
+                content: SingleChildScrollView(
+                  child: Text(
+                    args.book.description,
+                    style: TextStyle(fontSize: 15),
                   ),
                 ),
                 actions: [
@@ -484,6 +486,45 @@ class _bookViewGraphState extends State<bookViewGraph> {
   }
 }
 
+class readingPrediction extends StatefulWidget {
+  NavigatorArguments args;
+
+  readingPrediction({Key key, this.args}) : super(key: key);
+
+  @override
+  _readingPredictionState createState() => _readingPredictionState();
+}
+
+class _readingPredictionState extends State<readingPrediction> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Text(
+            () {
+              if (widget.args.book.completed) {
+                return "You have completed this book, Congratulations!";
+              } else if (widget.args.book.currentPage == 1 ||
+                  widget.args.book.totalTimeRead == 0) {
+                return "Please read this book to find out estimate finish";
+              }
+
+              double pagesPerMinute =  widget.args.book.totalTimeRead / widget.args.book.currentPage;
+              int estimateTime = ((pagesPerMinute * widget.args.book.totalPages) - widget.args.book.totalTimeRead).round();
+
+              return "Reading at a similar pace, you will finish this book in $estimateTime minutes";
+            }(),
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 15, fontStyle: FontStyle.italic),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class lastReadingSession extends StatefulWidget {
   NavigatorArguments args;
   Function callback;
@@ -501,12 +542,10 @@ class _lastReadingSessionState extends State<lastReadingSession> {
       future: getReadingSessions(widget.args, widget.args.book.bookInstanceID),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-
           if (snapshot.data.length == 0) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Divider(thickness: 2),
                 Text("Reading Sessions (${snapshot.data.length})",
                     style:
                         TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
@@ -518,7 +557,6 @@ class _lastReadingSessionState extends State<lastReadingSession> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Divider(thickness: 2),
               Text("Reading Sessions (${snapshot.data.length})",
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
               GestureDetector(
@@ -588,6 +626,8 @@ addReadingSessionAlert(BuildContext context, NavigatorArguments args) {
   TextEditingController pagesReadController = new TextEditingController();
   DateTime selectedDate = DateTime.now();
   Duration duration = new Duration();
+  bool updateCurrentPage = false;
+  bool completed = false;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -606,9 +646,15 @@ addReadingSessionAlert(BuildContext context, NavigatorArguments args) {
 
         int timeRead = duration.inMinutes;
         args.book.totalTimeRead += timeRead;
+        args.book.currentPage += int.parse(pagesRead);
+
+        if (args.book.currentPage >= args.book.totalPages) {
+          args.book.currentPage = args.book.totalPages;
+          args.book.completed = true;
+        }
 
         final response = await http.post(
-            "http://${args.url}:5000/users/${args.user.userID}/books/${args.book.bookInstanceID}/read?pagesRead=${pagesRead}&timeRead=${timeRead}&date=${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}&updateProgress=false");
+            "http://${args.url}:5000/users/${args.user.userID}/books/${args.book.bookInstanceID}/read?pagesRead=${pagesRead}&timeRead=${timeRead}&date=${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}&updateProgress=$updateCurrentPage&completed=$completed");
 
         if (response.body == "added reading session") {
           Navigator.popUntil(context, ModalRoute.withName("/book"));
@@ -630,10 +676,6 @@ addReadingSessionAlert(BuildContext context, NavigatorArguments args) {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  Text(
-                    "(Will not update book progress)",
-                    style: TextStyle(fontSize: 15, color: Colors.grey),
-                  ),
                   TextFormField(
                     controller: pagesReadController,
                     decoration: InputDecoration(hintText: "Num. of pages read"),
@@ -644,6 +686,32 @@ addReadingSessionAlert(BuildContext context, NavigatorArguments args) {
                         return "Cannot be greater than total pages in book";
                       return null;
                     },
+                  ),
+                  SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Checkbox(value: updateCurrentPage, onChanged: (value) {
+                        setState(() {
+                          updateCurrentPage = !updateCurrentPage;
+                          if (!updateCurrentPage) completed = false;
+                        });
+                      }),
+                      Text("Update Current Page?", style: TextStyle(fontSize: 15),)
+                    ],
+                  ),
+                  Visibility(
+                    visible: updateCurrentPage,
+                    child: Row(
+                      children: [
+                        Checkbox(value: completed, onChanged: (value) {
+                          setState(() {
+                            completed = !completed;
+                          });
+                        },
+                        ),
+                        Text("Completed?", style: TextStyle(fontSize: 15),)
+                      ],
+                    ),
                   ),
                   FlatButton(
                     child: Text(
