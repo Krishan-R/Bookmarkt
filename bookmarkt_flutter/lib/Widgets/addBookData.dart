@@ -1,17 +1,12 @@
-import 'dart:convert';
 import 'dart:io';
 
-import 'package:bookmarkt_flutter/Models/book.dart';
 import 'package:bookmarkt_flutter/Models/bookshelf.dart';
-import 'package:bookmarkt_flutter/library.dart';
 import 'package:bookmarkt_flutter/navigatorArguments.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 import 'package:http/http.dart' as http;
-
-import 'package:flutter/material.dart';
 
 class addBook extends StatefulWidget {
   @override
@@ -22,7 +17,11 @@ class _addBookState extends State<addBook> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController currentPageController = new TextEditingController();
 
-  int dropdownValue = -1;
+  int bookshelfDropdownValue = -1;
+  String borrowingDropdownValue;
+  bool borrowingCheckBox = false;
+  String borrowingName = "";
+  DateTime borrowingDate = DateTime.now();
   bool completedCheckBox = false;
   DateTime selectedDate = DateTime.now();
   bool init = false;
@@ -35,8 +34,8 @@ class _addBookState extends State<addBook> {
 
     bool scraped = true;
 
-
-    if (args.book.automaticallyScraped != null && !args.book.automaticallyScraped) {
+    if (args.book.automaticallyScraped != null &&
+        !args.book.automaticallyScraped) {
       scraped = false;
     } else {
       if (args.book.title == null) {
@@ -54,31 +53,45 @@ class _addBookState extends State<addBook> {
 
     //sets book variables on first build
     if (!init) {
-      print("setting variables");
-
       if (scraped) {
-        print("scraped");
         if (args.book.publishedDate != null) {
           selectedDate = DateTime.parse(args.book.publishedDate);
         }
 
         if (args.book.description == "null") args.book.description = "";
         if (args.book.rating == null) args.book.rating = 0;
-        if (args.book.currentPage != null) currentPageController.text =  args.book.currentPage.toString();
-
+        if (args.book.currentPage != null)
+          currentPageController.text = args.book.currentPage.toString();
       } else {
         print("not scraped");
         if (args.book.totalPages == null) args.book.totalPages = 1;
         if (args.book.rating == null) args.book.rating = 0;
-        if (args.book.currentPage != null) currentPageController.text =  args.book.currentPage.toString();
+        if (args.book.currentPage != null)
+          currentPageController.text = args.book.currentPage.toString();
+      }
 
+      completedCheckBox = args.book.completed;
+
+      // sets borrowing information
+      if (args.book.borrowingTo != null) {
+        borrowingCheckBox = true;
+        borrowingDropdownValue = "to";
+        borrowingName = args.book.borrowingTo;
+      } else if (args.book.borrowingFrom != null) {
+        borrowingCheckBox = true;
+        borrowingDropdownValue = "from";
+        borrowingName = args.book.borrowingFrom;
+      }
+
+      if (args.book.borrowingTime != null) {
+        borrowingDate = args.book.borrowingTime;
       }
 
       init = true;
     }
 
     if (args.bookshelfID != null) {
-      dropdownValue = (args.bookshelfID);
+      bookshelfDropdownValue = (args.bookshelfID);
       args.book.bookshelfID = args.bookshelfID;
     }
 
@@ -87,7 +100,7 @@ class _addBookState extends State<addBook> {
       Bookshelf emptyBookshelf =
           Bookshelf(bookshelfID: -1, name: "No Bookshelves");
       args.bookshelfList.add(emptyBookshelf);
-      dropdownValue = -1;
+      bookshelfDropdownValue = -1;
     } else {
       // prepends blank bookshelf
       if (args.bookshelfList[0].name != "(No bookshelf)" &&
@@ -123,7 +136,7 @@ class _addBookState extends State<addBook> {
                       if (args.book.currentPage == null) {
                         args.book.currentPage = 1;
                       }
-                      print("asfasf " + args.book.currentPage.toString());
+
                       String currentPage =
                           "&currentPage=${args.book.currentPage}";
                       String completed = "&completed=$completedCheckBox";
@@ -137,11 +150,23 @@ class _addBookState extends State<addBook> {
                       String publishedDate =
                           "&publishedDate=${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
 
-                      print(currentPage);
-                      print("knasflknaslkfn");
+                      String borrowing = "";
+                      if (borrowingCheckBox) {
+
+                        if (borrowingDropdownValue == "from") {
+                          borrowing += "&borrowingFrom=$borrowingName";
+                        } else {
+                          borrowing += "&borrowingTo=$borrowingName";
+                        }
+
+                        if ("${borrowingDate.year}-${borrowingDate.month.toString().padLeft(2, '0')}-${borrowingDate.day.toString().padLeft(2, '0')}" != "${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}-${DateTime.now().day.toString().padLeft(2, '0')}") {
+                          borrowing += "&borrowingTime=${borrowingDate.year}-${borrowingDate.month.toString().padLeft(2, '0')}-${borrowingDate.day.toString().padLeft(2, '0')}";
+                        }
+                      }
+
 
                       final response = await http.post(
-                          "http://${args.url}:5000/users/${args.user.userID.toString()}/books/add?isbn=${args.book.ISBN}$bookshelfID$currentPage$completed$rating$title$author$description$totalPages$publishedDate");
+                          "http://${args.url}:5000/users/${args.user.userID.toString()}/books/add?isbn=${args.book.ISBN}$bookshelfID$currentPage$completed$rating$title$author$description$totalPages$publishedDate$borrowing");
 
                       if (response.body == "added new BookInstance") {
                         Navigator.popUntil(
@@ -192,19 +217,29 @@ class _addBookState extends State<addBook> {
 
                       if (!args.book.automaticallyScraped) {
                         final response = await http.put(
-                            "http://${args.url}:5000/books/${args.book.ISBN}?$title$author$description$totalPages$publishedDate"
-                        );
-                        print(response.body);
+                            "http://${args.url}:5000/books/${args.book.ISBN}?$title$author$description$totalPages$publishedDate");
+                      }
+
+                      String borrowing = "";
+                      if (borrowingCheckBox) {
+
+                        if (borrowingDropdownValue == "from") {
+                          borrowing += "&borrowingFrom=$borrowingName";
+                        } else {
+                          borrowing += "&borrowingTo=$borrowingName";
+                        }
+
+                        if ("${borrowingDate.year}-${borrowingDate.month.toString().padLeft(2, '0')}-${borrowingDate.day.toString().padLeft(2, '0')}" != "${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}-${DateTime.now().day.toString().padLeft(2, '0')}") {
+                          borrowing += "&borrowingTime=${borrowingDate.year}-${borrowingDate.month.toString().padLeft(2, '0')}-${borrowingDate.day.toString().padLeft(2, '0')}";
+                        }
                       }
 
                       final response = await http.put(
-                        "http://${args.url}:5000/users/${args.user.userID.toString()}/books/${args.book.bookInstanceID}/edit?currentPage=${args.book.currentPage}&completed=$completedCheckBox&bookshelfID=${args.book.bookshelfID}"
-                      );
+                          "http://${args.url}:5000/users/${args.user.userID.toString()}/books/${args.book.bookInstanceID}/edit?currentPage=${args.book.currentPage}&completed=$completedCheckBox&bookshelfID=${args.book.bookshelfID}$borrowing");
 
                       Navigator.pop(context);
 
                       print(response.body);
-
                     } on SocketException {
                       print("Error connecting to server");
                     }
@@ -305,6 +340,7 @@ class _addBookState extends State<addBook> {
                             // print(val);
                             setState(() {
                               completedCheckBox = val;
+                              args.book.completed = completedCheckBox;
                               // if checked sets current page to max page
                               if (val)
                                 args.book.currentPage = args.book.totalPages;
@@ -363,7 +399,7 @@ class _addBookState extends State<addBook> {
                   Visibility(
                     visible: args.bookshelfID == null,
                     child: DropdownButton<int>(
-                      value: dropdownValue,
+                      value: bookshelfDropdownValue,
                       items: args.bookshelfList?.map((item) {
                             return DropdownMenuItem(
                               child: Text(item.name),
@@ -373,7 +409,7 @@ class _addBookState extends State<addBook> {
                           [],
                       onChanged: (int value) {
                         setState(() {
-                          dropdownValue = value;
+                          bookshelfDropdownValue = value;
                           args.book.bookshelfID = value;
                         });
                       },
@@ -388,6 +424,73 @@ class _addBookState extends State<addBook> {
                         style: TextStyle(fontSize: 18),
                       ),
                     ),
+                  ),
+                  SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Checkbox(
+                          value: borrowingCheckBox,
+                          onChanged: (value) {
+                            setState(() {
+                              borrowingCheckBox = !borrowingCheckBox;
+                            });
+                          }),
+                      Text("Borrowing"),
+                      SizedBox(width: 10),
+                      Visibility(
+                        visible: borrowingCheckBox,
+                        child: DropdownButton<String>(
+                          items: ["from", "to"].map((String value) {
+                            return new DropdownMenuItem<String>(
+                              child: Text(value),
+                              value: value,
+                            );
+                          }).toList(),
+                          value: borrowingDropdownValue,
+                          onChanged: (value) {
+                            setState(() {
+                              borrowingDropdownValue = value;
+                            });
+                          },
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      Visibility(
+                        visible: borrowingCheckBox,
+                        child: Container(
+                          width: 80,
+                          // height: 25,
+                          child: TextFormField(
+                            textAlign: TextAlign.center,
+                            initialValue: borrowingName,
+                            decoration: InputDecoration(
+                              hintText: "Name",
+                              isDense: true,
+                            ),
+                            onChanged: (value) {
+                              borrowingName = value;
+                            },
+                          ),
+                        ),
+                      ),
+                      Visibility(
+                        visible: borrowingCheckBox,
+                        child: FlatButton(
+                            onPressed: () async {
+                              DateTime picked = await showDatePicker(
+                                  context: context,
+                                  initialDate: borrowingDate,
+                                  firstDate: DateTime.now(),
+                                  lastDate: DateTime(2100));
+                              if (picked != null && picked != borrowingDate)
+                                setState(() {
+                                  borrowingDate = picked;
+                                });
+                            },
+                            child: Text(
+                                "${borrowingDate.year}-${borrowingDate.month.toString().padLeft(2, '0')}-${borrowingDate.day.toString().padLeft(2, '0')}")),
+                      ),
+                    ],
                   ),
                 ],
               ),
