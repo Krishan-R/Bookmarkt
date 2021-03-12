@@ -517,8 +517,7 @@ class _readingPredictionState extends State<readingPrediction> {
                   double pagesPerMinute = widget.args.book.totalTimeRead /
                       widget.args.book.currentPage;
                   int estimateTime =
-                      ((pagesPerMinute * widget.args.book.totalPages) -
-                              widget.args.book.totalTimeRead)
+                      ((pagesPerMinute * (widget.args.book.totalPages - widget.args.book.currentPage)))
                           .round();
 
                   return "Reading at a similar pace, you will finish this book in $estimateTime minutes";
