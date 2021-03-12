@@ -218,8 +218,8 @@ class _readingSessionDetailsState extends State<readingSessionDetails> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        SizedBox(height: 10),
         Container(
-          height: 100,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
