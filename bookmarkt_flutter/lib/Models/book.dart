@@ -14,6 +14,11 @@ class Book {
   int rating;
   int totalTimeRead;
   bool automaticallyScraped;
+  DateTime completedDate;
+  DateTime goalDate;
+  String borrowingFrom;
+  String borrowingTo;
+  DateTime borrowingTime;
 
   Book(
       {this.bookInstanceID,
@@ -30,6 +35,11 @@ class Book {
       this.publishedDate,
       this.rating,
       this.totalTimeRead,
+      this.completedDate,
+      this.goalDate,
+      this.borrowingFrom,
+      this.borrowingTo,
+      this.borrowingTime,
       this.automaticallyScraped});
 
   Book.fromJson(Map<String, dynamic> json)
@@ -47,6 +57,11 @@ class Book {
         title = json["bookData"]["title"],
         totalTimeRead = json["userData"]["totalTimeRead"],
         rating = json["userData"]["rating"],
+        borrowingFrom = json["userData"]["borrowingFrom"],
+        borrowingTo = json["userData"]["borrowingTo"],
+        borrowingTime = DateTime.parse(json["userData"]["borrowingTime"]),
+        completedDate = DateTime.parse(json["userData"]["completedDate"]),
+        goalDate = DateTime.parse(json["userData"]["goalDate"]),
         automaticallyScraped = json["bookData"]["automaticallyScraped"];
 
   Book.fromJsonBookData(Map<String, dynamic> json)

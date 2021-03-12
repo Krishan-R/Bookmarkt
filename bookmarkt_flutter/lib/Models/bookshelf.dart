@@ -1,6 +1,7 @@
 class Bookshelf {
   String name;
   int bookshelfID;
+  String colour;
 
   Bookshelf({
     this.name,

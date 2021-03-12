@@ -15,10 +15,15 @@ class BookInstance(db.Model):
     user = db.relationship("User", backref=db.backref("user_posts", lazy=True))
     bookshelfID = db.Column(db.Integer, db.ForeignKey("Bookshelf.bookshelfID"))
     bookshelf = db.relationship("Bookshelf", backref=db.backref("bookshelf_posts", lazy=True))
+    goalDate = db.Column(db.Date)
     completed = db.Column(db.Boolean, nullable=False)
+    dateCompleted = db.Column(db.Date)
     currentPage = db.Column(db.Integer, nullable=False)
     rating = db.Column(db.Integer)
     totalTimeRead = db.Column(db.Integer)
+    borrowingFrom = db.Column(db.String(50))
+    borrowingTo = db.Column(db.String(50))
+    borrowingTime = db.Column(db.Date)
 
     def __init__(self, isbn, userID, currentPage=0, completed=False, bookshelfID=None, rating=0, totalTimeRead=0):
         self.isbn = isbn
@@ -38,7 +43,12 @@ class BookInstance(db.Model):
             "userID": self.userID,
             "bookshelfID": self.bookshelfID,
             "rating": self.rating,
-            "totalTimeRead": self.totalTimeRead
+            "totalTimeRead": self.totalTimeRead,
+            "goalDate": self.goalDate.strftime("%Y-%m-%d") or None,
+            "dateCompleted": self.dateCompleted.strftime("%Y-%m-%d") or None,
+            "borrowingFrom": self.borrowingFrom,
+            "borrowingTo": self.borrowingTo,
+            "borrowingTime": self.borrowingTime
         }
 
     def __repr__(self):

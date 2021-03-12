@@ -539,6 +539,7 @@ def getAllUserBookshelves(userID):
             jsonList.append({
                 "bookshelfID": bookshelf.bookshelfID,
                 "name": bookshelf.name,
+                "colour": bookshelf.colour
             })
     except Exception as e:
         print(e)
@@ -555,7 +556,8 @@ def getAllBookshelves():
             jsonList.append({
                 "bookshelfID": bookshelf.bookshelfID,
                 "name": bookshelf.name,
-                "userID": bookshelf.userID
+                "userID": bookshelf.userID,
+                "colour": bookshelf.colour
             })
     except Exception as e:
         print(e)
@@ -567,11 +569,12 @@ def getAllBookshelves():
 @app.route("/users/<userID>/bookshelf/add", methods=["POST"])
 def addNewBookshelf(userID):
     bookshelfName = request.args.get("name", None)
+    colour = request.args.get("colour", None)
 
     if bookshelfName is None:
         return "Bookshelf name is empty", 422
 
-    newBookshelf = Bookshelf(bookshelfName, userID)
+    newBookshelf = Bookshelf(bookshelfName=bookshelfName, userID=userID, colour=colour)
     db.session.add(newBookshelf)
     db.session.commit()
 
@@ -643,6 +646,7 @@ def getBooksFromBookshelf(userID, bookshelfID):
     returnJson = {
         "bookshelfID": bookshelfID,
         "name": bookshelf.name,
+        "colour": bookshelf.colour,
         "books": JsonList
     }
 
