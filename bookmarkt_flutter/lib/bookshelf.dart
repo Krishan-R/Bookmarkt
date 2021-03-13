@@ -10,6 +10,7 @@ import 'package:bookmarkt_flutter/library.dart';
 import 'package:bookmarkt_flutter/navigatorArguments.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:http/http.dart' as http;
@@ -55,17 +56,44 @@ class _BookshelfState extends State<Bookshelf> {
             ),
           ],
         ),
-        floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.add),
-          onPressed: () {
-            addBookAlert(
-                context,
-                NavigatorArguments(args.user, args.url,
-                    bookshelfName: args.bookshelfName,
-                    bookshelfID: args.bookshelfID,
-                    bookshelfList: args.bookshelfList,
-                    redirect: "/bookshelf"));
-          },
+        floatingActionButton: SpeedDial(
+          icon: Icons.add,
+          activeIcon: Icons.remove,
+          foregroundColor: Colors.white,
+          backgroundColor: Colors.blue,
+          overlayOpacity: 0,
+          children: [
+            SpeedDialChild(
+              child: Icon(Icons.camera_alt_rounded),
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+              label: "Scan ISBN",
+              labelStyle: TextStyle(fontSize: 15),
+              onTap: () {
+                print("scan ISBN pressed");
+              },
+            ),
+            SpeedDialChild(
+              child: Icon(Icons.space_bar),
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+              label: "Enter ISBN",
+              labelStyle: TextStyle(fontSize: 15),
+              onTap: () {
+                addBookAlert(context, NavigatorArguments(args.user, args.url, redirect: "/allBooks"));
+              },
+            ),
+            SpeedDialChild(
+              child: Icon(Icons.search),
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+              label: "Search",
+              labelStyle: TextStyle(fontSize: 15),
+              onTap: () {
+                print("search pressed");
+              },
+            ),
+          ],
         ),
         body: Column(
           children: [
