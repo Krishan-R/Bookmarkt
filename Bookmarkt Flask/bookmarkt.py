@@ -795,26 +795,34 @@ def scrapeBook():
     """
 
     isbn = request.args.get("isbn", None)
+    selfLink = request.args.get("selfLink", None)
 
-    if isbn is None:
-        return "isbn parameter is missing", 400
+    if selfLink is not None:
+        scrapedBook = Book(selfLink=selfLink)
 
-    book = Book.query.filter(Book.isbn == isbn).first()
+        print(scrapedBook.toJson())
 
-    # book does not exist in database
-    if book is None:
-        book = Book(isbn=isbn)
-        db.session.add(book)
-        db.session.commit()
+        return scrapedBook.toJson(), 200
 
-    # book not correctly scraped
-    if book.title == "":
-        Book.query.filter(Book.isbn == isbn).delete()
-        db.session.commit()
+    elif isbn is not None:
+        book = Book.query.filter(Book.isbn == isbn).first()
 
-        return "Cannot be found", 404
+        # book does not exist in database
+        if book is None:
+            book = Book(isbn=isbn)
+            db.session.add(book)
+            db.session.commit()
 
-    return book.toJson(), 200
+        # book not correctly scraped
+        if book.title == "":
+            Book.query.filter(Book.isbn == isbn).delete()
+            db.session.commit()
+
+            return "Cannot be found", 404
+
+        return book.toJson(), 200
+    else:
+        return "error", 400
 
 
 @app.route("/users/<userID>/books/<bookInstanceID>/stats", methods=["GET"])

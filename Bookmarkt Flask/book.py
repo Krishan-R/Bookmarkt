@@ -23,7 +23,8 @@ class Book(db.Model):
     publishedDate = db.Column(db.String(16))
     automaticallyScraped = db.Column(db.Boolean, default=False)
 
-    def __init__(self, isbn="", googleID="", title="", description=None, totalPages=1, author=None, publishedDate=None):
+    def __init__(self, isbn="", googleID="", title="", description=None, totalPages=1, author=None, publishedDate=None,
+                 selfLink=None):
         """
         :param isbn: String containing ISBN of book
         :param googleID: String containing Google Books ID of book
@@ -38,8 +39,11 @@ class Book(db.Model):
         self.thumbnail = "Assets/bookThumbnails/default.jpg"
         self.totalPages = totalPages
         self.publishedDate = publishedDate
+        self.selfLink = selfLink
 
-        if self.isbn != "":
+        if self.selfLink is not None:
+            self.__scrapeFromSelfLink()
+        elif self.isbn != "":
             self.__scrapeBookDataISBN()
         elif self.googleID != "":
             self.__scrapeBookDataGoogleID()
@@ -136,6 +140,31 @@ class Book(db.Model):
 
         else:
             print("google ID empty")
+
+    def __scrapeFromSelfLink(self):
+
+        r = requests.get(self.selfLink)
+        parsedJson = r.json()
+
+        # ISBN
+        for ident in parsedJson["volumeInfo"]["industryIdentifiers"]:
+            if ident["type"] == "ISBN_13":
+                self.isbn = ident["identifier"]
+
+        self.title = parsedJson["volumeInfo"]["title"]
+        self.authorName = parsedJson["volumeInfo"]["authors"][0]
+        self.description = parsedJson["volumeInfo"]["description"]
+        self.totalPages = parsedJson["volumeInfo"]["pageCount"]
+        self.publishedDate = parsedJson["volumeInfo"]["publishedDate"]
+        self.googleID = parsedJson["id"]
+
+        # standardise publishedDate
+        if len(self.publishedDate) == 4:
+            self.publishedDate = f"{self.publishedDate}-01-01"
+
+        self.automaticallyScraped = True
+
+        # self.addBookToAuthor()
 
     def getData(self) -> list:
         """retrieves information about the Book object

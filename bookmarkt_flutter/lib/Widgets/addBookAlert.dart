@@ -48,7 +48,6 @@ addBookAlert(BuildContext context, NavigatorArguments args) {
                     bookshelfID: args.bookshelfID,
                     bookshelfName: args.bookshelfName,
                     redirect: args.redirect));
-            // addBookDataAlert(context, args, book);
           } else {
             Map i = json.decode(response.body);
             Book book = Book.fromJsonBookData(i);
@@ -59,7 +58,6 @@ addBookAlert(BuildContext context, NavigatorArguments args) {
                     bookshelfID: args.bookshelfID,
                     bookshelfName: args.bookshelfName,
                     redirect: args.redirect));
-            // addBookDataAlert(context, args, book);
           }
         } on SocketException {
           print("error connecting to server");

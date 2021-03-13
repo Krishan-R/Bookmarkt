@@ -103,5 +103,6 @@ class Book {
         thumbnail = json["volumeInfo"]["imageLinks"] == null
             ? ""
             : json["volumeInfo"]["imageLinks"]["thumbnail"],
-        publishedDate = json["volumeInfo"]["publishedDate"];
+        publishedDate = json["volumeInfo"]["publishedDate"],
+  automaticallyScraped = true;
 }
