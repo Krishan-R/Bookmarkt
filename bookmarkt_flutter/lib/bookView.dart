@@ -542,6 +542,10 @@ class _readingPredictionState extends State<readingPrediction> {
                       Duration remainingDays = widget.args.book.goalDate
                           .difference(DateTime.now());
 
+                      if (remainingDays.isNegative) {
+                        return "You missed your reading goal :(";
+                      }
+
                       int pagesLeft = widget.args.book.totalPages -
                           widget.args.book.currentPage;
 

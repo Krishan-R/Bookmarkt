@@ -23,6 +23,8 @@ class _addBookState extends State<addBook> {
   String borrowingName = "";
   DateTime borrowingDate = DateTime.now();
   bool completedCheckBox = false;
+  bool goalCheckbox = false;
+  DateTime goalDate = DateTime.now();
   DateTime selectedDate = DateTime.now();
   bool init = false;
 
@@ -87,6 +89,12 @@ class _addBookState extends State<addBook> {
 
       if (args.book.borrowingTime != null) {
         borrowingDate = args.book.borrowingTime;
+      }
+
+      // set goal information
+      if (args.book.goalDate != null) {
+        goalDate = args.book.goalDate;
+        goalCheckbox = true;
       }
 
       init = true;
@@ -174,8 +182,14 @@ class _addBookState extends State<addBook> {
                         args.book.borrowingTime = null;
                       }
 
+                      String goal = "";
+                      if (goalCheckbox) {
+                        goal = "&goalDate=${goalDate.year}-${goalDate.month.toString().padLeft(2, '0')}-${goalDate.day.toString().padLeft(2, '0')}";
+                        args.book.goalDate = goalDate;
+                      }
+
                       final response = await http.post(
-                          "http://${args.url}:5000/users/${args.user.userID.toString()}/books/add?isbn=${args.book.ISBN}$bookshelfID$currentPage$completed$rating$title$author$description$totalPages$publishedDate$borrowing");
+                          "http://${args.url}:5000/users/${args.user.userID.toString()}/books/add?isbn=${args.book.ISBN}$bookshelfID$currentPage$completed$rating$title$author$description$totalPages$publishedDate$borrowing$goal");
 
                       if (response.body == "added new BookInstance") {
                         Navigator.popUntil(
@@ -253,8 +267,17 @@ class _addBookState extends State<addBook> {
                             "&borrowingFrom=null&borrowingTo=null&borrowingTime=null";
                       }
 
+                      String goal = "";
+                      if (goalCheckbox) {
+                        goal = "&goalDate=${goalDate.year}-${goalDate.month.toString().padLeft(2, '0')}-${goalDate.day.toString().padLeft(2, '0')}";
+                        args.book.goalDate = goalDate;
+                      } else {
+                        goal = "&goalDate=null";
+                        args.book.goalDate = null;
+                      }
+
                       final response = await http.put(
-                          "http://${args.url}:5000/users/${args.user.userID.toString()}/books/${args.book.bookInstanceID}/edit?currentPage=${args.book.currentPage}&completed=$completedCheckBox&bookshelfID=${args.book.bookshelfID}$borrowing");
+                          "http://${args.url}:5000/users/${args.user.userID.toString()}/books/${args.book.bookInstanceID}/edit?currentPage=${args.book.currentPage}&completed=$completedCheckBox&bookshelfID=${args.book.bookshelfID}$borrowing$goal");
 
                       Navigator.pop(context);
 
@@ -521,6 +544,36 @@ class _addBookState extends State<addBook> {
                             },
                             child: Text(
                                 "${borrowingDate.year}-${borrowingDate.month.toString().padLeft(2, '0')}-${borrowingDate.day.toString().padLeft(2, '0')}")),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Checkbox(
+                          value: goalCheckbox,
+                          onChanged: (value) {
+                            setState(() {
+                              goalCheckbox = !goalCheckbox;
+                            });
+                          }),
+                      Text("Reading Goal"),
+                      SizedBox(width: 10),
+                      Visibility(
+                        visible: goalCheckbox,
+                        child: FlatButton(
+                            onPressed: () async {
+                              DateTime picked = await showDatePicker(
+                                  context: context,
+                                  initialDate: goalDate,
+                                  firstDate: DateTime.now(),
+                                  lastDate: DateTime(2100));
+                              if (picked != null && picked != goalDate)
+                                setState(() {
+                                  goalDate = picked;
+                                });
+                            },
+                            child: Text(
+                                "${goalDate.year}-${goalDate.month.toString().padLeft(2, '0')}-${goalDate.day.toString().padLeft(2, '0')}")),
                       ),
                     ],
                   ),
