@@ -541,13 +541,17 @@ class _readingPredictionState extends State<readingPrediction> {
                     try {
                       Duration remainingDays = widget.args.book.goalDate
                           .difference(DateTime.now());
-
-                      if (remainingDays.isNegative) {
-                        return "You missed your reading goal :(";
-                      }
-
                       int pagesLeft = widget.args.book.totalPages -
                           widget.args.book.currentPage;
+
+                      remainingDays += Duration(days: 1);
+
+                      if (remainingDays.inDays == 0) {
+                        return "You are on the last day!\n You need to read $pagesLeft pages today!";
+                      } else if (remainingDays.isNegative) {
+
+                        return "You missed your reading goal :(";
+                      }
 
                       return "There are ${remainingDays.inDays} days left to hit your reading target!\nYou need to read ${(pagesLeft / remainingDays.inDays).ceil()} pages a day";
                     } catch (e) {
