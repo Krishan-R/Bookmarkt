@@ -64,6 +64,7 @@ class _AllBooksState extends State<AllBooks> {
               label: "Search",
               labelStyle: TextStyle(fontSize: 15),
               onTap: () {
+                Navigator.pushNamed(context, "/searchBook", arguments: args);
                 print("search pressed");
               },
             ),
@@ -97,7 +98,7 @@ class _AllBooksState extends State<AllBooks> {
 
 
 Future<List<Book>> getAllBookData(args) async {
-  List<Book> bookList = new List<Book>();
+  List<Book> bookList = [];
 
   try {
     final response = await http.get("http://${args.url}:5000/users/${args.user.userID.toString()}/books/all");
