@@ -279,9 +279,10 @@ class _addBookState extends State<addBook> {
                       final response = await http.put(
                           "http://${args.url}:5000/users/${args.user.userID.toString()}/books/${args.book.bookInstanceID}/edit?currentPage=${args.book.currentPage}&completed=$completedCheckBox&bookshelfID=${args.book.bookshelfID}$borrowing$goal");
 
+                      //todo request to update book information if not automaticallyscraped
+
                       Navigator.pop(context);
 
-                      print(response.body);
                     } on SocketException {
                       print("Error connecting to server");
                     }

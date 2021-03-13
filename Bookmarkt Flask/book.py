@@ -23,7 +23,7 @@ class Book(db.Model):
     publishedDate = db.Column(db.String(16))
     automaticallyScraped = db.Column(db.Boolean, default=False)
 
-    def __init__(self, isbn="", googleID="", title="", description=None, totalPages=1, author=None, publishedDate=None,
+    def __init__(self, isbn=None, googleID=None, title=None, description=None, totalPages=1, author=None, publishedDate=None,
                  selfLink=None):
         """
         :param isbn: String containing ISBN of book
@@ -95,13 +95,20 @@ class Book(db.Model):
                         # standardise publishedDate
                         if len(self.publishedDate) == 4:
                             self.publishedDate = f"{self.publishedDate}-01-01"
+                        elif len(self.publishedDate) == 7:
+                            self.publishedDate = f"{self.publishedDate}-01"
 
                         #store image locally
                         urllib.request.urlretrieve(parsedJson["items"][0]["volumeInfo"]["imageLinks"]["thumbnail"], f"Assets/bookThumbnails/{self.isbn}.jpg")
                         self.thumbnail = f"Assets/bookThumbnails/{self.isbn}.jpg"
 
                         self.addBookToAuthor()
-                        self.automaticallyScraped = True
+
+                        if self.authorName is None or self.totalPages is None:
+                            self.automaticallyScraped = False
+                        else:
+                            self.automaticallyScraped = True
+
                     else:
                         print(f"book not found with isbn: {self.isbn}. Not scraping from Google Books")
                 except IndexError:
@@ -149,39 +156,25 @@ class Book(db.Model):
         # ISBN
         for ident in parsedJson["volumeInfo"]["industryIdentifiers"]:
             if ident["type"] == "ISBN_13":
-                self.isbn = ident["identifier"]
+                self.isbn = int(ident["identifier"])
 
         self.title = parsedJson["volumeInfo"]["title"]
-        self.authorName = parsedJson["volumeInfo"]["authors"][0]
-        self.description = parsedJson["volumeInfo"]["description"]
-        self.totalPages = parsedJson["volumeInfo"]["pageCount"]
-        self.publishedDate = parsedJson["volumeInfo"]["publishedDate"]
+        if parsedJson.get("volumeInfo").get("authors") is not None:
+            self.authorName = parsedJson["volumeInfo"]["authors"][0]
+        self.description = parsedJson.get("volumeInfo").get("description")
+        self.totalPages = parsedJson.get("volumeInfo").get("pageCount")
+        self.publishedDate = parsedJson.get("volumeInfo").get("publishedDate")
         self.googleID = parsedJson["id"]
 
         # standardise publishedDate
-        if len(self.publishedDate) == 4:
-            self.publishedDate = f"{self.publishedDate}-01-01"
+        if self.publishedDate is not None:
+            if len(self.publishedDate) == 4:
+                self.publishedDate = f"{self.publishedDate}-01-01"
+            elif len(self.publishedDate) == 7:
+                self.publishedDate = f"{self.publishedDate}-01"
 
-        self.automaticallyScraped = True
-
-        # self.addBookToAuthor()
-
-    def getData(self) -> list:
-        """retrieves information about the Book object
-
-        :return: List containing JSON of book information
-        """
-
-        return [
-            {
-                "isbn": self.isbn,
-                "title": self.title,
-                "author": self.authorName,
-                "description": self.description,
-                "pages": self.totalPages,
-                "googleID": self.googleID
-            }
-        ]
+        # in case user needs to change details
+        self.automaticallyScraped = False
 
     def addBookToAuthor(self):
 

@@ -154,6 +154,8 @@ def getAllBookInstances():
 
 @app.route("/users/<userID>/books/add", methods=["POST"])
 def addUserBook(userID):
+    # todo accept automaticallyscraped and edit book details, same with edit
+
     isbn = request.args.get("isbn", None)
     currentPage = request.args.get("currentPage", None)
     completed = request.args.get("completed", None)
@@ -198,7 +200,6 @@ def addUserBook(userID):
     if goalDate is not None:
         goalDate = datetime.datetime.strptime(goalDate, "%Y-%m-%d")
 
-
     if bookshelfID is not None:
         try:
             bookshelfID = int(bookshelfID)
@@ -231,7 +232,8 @@ def addUserBook(userID):
 
     newBookInstance = BookInstance(isbn, userID, completed=completed, currentPage=currentPage, bookshelfID=bookshelfID,
                                    rating=rating, totalTimeRead=totalTimeRead, dateCompleted=dateCompleted,
-                                   borrowingFrom=borrowingFrom, borrowingTo=borrowingTo, borrowingTime=borrowingTime, goalDate=goalDate)
+                                   borrowingFrom=borrowingFrom, borrowingTo=borrowingTo, borrowingTime=borrowingTime,
+                                   goalDate=goalDate)
     db.session.add(newBookInstance)
     db.session.commit()
 

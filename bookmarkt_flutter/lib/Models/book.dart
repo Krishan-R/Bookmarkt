@@ -81,6 +81,7 @@ class Book {
         publishedDate = json["publishedDate"],
         thumbnail = json["thumbnail"],
         title = json["title"],
+        googleID = json["googleID"],
         totalPages = json["totalPages"],
         automaticallyScraped = json["automaticallyScraped"];
 
@@ -97,6 +98,7 @@ class Book {
         //             json["volumeInfo"]["industryIdentifiers"][1]["identifier"])
         //         : int.parse(
         //             json["volumeInfo"]["industryIdentifiers"][0]["identifier"]),
+        ISBN = json["volumeInfo"]["industryIdentifiers"] == null ? null : json["volumeInfo"]["industryIdentifiers"][0]["type"] == "OTHER" ? null : 1,
         googleID = json["id"],
         selfLink = json["selfLink"],
         totalPages = json["volumeInfo"]["pageCount"] == null ? 0 : json["volumeInfo"]["pageCount"],

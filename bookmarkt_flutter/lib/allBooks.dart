@@ -64,8 +64,8 @@ class _AllBooksState extends State<AllBooks> {
               label: "Search",
               labelStyle: TextStyle(fontSize: 15),
               onTap: () {
+                args.redirect = "/allBooks";
                 Navigator.pushNamed(context, "/searchBook", arguments: args);
-                print("search pressed");
               },
             ),
 

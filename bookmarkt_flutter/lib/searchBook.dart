@@ -86,74 +86,81 @@ class _SearchBookState extends State<SearchBook> {
                   style: TextStyle(fontSize: 20),
                 ));
               }
-
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: ListView.builder(
                   controller: scrollController,
                   itemCount: bookList.length,
                   itemBuilder: (context, index) {
-                    return Container(
-                      height: 120,
-                      child: Card(
-                        child: InkWell(
-                          onTap: () async {
-                            args.bookshelfList = await getBookshelfList(args);
+                    return Visibility(
+                      // visible: true,
+                      visible: bookList[index].ISBN != null,
+                      child: Container(
+                        height: 120,
+                        child: Card(
+                          child: InkWell(
+                            onTap: () async {
 
+                              final response = await http.post("http://${args.url}:5000/books/scrape?selfLink=${bookList[index].selfLink}");
 
+                              Book book = Book.fromJsonBookData(json.decode(response.body));
 
-                            Navigator.pushNamed(context, "/addBook", arguments: args);
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                    child:
-                                        Image.network(bookList[index].thumbnail)),
-                                Expanded(
-                                  flex: 5,
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 10),
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.start,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          bookList[index].title,
-                                          style: TextStyle(fontSize: 18),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        Text(
-                                          bookList[index].author ??
-                                              "No Author Found",
-                                          style: TextStyle(
-                                              fontSize: 15, color: Colors.grey),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        Text(
-                                          "Total Pages: ${bookList[index].totalPages.toString() ?? "unknown"}",
-                                          style: TextStyle(
-                                              fontSize: 15, color: Colors.grey),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        Text(
-                                          "Published Date: ${bookList[index].publishedDate ?? "unknown"}",
-                                          style: TextStyle(
-                                              fontSize: 15, color: Colors.grey),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ],
+                              args.book = book;
+                              args.bookshelfList = await getBookshelfList(args);
+
+                              Navigator.pushNamed(context, "/addBook", arguments: args);
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                      child:
+                                          Image.network(bookList[index].thumbnail)),
+                                  Expanded(
+                                    flex: 5,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 10),
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            bookList[index].title,
+                                            style: TextStyle(fontSize: 18),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          Text(
+                                            bookList[index].author ??
+                                                "No Author Found",
+                                            style: TextStyle(
+                                                fontSize: 15, color: Colors.grey),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          Text(
+                                            "Total Pages: ${bookList[index].totalPages.toString() ?? "unknown"}",
+                                            style: TextStyle(
+                                                fontSize: 15, color: Colors.grey),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          Text(
+                                            "Published Date: ${bookList[index].publishedDate ?? "unknown"}",
+                                            style: TextStyle(
+                                                fontSize: 15, color: Colors.grey),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -199,17 +206,18 @@ Future<List<Book>> getSearchBooks(String search) async {
 
     bookList = List<Book>.from(i.map((model) => Book.fromSearchJson(model)));
 
-    // for (Book a in bookList) {
-    //   print("googleID: ${a.googleID}");
-    //   print("selfLink: ${a.selfLink}");
-    //   print(a.title);
-    //   print("author: ${a.author}");
-    //   print(a.description);
-    //   print("total pages: ${a.totalPages}");
-    //   print("thumbnail: ${a.thumbnail}");
-    //   print(a.publishedDate);
-    //   print("==========");
-    // }
+    for (Book a in bookList) {
+      print("googleID: ${a.googleID}");
+      print("isbn: ${a.ISBN}");
+      print("selfLink: ${a.selfLink}");
+      print(a.title);
+      print("author: ${a.author}");
+      print(a.description);
+      print("total pages: ${a.totalPages}");
+      print("thumbnail: ${a.thumbnail}");
+      print(a.publishedDate);
+      print("==========");
+    }
 
     return bookList;
   } on SocketException {
