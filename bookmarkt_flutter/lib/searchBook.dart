@@ -79,6 +79,14 @@ class _SearchBookState extends State<SearchBook> {
             if (snapshot.hasData) {
               List<Book> bookList = snapshot.data;
 
+              if (bookList.isEmpty) {
+                return Center(
+                    child: Text(
+                  "No Books Found",
+                  style: TextStyle(fontSize: 20),
+                ));
+              }
+
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: ListView.builder(
@@ -102,7 +110,8 @@ class _SearchBookState extends State<SearchBook> {
                                       horizontal: 10, vertical: 10),
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         bookList[index].title,
@@ -119,16 +128,14 @@ class _SearchBookState extends State<SearchBook> {
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                       Text(
-                                        "Total Pages: ${bookList[index].totalPages.toString()??
-                                            "unknown"}",
+                                        "Total Pages: ${bookList[index].totalPages.toString() ?? "unknown"}",
                                         style: TextStyle(
                                             fontSize: 15, color: Colors.grey),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                       Text(
-                                        "Published Date: ${bookList[index].publishedDate??
-                                            "unknown"}",
+                                        "Published Date: ${bookList[index].publishedDate ?? "unknown"}",
                                         style: TextStyle(
                                             fontSize: 15, color: Colors.grey),
                                         maxLines: 1,
@@ -176,6 +183,10 @@ Future<List<Book>> getSearchBooks(String search) async {
         "https://www.googleapis.com/books/v1/volumes?q=$search&maxResults=40&orderBy=relevance");
 
     Iterable i = json.decode(response.body)["items"];
+
+    if (i == null) {
+      return bookList;
+    }
 
     bookList = List<Book>.from(i.map((model) => Book.fromSearchJson(model)));
 
