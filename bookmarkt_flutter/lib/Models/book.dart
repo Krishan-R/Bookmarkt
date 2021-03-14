@@ -51,7 +51,7 @@ class Book {
         bookshelfID = json["userData"]["bookshelfID"],
         completed = json["userData"]["completed"],
         currentPage = json["userData"]["currentPage"],
-        totalPages = json["bookData"]["totalPages"],
+        totalPages = json["userData"]["totalPages"],
         userID = json["userData"]["userID"],
         ISBN = json["userData"]["isbn"],
         author = json["bookData"]["author"],

@@ -110,9 +110,7 @@ Container bookHeader(args) {
         ),
         Expanded(
           child: Container(
-            // color: Colors.red,
             child: Column(
-              // crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(

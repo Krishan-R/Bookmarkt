@@ -19,18 +19,20 @@ class BookInstance(db.Model):
     completed = db.Column(db.Boolean, nullable=False)
     dateCompleted = db.Column(db.Date)
     currentPage = db.Column(db.Integer, nullable=False)
+    totalPages = db.Column(db.Integer, nullable=False)
     rating = db.Column(db.Integer)
     totalTimeRead = db.Column(db.Integer)
     borrowingFrom = db.Column(db.String(50))
     borrowingTo = db.Column(db.String(50))
     borrowingTime = db.Column(db.Date)
 
-    def __init__(self, isbn, userID, currentPage=0, completed=False, bookshelfID=None, rating=0, totalTimeRead=0,
+    def __init__(self, isbn, userID, currentPage=0, totalPages=1, completed=False, bookshelfID=None, rating=0, totalTimeRead=0,
                  dateCompleted=None, borrowingFrom=None, borrowingTo=None, borrowingTime=None, goalDate=None):
         self.isbn = isbn
         self.userID = userID
         self.completed = completed
         self.currentPage = currentPage
+        self.totalPages = totalPages
         self.bookshelfID = bookshelfID
         self.rating = rating
         self.totalTimeRead = totalTimeRead
@@ -59,6 +61,7 @@ class BookInstance(db.Model):
             "isbn": self.isbn,
             "bookInstanceID": self.bookInstanceID,
             "currentPage": self.currentPage,
+            "totalPages": self.totalPages,
             "completed": self.completed,
             "userID": self.userID,
             "bookshelfID": self.bookshelfID,

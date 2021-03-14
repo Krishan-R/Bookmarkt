@@ -155,6 +155,7 @@ def getAllBookInstances():
 @app.route("/users/<userID>/books/add", methods=["POST"])
 def addUserBook(userID):
     # todo accept automaticallyscraped and edit book details, same with edit
+    # todo maybe pagecount should be in bookinstance as well
 
     isbn = request.args.get("isbn", None)
     currentPage = request.args.get("currentPage", None)
@@ -166,8 +167,8 @@ def addUserBook(userID):
     author = request.args.get("author", None)
     publishedDate = request.args.get("publishedDate", None)
     description = request.args.get("description", None)
-    totalPages = request.args.get("totalPages", 1)
-    dateCompleted = request.args.get("dateCompleted", datetime.date.today())
+    totalPages = request.args.get("totalPages", None)
+    dateCompleted = request.args.get("dateCompleted", None)
     borrowingTime = request.args.get("borrowingTime", None)
     borrowingFrom = request.args.get("borrowingFrom", None)
     borrowingTo = request.args.get("borrowingTo", None)
@@ -230,9 +231,14 @@ def addUserBook(userID):
         db.session.add(newBook)
         db.session.commit()
 
-    newBookInstance = BookInstance(isbn, userID, completed=completed, currentPage=currentPage, bookshelfID=bookshelfID,
-                                   rating=rating, totalTimeRead=totalTimeRead, dateCompleted=dateCompleted,
-                                   borrowingFrom=borrowingFrom, borrowingTo=borrowingTo, borrowingTime=borrowingTime,
+    if totalPages is None:
+        totalPages = book.totalPages
+        print(totalPages)
+
+    newBookInstance = BookInstance(isbn, userID, completed=completed, currentPage=currentPage, totalPages=totalPages,
+                                   bookshelfID=bookshelfID, rating=rating, totalTimeRead=totalTimeRead,
+                                   dateCompleted=dateCompleted, borrowingFrom=borrowingFrom, borrowingTo=borrowingTo,
+                                   borrowingTime=borrowingTime,
                                    goalDate=goalDate)
     db.session.add(newBookInstance)
     db.session.commit()
@@ -245,6 +251,7 @@ def updateBookInstance(userID, bookInstanceID):
     userID = int(userID)
 
     currentPage = request.args.get("currentPage", None)
+    totalPages = request.args.get("totalPages", None)
     completed = request.args.get("completed", None)
     bookshelfID = request.args.get("bookshelfID", None)
     rating = request.args.get("rating", None)
@@ -272,6 +279,9 @@ def updateBookInstance(userID, bookInstanceID):
         except Exception as e:
             print(e)
             print("An Error has occurred")
+
+    if totalPages is not None:
+        bookInstance.totalPages = totalPages
 
     if completed is not None and completed.lower() == "false":
         completed = False
@@ -328,19 +338,24 @@ def updateBookInstance(userID, bookInstanceID):
             print("an error occurred changing totalTimeRead of Book instance")
 
     if bookshelfID is not None:
-        try:
-            bookshelfID = int(bookshelfID)
 
-            # check if bookshelfID belongs to userID
-            bookshelf = Bookshelf.query.filter(Bookshelf.bookshelfID == bookshelfID).first()
-            if bookshelf.userID != userID:
-                print("Bookshelf does not belong to that user")
-                return f"Bookshelf {bookshelfID} does not belong to user {userID}"
+        if bookshelfID == "null":
+            bookInstance.bookshelfID = None
+        else:
 
-            bookInstance.bookshelfID = bookshelfID
-        except Exception as e:
-            print(e)
-            print("An Error has occurred")
+            try:
+                bookshelfID = int(bookshelfID)
+
+                # check if bookshelfID belongs to userID
+                bookshelf = Bookshelf.query.filter(Bookshelf.bookshelfID == bookshelfID).first()
+                if bookshelf.userID != userID:
+                    print("Bookshelf does not belong to that user")
+                    return f"Bookshelf {bookshelfID} does not belong to user {userID}"
+
+                bookInstance.bookshelfID = bookshelfID
+            except Exception as e:
+                print(e)
+                print("An Error has occurred")
 
     db.session.commit()
 
@@ -443,7 +458,7 @@ def addReadingSession(userID, bookInstanceID):
     if updateProgress:
 
         # if the new book instance page is the total pages, set as completed
-        if (bookInstance.currentPage + pagesRead) <= book.totalPages:
+        if (bookInstance.currentPage + pagesRead) <= bookInstance.totalPages:
             bookInstance.currentPage += pagesRead
             bookInstance.completed = completed
         else:

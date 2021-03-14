@@ -97,28 +97,34 @@ class _addBookState extends State<addBook> {
         goalCheckbox = true;
       }
 
+
+      if (args.book.bookshelfID != null) {
+        bookshelfDropdownValue = args.book.bookshelfID;
+        // args.book.bookshelfID = args.bookshelfID;
+      }
+
+      if (args.bookshelfList.isEmpty) {
+        print("no bookshelves found");
+        Bookshelf emptyBookshelf =
+        Bookshelf(bookshelfID: -1, name: "No Bookshelves");
+        args.bookshelfList.add(emptyBookshelf);
+        bookshelfDropdownValue = -1;
+      } else {
+        // prepends blank bookshelf
+        if (args.bookshelfList[0].name != "(No bookshelf)" &&
+            args.bookshelfList[0].name != "No Bookshelves") {
+          args.bookshelfList
+              .insert(0, Bookshelf(bookshelfID: -1, name: "(No bookshelf)"));
+        }
+      }
+
       init = true;
     }
 
-    if (args.bookshelfID != null) {
-      bookshelfDropdownValue = (args.bookshelfID);
-      args.book.bookshelfID = args.bookshelfID;
-    }
 
-    if (args.bookshelfList.isEmpty) {
-      print("no bookshelves found");
-      Bookshelf emptyBookshelf =
-          Bookshelf(bookshelfID: -1, name: "No Bookshelves");
-      args.bookshelfList.add(emptyBookshelf);
-      bookshelfDropdownValue = -1;
-    } else {
-      // prepends blank bookshelf
-      if (args.bookshelfList[0].name != "(No bookshelf)" &&
-          args.bookshelfList[0].name != "No Bookshelves") {
-        args.bookshelfList
-            .insert(0, Bookshelf(bookshelfID: -1, name: "(No bookshelf)"));
-      }
-    }
+
+    print(args.book.bookshelfID);
+    print(bookshelfDropdownValue);
 
     return SafeArea(
       child: Scaffold(
@@ -128,19 +134,16 @@ class _addBookState extends State<addBook> {
             Visibility(
               visible: args.redirect != "edit",
               child: FlatButton(
-                child: Text(
-                  "Add",
-                ),
+                child: Text("Add"),
                 onPressed: () async {
                   if (_formKey.currentState.validate()) {
                     try {
                       String bookshelfID = "";
-                      if (args.book.bookshelfID == null) {
-                        bookshelfID = "";
-                      } else if (args.book.bookshelfID == -1) {
+                      if (bookshelfDropdownValue == -1 || bookshelfDropdownValue == null) {
                         bookshelfID = "";
                       } else {
-                        bookshelfID = "&bookshelfID=${args.book.bookshelfID}";
+                        bookshelfID = "&bookshelfID=$bookshelfDropdownValue}";
+                        args.book.bookshelfID = bookshelfDropdownValue;
                       }
 
                       if (args.book.currentPage == null) {
@@ -213,13 +216,15 @@ class _addBookState extends State<addBook> {
                 onPressed: () async {
                   if (_formKey.currentState.validate()) {
                     try {
-                      String bookshelfID = "";
-                      if (args.book.bookshelfID == null) {
-                        bookshelfID = "";
-                      } else if (args.book.bookshelfID == -1) {
-                        bookshelfID = "";
+
+                      String bookshelf = "";
+                      if (bookshelfDropdownValue == null || bookshelfDropdownValue == -1) {
+                        bookshelf = "&bookshelfID=null";
+                        args.book.bookshelfID = null;
                       } else {
-                        bookshelfID = "&bookshelfID=${args.book.bookshelfID}";
+                        bookshelf = "&bookshelfID=$bookshelfDropdownValue";
+                        args.book.bookshelfID = bookshelfDropdownValue;
+
                       }
 
                       if (args.book.currentPage == null) {
@@ -238,10 +243,10 @@ class _addBookState extends State<addBook> {
                       String publishedDate =
                           "&publishedDate=${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
 
-                      if (!args.book.automaticallyScraped) {
-                        final response = await http.put(
-                            "http://${args.url}:5000/books/${args.book.ISBN}?$title$author$description$totalPages$publishedDate");
-                      }
+                      // if (!args.book.automaticallyScraped) {
+                      //   final response = await http.put(
+                      //       "http://${args.url}:5000/books/${args.book.ISBN}?$title$author$description$totalPages$publishedDate");
+                      // }
 
                       String borrowing = "";
                       if (borrowingCheckBox) {
@@ -277,7 +282,7 @@ class _addBookState extends State<addBook> {
                       }
 
                       final response = await http.put(
-                          "http://${args.url}:5000/users/${args.user.userID.toString()}/books/${args.book.bookInstanceID}/edit?currentPage=${args.book.currentPage}&completed=$completedCheckBox&bookshelfID=${args.book.bookshelfID}$borrowing$goal");
+                          "http://${args.url}:5000/users/${args.user.userID.toString()}/books/${args.book.bookInstanceID}/edit?$currentPage$completed$bookshelf$borrowing$goal$totalPages");
 
                       //todo request to update book information if not automaticallyscraped
 
@@ -301,8 +306,8 @@ class _addBookState extends State<addBook> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextFormField(
-                    enabled: false,
-                    initialValue: args.book.ISBN.toString(),
+                    enabled: !scraped,
+                    initialValue: args.book.ISBN == null ? null : args.book.ISBN.toString() ,
                     decoration: InputDecoration(hintText: "ISBN"),
                     validator: (value) {
                       if (value.isEmpty) return "ISBN cannot be empty";
@@ -346,30 +351,6 @@ class _addBookState extends State<addBook> {
                     },
                   ),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Checkbox(
-                          value: completedCheckBox,
-                          onChanged: (val) {
-                            setState(() {
-                              completedCheckBox = val;
-                              args.book.completed = completedCheckBox;
-                              // if checked sets current page to max page
-                              if (val)
-                                args.book.currentPage = args.book.totalPages;
-                              else {
-                                if (!currentPageController.text.isEmpty) {
-                                  args.book.currentPage =
-                                      int.parse(currentPageController.text);
-                                } else
-                                  args.book.currentPage = 0;
-                              }
-                            });
-                          }),
-                      Text("Completed"),
-                    ],
-                  ),
-                  Row(
                     children: [
                       Flexible(
                         child: TextFormField(
@@ -395,7 +376,6 @@ class _addBookState extends State<addBook> {
                       ),
                       Flexible(
                         child: TextFormField(
-                          enabled: !scraped,
                           initialValue: ((){
                             if (args.book.totalPages == null) return null;
                             else {
@@ -466,7 +446,6 @@ class _addBookState extends State<addBook> {
                       onChanged: (int value) {
                         setState(() {
                           bookshelfDropdownValue = value;
-                          args.book.bookshelfID = value;
                         });
                       },
                     ),
@@ -482,6 +461,29 @@ class _addBookState extends State<addBook> {
                     ),
                   ),
                   SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Checkbox(
+                          value: completedCheckBox,
+                          onChanged: (val) {
+                            setState(() {
+                              completedCheckBox = val;
+                              args.book.completed = completedCheckBox;
+                              // if checked sets current page to max page
+                              if (val)
+                                args.book.currentPage = args.book.totalPages;
+                              else {
+                                if (!currentPageController.text.isEmpty) {
+                                  args.book.currentPage =
+                                      int.parse(currentPageController.text);
+                                } else
+                                  args.book.currentPage = 0;
+                              }
+                            });
+                          }),
+                      Text("Completed"),
+                    ],
+                  ),
                   Row(
                     children: [
                       Checkbox(

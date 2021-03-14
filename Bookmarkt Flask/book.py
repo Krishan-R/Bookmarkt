@@ -84,7 +84,8 @@ class Book(db.Model):
 
             if parsedJson["totalItems"] > 0:
                 try:
-                    if parsedJson["items"][0]["volumeInfo"]["industryIdentifiers"][0]["identifier"] == self.isbn or parsedJson["items"][0]["volumeInfo"]["industryIdentifiers"][1]["identifier"] == self.isbn:
+                    if parsedJson["items"][0]["volumeInfo"]["industryIdentifiers"][0]["identifier"] == self.isbn or \
+                            parsedJson["items"][0]["volumeInfo"]["industryIdentifiers"][1]["identifier"] == self.isbn:
                         self.title = parsedJson["items"][0]["volumeInfo"]["title"]
                         self.authorName = parsedJson["items"][0]["volumeInfo"]["authors"][0].replace(".", "").title()
                         self.description = parsedJson["items"][0]["volumeInfo"]["description"]
@@ -98,8 +99,9 @@ class Book(db.Model):
                         elif len(self.publishedDate) == 7:
                             self.publishedDate = f"{self.publishedDate}-01"
 
-                        #store image locally
-                        urllib.request.urlretrieve(parsedJson["items"][0]["volumeInfo"]["imageLinks"]["thumbnail"], f"Assets/bookThumbnails/{self.isbn}.jpg")
+                        # store image locally
+                        urllib.request.urlretrieve(parsedJson["items"][0]["volumeInfo"]["imageLinks"]["thumbnail"],
+                                                   f"Assets/bookThumbnails/{self.isbn}.jpg")
                         self.thumbnail = f"Assets/bookThumbnails/{self.isbn}.jpg"
 
                         self.addBookToAuthor()
@@ -154,15 +156,15 @@ class Book(db.Model):
         parsedJson = r.json()
 
         # ISBN
-        for ident in parsedJson["volumeInfo"]["industryIdentifiers"]:
-            if ident["type"] == "ISBN_13":
-                self.isbn = int(ident["identifier"])
+        # for ident in parsedJson["volumeInfo"]["industryIdentifiers"]:
+        #     if ident["type"] == "ISBN_13":
+        #         self.isbn = int(ident["identifier"])
 
         self.title = parsedJson["volumeInfo"]["title"]
         if parsedJson.get("volumeInfo").get("authors") is not None:
             self.authorName = parsedJson["volumeInfo"]["authors"][0]
         self.description = parsedJson.get("volumeInfo").get("description")
-        self.totalPages = parsedJson.get("volumeInfo").get("pageCount")
+        # self.totalPages = parsedJson.get("volumeInfo").get("pageCount")
         self.publishedDate = parsedJson.get("volumeInfo").get("publishedDate")
         self.googleID = parsedJson["id"]
 
@@ -174,7 +176,7 @@ class Book(db.Model):
                 self.publishedDate = f"{self.publishedDate}-01"
 
         # in case user needs to change details
-        self.automaticallyScraped = False
+        # self.automaticallyScraped = False
 
     def addBookToAuthor(self):
 
