@@ -831,7 +831,7 @@ def scrapeBook():
             db.session.commit()
 
         # book not correctly scraped
-        if book.title == "":
+        if book.title == "" or book.title is None:
             Book.query.filter(Book.isbn == isbn).delete()
             db.session.commit()
 

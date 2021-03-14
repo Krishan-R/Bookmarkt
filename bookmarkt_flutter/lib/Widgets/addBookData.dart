@@ -30,6 +30,13 @@ class _addBookState extends State<addBook> {
 
   String appBarText;
 
+  int bookISBN;
+  String bookTitle;
+  String bookAuthor;
+  String bookDescription;
+  int bookCurrentPage;
+  int bookTotalPages;
+
   @override
   Widget build(BuildContext context) {
     final NavigatorArguments args = ModalRoute.of(context).settings.arguments;
@@ -56,25 +63,44 @@ class _addBookState extends State<addBook> {
     //sets book variables on first build
     if (!init) {
       if (scraped) {
-        if (args.book.publishedDate != null) {
-          selectedDate = DateTime.parse(args.book.publishedDate);
-        }
-
-        if (args.book.description == "null") args.book.description = "";
-        if (args.book.rating == null) args.book.rating = 0;
-        if (args.book.currentPage != null)
-          currentPageController.text = args.book.currentPage.toString();
       } else {
         print("not scraped");
-        // if (args.book.totalPages == null) args.book.totalPages = 1;
-        if (args.book.rating == null) args.book.rating = 0;
-        if (args.book.currentPage != null)
-          currentPageController.text = args.book.currentPage.toString();
       }
 
       if (args.book.completed != null) {
         completedCheckBox = args.book.completed;
       }
+
+      if (args.book.publishedDate != null) {
+        selectedDate = DateTime.parse(args.book.publishedDate);
+      }
+
+      bookISBN = args.book.ISBN;
+
+      if (args.book.title == "null" || args.book.title == null) {
+        bookTitle = "";
+      } else {
+        bookTitle = args.book.title;
+      }
+
+      if (args.book.author == "null" || args.book.author == null) {
+        bookAuthor = "";
+      } else {
+        bookAuthor = args.book.author;
+      }
+
+      if (args.book.description == "null" || args.book.description == null) {
+        bookDescription = "";
+      } else {
+        bookDescription = args.book.description;
+      }
+
+      if (args.book.rating == null) args.book.rating = 0;
+
+      if (args.book.currentPage != null)
+        currentPageController.text = args.book.currentPage.toString();
+
+      bookTotalPages = args.book.totalPages;
 
       // sets borrowing information
       if (args.book.borrowingTo != null) {
@@ -97,10 +123,8 @@ class _addBookState extends State<addBook> {
         goalCheckbox = true;
       }
 
-
       if (args.book.bookshelfID != null) {
         bookshelfDropdownValue = args.book.bookshelfID;
-        // args.book.bookshelfID = args.bookshelfID;
       }
 
       if (args.bookshelfList.isEmpty) {
@@ -122,10 +146,6 @@ class _addBookState extends State<addBook> {
     }
 
 
-
-    print(args.book.bookshelfID);
-    print(bookshelfDropdownValue);
-
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -138,6 +158,14 @@ class _addBookState extends State<addBook> {
                 onPressed: () async {
                   if (_formKey.currentState.validate()) {
                     try {
+
+                      args.book.ISBN = bookISBN;
+                      args.book.title = bookTitle;
+                      args.book.author = bookAuthor;
+                      args.book.description = bookDescription;
+                      args.book.currentPage = bookCurrentPage;
+                      args.book.totalPages = bookTotalPages;
+
                       String bookshelfID = "";
                       if (bookshelfDropdownValue == -1 || bookshelfDropdownValue == null) {
                         bookshelfID = "";
@@ -153,6 +181,7 @@ class _addBookState extends State<addBook> {
                       String currentPage =
                           "&currentPage=${args.book.currentPage}";
                       String completed = "&completed=$completedCheckBox";
+                      args.book.completed = completedCheckBox;
                       String rating = "&rating=${args.book.rating}";
 
                       String title = "&title=${args.book.title}";
@@ -191,6 +220,8 @@ class _addBookState extends State<addBook> {
                         args.book.goalDate = goalDate;
                       }
 
+                      print("http://${args.url}:5000/users/${args.user.userID.toString()}/books/add?isbn=${args.book.ISBN}$bookshelfID$currentPage$completed$rating$title$author$description$totalPages$publishedDate$borrowing$goal");
+
                       final response = await http.post(
                           "http://${args.url}:5000/users/${args.user.userID.toString()}/books/add?isbn=${args.book.ISBN}$bookshelfID$currentPage$completed$rating$title$author$description$totalPages$publishedDate$borrowing$goal");
 
@@ -227,26 +258,31 @@ class _addBookState extends State<addBook> {
 
                       }
 
-                      if (args.book.currentPage == null) {
+                      print(args.book.currentPage);
+                      if (bookCurrentPage == null) {
                         args.book.currentPage = 0;
+                      } else {
+                        args.book.currentPage = bookCurrentPage;
                       }
+                      print(args.book.currentPage);
 
                       String currentPage =
-                          "&currentPage=${args.book.currentPage}";
+                          "&currentPage=$bookCurrentPage";
                       String completed = "&completed=$completedCheckBox";
 
-                      String title = "title=${args.book.title}";
-                      String author = "&author=${args.book.author}";
+                      String title = "title=$bookTitle";
+                      String author = "&author=$bookAuthor";
                       String description =
-                          "&description=${args.book.description}";
-                      String totalPages = "&totalPages=${args.book.totalPages}";
+                          "&description=$bookDescription";
+                      String totalPages = "&totalPages=$bookTotalPages";
                       String publishedDate =
                           "&publishedDate=${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
 
-                      // if (!args.book.automaticallyScraped) {
-                      //   final response = await http.put(
-                      //       "http://${args.url}:5000/books/${args.book.ISBN}?$title$author$description$totalPages$publishedDate");
-                      // }
+                      // if the book's data was entered manually
+                      if (!args.book.automaticallyScraped) {
+                        final response = await http.put(
+                            "http://${args.url}:5000/books/$bookISBN?$title$author$description$totalPages$publishedDate");
+                      }
 
                       String borrowing = "";
                       if (borrowingCheckBox) {
@@ -281,6 +317,12 @@ class _addBookState extends State<addBook> {
                         args.book.goalDate = null;
                       }
 
+                      args.book.ISBN = bookISBN;
+                      args.book.title = bookTitle;
+                      args.book.author = bookAuthor;
+                      args.book.description = bookDescription;
+                      args.book.totalPages = bookTotalPages;
+
                       final response = await http.put(
                           "http://${args.url}:5000/users/${args.user.userID.toString()}/books/${args.book.bookInstanceID}/edit?$currentPage$completed$bookshelf$borrowing$goal$totalPages");
 
@@ -307,47 +349,47 @@ class _addBookState extends State<addBook> {
                 children: [
                   TextFormField(
                     enabled: !scraped,
-                    initialValue: args.book.ISBN == null ? null : args.book.ISBN.toString() ,
+                    initialValue: bookISBN == null ? null : bookISBN.toString() ,
                     decoration: InputDecoration(hintText: "ISBN"),
                     validator: (value) {
                       if (value.isEmpty) return "ISBN cannot be empty";
                       return null;
                     },
                     onChanged: (value) {
-                      args.book.ISBN = int.parse(value);
+                      bookISBN = int.parse(value);
                     },
                   ),
                   TextFormField(
                     enabled: !scraped,
-                    initialValue: args.book.title,
+                    initialValue: bookTitle,
                     decoration: InputDecoration(hintText: "Title"),
                     validator: (value) {
                       if (value.isEmpty) return "Title cannot be empty";
                       return null;
                     },
                     onChanged: (value) {
-                      args.book.title = value;
+                      bookTitle = value;
                     },
                   ),
                   TextFormField(
                     enabled: !scraped,
-                    initialValue: args.book.author,
+                    initialValue: bookAuthor,
                     decoration: InputDecoration(hintText: "Author"),
                     validator: (value) {
                       if (value.isEmpty) return "Author cannot be empty";
                       return null;
                     },
                     onChanged: (value) {
-                      args.book.author = value;
+                      bookAuthor = value;
                     },
                   ),
                   TextFormField(
                     enabled: !scraped,
-                    initialValue: args.book.description,
+                    initialValue: bookDescription,
                     maxLines: 4,
                     decoration: InputDecoration(hintText: "Description"),
                     onChanged: (value) {
-                      args.book.description = value;
+                      bookDescription = value;
                     },
                   ),
                   Row(
@@ -364,22 +406,22 @@ class _addBookState extends State<addBook> {
                           keyboardType: TextInputType.number,
                           validator: (value) {
                             if (value.isNotEmpty &&
-                                int.parse(value) > args.book.totalPages)
+                                int.parse(value) > bookTotalPages)
                               return "Current Page is larger than total";
                             return null;
                           },
                           onChanged: (value) {
-                            if (value.isEmpty) args.book.currentPage = 0;
-                            args.book.currentPage = int.parse(value);
+                            if (value.isEmpty) bookCurrentPage = 0;
+                            bookCurrentPage = int.parse(value);
                           },
                         ),
                       ),
                       Flexible(
                         child: TextFormField(
                           initialValue: ((){
-                            if (args.book.totalPages == null) return null;
+                            if (bookTotalPages == null) return null;
                             else {
-                              return args.book.totalPages.toString();
+                              return bookTotalPages.toString();
                             }
                           }()),
                           textAlign: TextAlign.center,
@@ -392,7 +434,7 @@ class _addBookState extends State<addBook> {
                           },
                           keyboardType: TextInputType.number,
                           onChanged: (value) {
-                            args.book.totalPages = int.parse(value);
+                            bookTotalPages = int.parse(value);
                           },
                         ),
                       ),
@@ -468,16 +510,15 @@ class _addBookState extends State<addBook> {
                           onChanged: (val) {
                             setState(() {
                               completedCheckBox = val;
-                              args.book.completed = completedCheckBox;
                               // if checked sets current page to max page
                               if (val)
-                                args.book.currentPage = args.book.totalPages;
+                                bookCurrentPage = bookTotalPages;
                               else {
-                                if (!currentPageController.text.isEmpty) {
-                                  args.book.currentPage =
+                                if (currentPageController.text.isNotEmpty) {
+                                  bookCurrentPage =
                                       int.parse(currentPageController.text);
                                 } else
-                                  args.book.currentPage = 0;
+                                  bookCurrentPage = 0;
                               }
                             });
                           }),
