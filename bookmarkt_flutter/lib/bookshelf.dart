@@ -2,25 +2,26 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:bookmarkt_flutter/Models/book.dart';
+import 'package:bookmarkt_flutter/Models/bookshelf.dart';
 import 'package:bookmarkt_flutter/Widgets/addBookAlert.dart';
 import 'package:bookmarkt_flutter/Widgets/bookListView.dart';
-import 'package:bookmarkt_flutter/allBooks.dart';
-import 'package:bookmarkt_flutter/drawer.dart';
 import 'package:bookmarkt_flutter/library.dart';
 import 'package:bookmarkt_flutter/navigatorArguments.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:http/http.dart' as http;
 
-class Bookshelf extends StatefulWidget {
+class BookshelfWidget extends StatefulWidget {
   @override
-  _BookshelfState createState() => _BookshelfState();
+  _BookshelfWidgetState createState() => _BookshelfWidgetState();
 }
 
-class _BookshelfState extends State<Bookshelf> {
+class _BookshelfWidgetState extends State<BookshelfWidget> {
   @override
   Widget build(BuildContext context) {
     final NavigatorArguments args = ModalRoute.of(context).settings.arguments;
@@ -68,9 +69,53 @@ class _BookshelfState extends State<Bookshelf> {
               backgroundColor: Colors.blue,
               foregroundColor: Colors.white,
               label: "Scan ISBN",
+              labelBackgroundColor: Colors.white,
               labelStyle: TextStyle(fontSize: 15),
-              onTap: () {
+              onTap: () async {
                 print("scan ISBN pressed");
+
+                String barcode;
+                try {
+                  barcode = await FlutterBarcodeScanner.scanBarcode(
+                      "#ff6666", "Cancel", false, ScanMode.DEFAULT);
+                } on PlatformException {
+                  barcode = "-1";
+                }
+
+                if (barcode != "-1") {
+                  List<Bookshelf> bookshelfList = await getBookshelfList(args);
+
+                  final response = await http.post(
+                      "http://${args.url}:5000/books/scrape?isbn=$barcode");
+
+                  args.redirect = "/allBooks";
+
+                  if (response.body == "Cannot be found") {
+                    print("Cannot be found");
+                    Book book = new Book();
+                    book.ISBN = int.parse(barcode);
+
+                    Navigator.pushNamed(context, '/addBook',
+                        arguments: NavigatorArguments(args.user, args.url,
+                            book: book,
+                            bookshelfList: bookshelfList,
+                            bookshelfID: args.bookshelfID,
+                            bookshelfName: args.bookshelfName,
+                            redirect: args.redirect));
+                  } else {
+                    Map i = json.decode(response.body);
+                    Book book = Book.fromJsonBookData(i);
+                    Navigator.pushNamed(context, '/addBook',
+                        arguments: NavigatorArguments(args.user, args.url,
+                            book: book,
+                            bookshelfList: bookshelfList,
+                            bookshelfID: args.bookshelfID,
+                            bookshelfName: args.bookshelfName,
+                            redirect: args.redirect));
+                  }
+                } else {
+                  Fluttertoast.showToast(msg: "Error Scanning Barcode");
+                }
               },
             ),
             SpeedDialChild(
@@ -78,9 +123,13 @@ class _BookshelfState extends State<Bookshelf> {
               backgroundColor: Colors.blue,
               foregroundColor: Colors.white,
               label: "Enter ISBN",
+              labelBackgroundColor: Colors.white,
               labelStyle: TextStyle(fontSize: 15),
               onTap: () {
-                addBookAlert(context, NavigatorArguments(args.user, args.url, redirect: "/allBooks"));
+                addBookAlert(
+                    context,
+                    NavigatorArguments(args.user, args.url,
+                        redirect: "/allBooks"));
               },
             ),
             SpeedDialChild(
@@ -88,9 +137,11 @@ class _BookshelfState extends State<Bookshelf> {
               backgroundColor: Colors.blue,
               foregroundColor: Colors.white,
               label: "Search",
+              labelBackgroundColor: Colors.white,
               labelStyle: TextStyle(fontSize: 15),
               onTap: () {
-                print("search pressed");
+                args.redirect = "/allBooks";
+                Navigator.pushNamed(context, "/searchBook", arguments: args);
               },
             ),
           ],

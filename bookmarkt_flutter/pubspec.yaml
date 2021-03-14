@@ -31,6 +31,7 @@ dependencies:
   flutter_countdown_timer: ^3.0.1
   fl_chart: ^0.20.1
   flutter_speed_dial: ^2.1.1
+  flutter_barcode_scanner: ^1.0.2
   flutter:
     sdk: flutter
 

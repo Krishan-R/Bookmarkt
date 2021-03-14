@@ -240,10 +240,13 @@ class _DayofWeekState extends State<DayofWeek> {
             future: dayOfWeekStats(widget.args, graphDuration),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
+
+                if (snapshot.data["pages"]["maxY"] == 0) {
+                  return Text("No Reading Data Found");
+                }
+
                 return Column(
                   children: [
-                    SizedBox(height: 10),
-
                     SizedBox(height: 5),
                     Stack(
                       children: <Widget>[
