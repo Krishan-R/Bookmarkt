@@ -108,6 +108,9 @@ class _SearchBookState extends State<SearchBook> {
                               args.book = book;
                               args.bookshelfList = await getBookshelfList(args);
 
+                              print(bookList[index].selfLink);
+                              print(book.totalPages);
+
                               Navigator.pushNamed(context, "/addBook", arguments: args);
                             },
                             child: Padding(
@@ -206,18 +209,18 @@ Future<List<Book>> getSearchBooks(String search) async {
 
     bookList = List<Book>.from(i.map((model) => Book.fromSearchJson(model)));
 
-    for (Book a in bookList) {
-      print("googleID: ${a.googleID}");
-      print("isbn: ${a.ISBN}");
-      print("selfLink: ${a.selfLink}");
-      print(a.title);
-      print("author: ${a.author}");
-      print(a.description);
-      print("total pages: ${a.totalPages}");
-      print("thumbnail: ${a.thumbnail}");
-      print(a.publishedDate);
-      print("==========");
-    }
+    // for (Book a in bookList) {
+    //   print("googleID: ${a.googleID}");
+    //   print("isbn: ${a.ISBN}");
+    //   print("selfLink: ${a.selfLink}");
+    //   print(a.title);
+    //   print("author: ${a.author}");
+    //   print(a.description);
+    //   print("total pages: ${a.totalPages}");
+    //   print("thumbnail: ${a.thumbnail}");
+    //   print(a.publishedDate);
+    //   print("==========");
+    // }
 
     return bookList;
   } on SocketException {

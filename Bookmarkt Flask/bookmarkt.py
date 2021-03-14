@@ -228,12 +228,13 @@ def addUserBook(userID):
                        description=description,
                        totalPages=totalPages,
                        publishedDate=publishedDate)
+        print(newBook.totalPages)
         db.session.add(newBook)
         db.session.commit()
 
+    # sets total pages for book instance if not in request
     if totalPages is None:
         totalPages = book.totalPages
-        print(totalPages)
 
     newBookInstance = BookInstance(isbn, userID, completed=completed, currentPage=currentPage, totalPages=totalPages,
                                    bookshelfID=bookshelfID, rating=rating, totalTimeRead=totalTimeRead,

@@ -101,6 +101,7 @@ class _addBookState extends State<addBook> {
         currentPageController.text = args.book.currentPage.toString();
 
       bookTotalPages = args.book.totalPages;
+      print(args.book.totalPages);
 
       // sets borrowing information
       if (args.book.borrowingTo != null) {
@@ -219,8 +220,6 @@ class _addBookState extends State<addBook> {
                         goal = "&goalDate=${goalDate.year}-${goalDate.month.toString().padLeft(2, '0')}-${goalDate.day.toString().padLeft(2, '0')}";
                         args.book.goalDate = goalDate;
                       }
-
-                      print("http://${args.url}:5000/users/${args.user.userID.toString()}/books/add?isbn=${args.book.ISBN}$bookshelfID$currentPage$completed$rating$title$author$description$totalPages$publishedDate$borrowing$goal");
 
                       final response = await http.post(
                           "http://${args.url}:5000/users/${args.user.userID.toString()}/books/add?isbn=${args.book.ISBN}$bookshelfID$currentPage$completed$rating$title$author$description$totalPages$publishedDate$borrowing$goal");
@@ -348,7 +347,7 @@ class _addBookState extends State<addBook> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextFormField(
-                    enabled: !scraped,
+                    enabled: bookISBN == null || !scraped,
                     initialValue: bookISBN == null ? null : bookISBN.toString() ,
                     decoration: InputDecoration(hintText: "ISBN"),
                     validator: (value) {

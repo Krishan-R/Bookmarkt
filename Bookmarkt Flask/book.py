@@ -156,15 +156,15 @@ class Book(db.Model):
         parsedJson = r.json()
 
         # ISBN
-        # for ident in parsedJson["volumeInfo"]["industryIdentifiers"]:
-        #     if ident["type"] == "ISBN_13":
-        #         self.isbn = int(ident["identifier"])
+        for ident in parsedJson["volumeInfo"]["industryIdentifiers"]:
+            if ident["type"] == "ISBN_13":
+                self.isbn = int(ident["identifier"])
 
         self.title = parsedJson["volumeInfo"]["title"]
         if parsedJson.get("volumeInfo").get("authors") is not None:
             self.authorName = parsedJson["volumeInfo"]["authors"][0]
         self.description = parsedJson.get("volumeInfo").get("description")
-        # self.totalPages = parsedJson.get("volumeInfo").get("pageCount")
+        self.totalPages = parsedJson.get("volumeInfo").get("pageCount")
         self.publishedDate = parsedJson.get("volumeInfo").get("publishedDate")
         self.googleID = parsedJson["id"]
 
@@ -174,6 +174,11 @@ class Book(db.Model):
                 self.publishedDate = f"{self.publishedDate}-01-01"
             elif len(self.publishedDate) == 7:
                 self.publishedDate = f"{self.publishedDate}-01"
+
+        # store image locally
+        urllib.request.urlretrieve(parsedJson["volumeInfo"]["imageLinks"]["thumbnail"],
+                                   f"Assets/bookThumbnails/{self.isbn}.jpg")
+        self.thumbnail = f"Assets/bookThumbnails/{self.isbn}.jpg"
 
         # in case user needs to change details
         # self.automaticallyScraped = False
