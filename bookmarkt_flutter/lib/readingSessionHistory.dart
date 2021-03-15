@@ -1,3 +1,4 @@
+import 'package:bookmarkt_flutter/Models/book.dart';
 import 'package:bookmarkt_flutter/Models/readingSession.dart';
 import 'package:bookmarkt_flutter/Widgets/readingSessionCard.dart';
 import 'package:bookmarkt_flutter/bookView.dart';
@@ -171,21 +172,16 @@ class _editReadingSessionState extends State<editReadingSession> {
   int oldTime;
   Duration duration = new Duration();
 
-  //todo set args.book value from readingsession object, when editing reading session from drawer error occurs
-
-
   @override
   Widget build(BuildContext context) {
     final NavigatorArguments args = ModalRoute.of(context).settings.arguments;
-
-    // print(args.book.title);
-    print(args.readingSession.bookInstanceID);
 
     if (firstInit) {
       oldTime = args.readingSession.timeRead;
       duration = Duration(minutes: args.readingSession.timeRead);
       firstInit = false;
     }
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Edit Reading Session"),
@@ -194,8 +190,7 @@ class _editReadingSessionState extends State<editReadingSession> {
             child: Text("Save"),
             onPressed: () async {
               print(args.book.totalTimeRead);
-              args.book.totalTimeRead +=
-                  (duration.inMinutes - oldTime);
+              args.book.totalTimeRead += (duration.inMinutes - oldTime);
 
               args.readingSession.timeRead = duration.inMinutes;
 
@@ -210,68 +205,84 @@ class _editReadingSessionState extends State<editReadingSession> {
         ],
       ),
       body: SafeArea(
-          child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text("Pages Read:"),
-              TextFormField(
-                initialValue: args.readingSession.pagesRead.toString(),
-                keyboardType: TextInputType.number,
-                onChanged: (value) {
-                  args.readingSession.pagesRead = int.parse(value);
-                },
-              ),
-              SizedBox(height: 10),
-              Text("Time Read:"),
-              FlatButton(
-                child: Text(
-                    "${duration.inHours.toString().padLeft(2, '0')} : ${(duration.inMinutes % 60).toString().padLeft(2, '0')}"),
-                onPressed: () {
-                  showModalBottomSheet(
-                    context: context,
-                    builder: (BuildContext builder) {
-                      return Container(
-                        height:
-                        MediaQuery.of(context).copyWith().size.height /
-                            3,
-                        child: CupertinoTimerPicker(
-                          mode: CupertinoTimerPickerMode.hm,
-                          initialTimerDuration: duration,
-                          onTimerDurationChanged: (value) {
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: FutureBuilder(
+            future: getBook(args, args.readingSession.bookInstanceID),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                args.book = snapshot.data;
+                return Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Pages Read:"),
+                      TextFormField(
+                        initialValue: args.readingSession.pagesRead.toString(),
+                        keyboardType: TextInputType.number,
+                        onChanged: (value) {
+                          args.readingSession.pagesRead = int.parse(value);
+                        },
+                      ),
+                      SizedBox(height: 10),
+                      Text("Time Read:"),
+                      FlatButton(
+                        child: Text(
+                            "${duration.inHours.toString().padLeft(2, '0')} : ${(duration.inMinutes % 60).toString().padLeft(2, '0')}"),
+                        onPressed: () {
+                          showModalBottomSheet(
+                            context: context,
+                            builder: (BuildContext builder) {
+                              return Container(
+                                height: MediaQuery.of(context)
+                                        .copyWith()
+                                        .size
+                                        .height /
+                                    3,
+                                child: CupertinoTimerPicker(
+                                  mode: CupertinoTimerPickerMode.hm,
+                                  initialTimerDuration: duration,
+                                  onTimerDurationChanged: (value) {
+                                    setState(() {
+                                      duration = value;
+                                    });
+                                  },
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      ),
+                      SizedBox(height: 10),
+                      Text("Date:"),
+                      FlatButton(
+                        onPressed: () async {
+                          DateTime picked = await showDatePicker(
+                              context: context,
+                              initialDate: args.readingSession.date,
+                              firstDate: DateTime(1900),
+                              lastDate: DateTime.now());
+                          if (picked != null &&
+                              picked != args.readingSession.date)
                             setState(() {
-                              duration = value;
+                              args.readingSession.date = picked;
                             });
-                          },
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
-              SizedBox(height: 10),
-              Text("Date:"),
-              FlatButton(
-                  onPressed: () async {
-                    DateTime picked = await showDatePicker(
-                        context: context,
-                        initialDate: args.readingSession.date,
-                        firstDate: DateTime(1900),
-                        lastDate: DateTime.now());
-                    if (picked != null && picked != args.readingSession.date)
-                      setState(() {
-                        args.readingSession.date = picked;
-                      });
-                  },
-                  child: Text(
-                      "${args.readingSession.date.year}-${args.readingSession.date.month.toString().padLeft(2, '0')}-${args.readingSession.date.day.toString().padLeft(2, '0')}"))
-            ],
+                        },
+                        child: Text(
+                            "${args.readingSession.date.year}-${args.readingSession.date.month.toString().padLeft(2, '0')}-${args.readingSession.date.day.toString().padLeft(2, '0')}"),
+                      )
+                    ],
+                  ),
+                );
+              } else if (snapshot.hasError) {
+                return Text("${snapshot.error}");
+              }
+              return CircularProgressIndicator();
+            },
           ),
         ),
-      )),
+      ),
     );
   }
 }
