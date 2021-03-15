@@ -3,16 +3,12 @@ import 'dart:io';
 
 import 'package:bookmarkt_flutter/Models/book.dart';
 import 'package:bookmarkt_flutter/Models/bookshelf.dart';
-import 'package:bookmarkt_flutter/Widgets/addBookData.dart';
-import 'package:bookmarkt_flutter/library.dart';
-import 'package:bookmarkt_flutter/navigatorArguments.dart';
+import 'package:bookmarkt_flutter/Pages/library.dart';
+import 'package:bookmarkt_flutter/Models/navigatorArguments.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 import 'package:http/http.dart' as http;
-
-import 'package:flutter/material.dart';
 
 addBookAlert(BuildContext context, NavigatorArguments args) {
   final _formKey = GlobalKey<FormState>();

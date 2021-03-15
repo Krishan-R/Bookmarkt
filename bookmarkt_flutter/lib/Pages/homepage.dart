@@ -2,10 +2,9 @@ import 'dart:convert';
 
 import 'package:bookmarkt_flutter/Models/book.dart';
 import 'package:bookmarkt_flutter/Models/bookshelf.dart';
-import 'package:bookmarkt_flutter/Widgets/bookListView.dart';
-import 'package:bookmarkt_flutter/drawer.dart';
-import 'package:bookmarkt_flutter/library.dart';
-import 'package:bookmarkt_flutter/navigatorArguments.dart';
+import 'package:bookmarkt_flutter/Pages/drawer.dart';
+import 'package:bookmarkt_flutter/Pages/library.dart';
+import 'package:bookmarkt_flutter/Models/navigatorArguments.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';

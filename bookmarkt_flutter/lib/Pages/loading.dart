@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:bookmarkt_flutter/Models/user.dart';
-import 'package:bookmarkt_flutter/navigatorArguments.dart';
+import 'package:bookmarkt_flutter/Models/navigatorArguments.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -13,13 +13,8 @@ class Loading extends StatefulWidget {
 class _LoadingState extends State<Loading> {
   @override
   Widget build(BuildContext context) {
-
     redirect(context);
-
-
-    return Scaffold(
-
-    );
+    return Scaffold();
   }
 }
 

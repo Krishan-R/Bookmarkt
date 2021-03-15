@@ -1,4 +1,4 @@
-import 'package:bookmarkt_flutter/navigatorArguments.dart';
+import 'package:bookmarkt_flutter/Models/navigatorArguments.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

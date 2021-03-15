@@ -1,7 +1,7 @@
 import 'package:bookmarkt_flutter/Models/book.dart';
 import 'package:bookmarkt_flutter/Models/bookshelf.dart';
-import 'package:bookmarkt_flutter/library.dart';
-import 'package:bookmarkt_flutter/navigatorArguments.dart';
+import 'package:bookmarkt_flutter/Pages/library.dart';
+import 'package:bookmarkt_flutter/Models/navigatorArguments.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
