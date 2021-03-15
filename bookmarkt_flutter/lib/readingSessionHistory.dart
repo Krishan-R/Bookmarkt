@@ -171,9 +171,15 @@ class _editReadingSessionState extends State<editReadingSession> {
   int oldTime;
   Duration duration = new Duration();
 
+  //todo set args.book value from readingsession object, when editing reading session from drawer error occurs
+
+
   @override
   Widget build(BuildContext context) {
     final NavigatorArguments args = ModalRoute.of(context).settings.arguments;
+
+    // print(args.book.title);
+    print(args.readingSession.bookInstanceID);
 
     if (firstInit) {
       oldTime = args.readingSession.timeRead;
@@ -187,6 +193,7 @@ class _editReadingSessionState extends State<editReadingSession> {
           FlatButton(
             child: Text("Save"),
             onPressed: () async {
+              print(args.book.totalTimeRead);
               args.book.totalTimeRead +=
                   (duration.inMinutes - oldTime);
 

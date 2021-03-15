@@ -40,6 +40,7 @@ class _homepageState extends State<homepage> {
               children: [
                 SizedBox(height:10),
                 recentDashboard(args: args, callback: callback),
+                Unread(args: args, callback: callback),
                 Divider(thickness: 2),
                 DayofWeek(args: args),
                 SizedBox(height:10),
@@ -148,6 +149,120 @@ class _recentDashboardState extends State<recentDashboard> {
       ),
     );
   }
+}
+
+class Unread extends StatefulWidget {
+  NavigatorArguments args;
+  Function callback;
+
+  Unread({Key key, this.args, this.callback}) : super(key: key);
+
+  @override
+  _UnreadState createState() => _UnreadState();
+}
+
+class _UnreadState extends State<Unread> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        FutureBuilder(
+          future: getUnreadBooks(widget.args),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              List<Book> bookList = snapshot.data;
+
+              if (bookList.length == 0) {
+                return Text("You've not read any books");
+              }
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Divider(thickness: 2),
+                  Text(
+                    "Start Reading",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                  ),
+                  SizedBox(height: 5),
+                  Container(
+                    height: 200,
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: snapshot.data.length,
+                      scrollDirection: Axis.horizontal,
+                      itemBuilder: (context, index) {
+                        return Card(
+                          child: InkWell(
+                            onTap: () async {
+                              List<Bookshelf> bookshelfList =
+                              await getBookshelfList(widget.args);
+
+                              Navigator.pushNamed(context, '/book',
+                                  arguments: NavigatorArguments(
+                                      widget.args.user, widget.args.url,
+                                      bookshelfList: bookshelfList,
+                                      book: bookList[index]))
+                                  .then((value) => widget.callback());
+                            },
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Container(
+                                  width: 110,
+                                  height: 170,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(5.0),
+                                    child: Hero(
+                                      tag: bookList[index].bookInstanceID,
+                                      child: Image.network(
+                                        "http://${widget.args.url}:5000/getThumbnail?path=${bookList[index].thumbnail}",
+                                        fit: BoxFit.contain,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Container(
+                                    width: 110,
+                                    child: Text(
+                                      bookList[index].title,
+                                      textAlign: TextAlign.center,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              );
+            } else if (snapshot.hasError) {
+              return Text("${snapshot.error}");
+            }
+            return CircularProgressIndicator();
+          },
+        )
+      ],
+    );
+  }
+}
+
+Future<List<Book>> getUnreadBooks(NavigatorArguments args) async {
+  List<Book> bookList = [];
+
+  final response = await http.get("http://${args.url}:5000/users/${args.user.userID}/unread");
+
+  Iterable i = json.decode(response.body)["books"];
+
+  bookList = List<Book>.from(i.map((model) => Book.fromJson(model)));
+
+  return bookList;
 }
 
 class DayofWeek extends StatefulWidget {

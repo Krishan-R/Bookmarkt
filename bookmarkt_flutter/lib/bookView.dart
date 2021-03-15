@@ -127,7 +127,7 @@ Container bookHeader(args) {
                   "By " + args.book.author,
                   style: TextStyle(color: Colors.grey, fontSize: 20),
                   overflow: TextOverflow.ellipsis,
-                  maxLines: 2,
+                  maxLines: 1,
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(

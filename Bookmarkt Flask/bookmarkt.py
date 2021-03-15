@@ -983,6 +983,32 @@ def getUserRecent(userID):
     return jsonify(returnJson), 200
 
 
+@app.route("/users/<userID>/unread", methods=["GET"])
+def getUserUnread(userID):
+
+    userID = int(userID)
+    allInstances = BookInstance.query.filter(BookInstance.userID == userID).all()
+    readIndex = []
+
+    returnJson = {
+        "books": []
+    }
+
+    for index, instance in enumerate(allInstances):
+        for session in ReadingSession.query.filter(ReadingSession.userID == userID).all():
+            if instance.bookInstanceID == session.bookInstanceID or instance.completed:
+                readIndex.append(index)
+
+    for index, instance in enumerate(allInstances):
+        if index not in readIndex:
+            returnJson["books"].append({
+                "bookData": instance.book.toJson(),
+                "userData": instance.toJson()
+            })
+
+    return returnJson, 200
+
+
 @app.route("/users/<userID>/books/<bookInstanceID>/sessions", methods=["GET"])
 def getBookInstanceSessions(userID, bookInstanceID):
     userID = int(userID)
