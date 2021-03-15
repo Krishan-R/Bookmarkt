@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
 import 'package:http/http.dart' as http;
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
@@ -28,7 +27,6 @@ class _readingSessionCoverPageState extends State<readingSessionCoverPage> {
           return true;
         },
         child: Scaffold(
-          // backgroundColor: Colors.grey,
           body: Padding(
             padding: const EdgeInsets.all(10.0),
             child: Center(

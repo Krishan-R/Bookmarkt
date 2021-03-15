@@ -1,6 +1,4 @@
-import 'dart:convert';
-import 'dart:io';
-
+import 'package:bookmarkt_flutter/Models/API%20requests.dart';
 import 'package:bookmarkt_flutter/Models/readingSession.dart';
 import 'package:bookmarkt_flutter/Widgets/readingSessionCard.dart';
 import 'package:bookmarkt_flutter/Models/navigatorArguments.dart';
@@ -511,9 +509,10 @@ class _readingPredictionState extends State<readingPrediction> {
 
                   double pagesPerMinute = widget.args.book.totalTimeRead /
                       widget.args.book.currentPage;
-                  int estimateTime =
-                      ((pagesPerMinute * (widget.args.book.totalPages - widget.args.book.currentPage)))
-                          .round();
+                  int estimateTime = ((pagesPerMinute *
+                          (widget.args.book.totalPages -
+                              widget.args.book.currentPage)))
+                      .round();
 
                   return "Reading at a similar pace, you will finish this book in $estimateTime minutes";
                 }(),
@@ -534,8 +533,8 @@ class _readingPredictionState extends State<readingPrediction> {
                 child: Text(
                   () {
                     try {
-                      Duration remainingDays = widget.args.book.goalDate
-                          .difference(DateTime.now());
+                      Duration remainingDays =
+                          widget.args.book.goalDate.difference(DateTime.now());
                       int pagesLeft = widget.args.book.totalPages -
                           widget.args.book.currentPage;
 
@@ -544,7 +543,6 @@ class _readingPredictionState extends State<readingPrediction> {
                       if (remainingDays.inDays == 0) {
                         return "You are on the last day!\n You need to read $pagesLeft pages today!";
                       } else if (remainingDays.isNegative) {
-
                         return "You missed your reading goal :(";
                       }
 
@@ -683,46 +681,6 @@ class _borrowingState extends State<borrowing> {
       ),
     );
   }
-}
-
-Future<List<ReadingSession>> getReadingSessions(
-    NavigatorArguments args, int bookInstanceID) async {
-  List<ReadingSession> sessionList = [];
-
-  final response = await http.get(
-      "http://${args.url}:5000/users/${args.user.userID}/books/$bookInstanceID/sessions");
-
-  Iterable i = json.decode(response.body)["sessions"];
-
-  sessionList = List<ReadingSession>.from(
-      i.map((model) => ReadingSession.fromJson(model)));
-
-  return sessionList;
-}
-
-Future<List<ReadingSession>> getAllReadingSessions(
-    NavigatorArguments args) async {
-  List<ReadingSession> sessionList = [];
-
-  final response = await http.get(
-      "http://${args.url}:5000/users/${args.user.userID}/readingSessions/all");
-
-  Iterable i = json.decode(response.body)["sessions"];
-
-  sessionList = List<ReadingSession>.from(
-      i.map((model) => ReadingSession.fromJson(model)));
-
-  return sessionList;
-}
-
-Future<String> getBookshelfName(
-    NavigatorArguments args, int bookshelfID) async {
-  if (bookshelfID == null) return "";
-
-  final response = await http.get(
-      "http://${args.url}:5000/users/${args.user.userID}/bookshelf/$bookshelfID");
-
-  return json.decode(response.body)["name"];
 }
 
 addReadingSessionAlert(BuildContext context, NavigatorArguments args) {
@@ -955,58 +913,4 @@ LineChartData bookGraphData(data, focus) {
   );
 }
 
-Future<Map> getReadingStatistics(NavigatorArguments args, int duration) async {
-  List<FlSpot> timeList = [];
-  List<FlSpot> pageList = [];
-  Map dateData = {};
 
-  try {
-    final response = await http.get(
-        "http://${args.url}:5000/users/${args.user.userID}/books/${args.book.bookInstanceID}/stats?time=${duration - 1}");
-
-    Iterable time = json.decode(response.body)["statistics"]["time"];
-
-    double maxY = 0;
-    double xValue = 0;
-    for (var val in time) {
-      timeList.add(FlSpot(xValue, val["time"].toDouble()));
-      dateData[xValue] = val["date"];
-
-      if (val["time"].toDouble() > maxY) maxY = val["time"].toDouble();
-      xValue += 1;
-    }
-
-    Map timeData = {
-      "maxX": xValue.toDouble() - 1,
-      "maxY": maxY,
-      "data": timeList
-    };
-
-    Iterable pages = json.decode(response.body)["statistics"]["pages"];
-
-    maxY = 0;
-    xValue = 0;
-    for (var val in pages) {
-      pageList.add(FlSpot(xValue, val["pages"].toDouble()));
-
-      if (val["pages"].toDouble() > maxY) maxY = val["pages"].toDouble();
-      xValue += 1;
-    }
-
-    Map pageData = {
-      "maxX": xValue.toDouble() - 1,
-      "maxY": maxY,
-      "data": pageList
-    };
-
-    Map returnData = {
-      "time": timeData,
-      "pages": pageData,
-      "dateData": dateData,
-    };
-
-    return returnData;
-  } on SocketException {
-    print("error connecting to server");
-  }
-}

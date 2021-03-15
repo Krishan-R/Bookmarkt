@@ -1,9 +1,7 @@
-import 'dart:io';
-
+import 'package:bookmarkt_flutter/Models/API%20requests.dart';
 import 'package:bookmarkt_flutter/Models/navigatorArguments.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:http/http.dart' as http;
 
 
 class SignUp extends StatefulWidget {
@@ -146,7 +144,6 @@ class _SignUpState extends State<SignUp> {
                       Fluttertoast.showToast(msg: "Error connecting to server");
                     }
                   }
-
                 })
               ],
             ),
@@ -157,18 +154,3 @@ class _SignUpState extends State<SignUp> {
   }
 }
 
-Future<String> signUp(url, username, password, email) async {
-
-  try {
-    final response = await http.post("http://" + url + ":5000/users/add?username=" + username + "&email=" + email + "&password=" + password);
-    print(response.body);
-
-    if (response.body == "added new User") return "success";
-    else if (response.body == "username already exists") return "usernameConflict";
-    else if (response.body == "There is already an account associated with this email") return "emailConflict";
-
-  } on SocketException {
-    print("Cannot connect to server");
-    return Future.value("SocketException");
-  }
-}

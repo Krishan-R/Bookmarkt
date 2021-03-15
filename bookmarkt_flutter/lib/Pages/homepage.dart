@@ -1,15 +1,11 @@
-import 'dart:convert';
-
+import 'package:bookmarkt_flutter/Models/API%20requests.dart';
 import 'package:bookmarkt_flutter/Models/book.dart';
 import 'package:bookmarkt_flutter/Models/bookshelf.dart';
 import 'package:bookmarkt_flutter/Pages/drawer.dart';
-import 'package:bookmarkt_flutter/Pages/library.dart';
 import 'package:bookmarkt_flutter/Models/navigatorArguments.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-
-import 'package:http/http.dart' as http;
 
 class homepage extends StatefulWidget {
   @override
@@ -252,18 +248,6 @@ class _UnreadState extends State<Unread> {
   }
 }
 
-Future<List<Book>> getUnreadBooks(NavigatorArguments args) async {
-  List<Book> bookList = [];
-
-  final response = await http.get("http://${args.url}:5000/users/${args.user.userID}/unread");
-
-  Iterable i = json.decode(response.body)["books"];
-
-  bookList = List<Book>.from(i.map((model) => Book.fromJson(model)));
-
-  return bookList;
-}
-
 class DayofWeek extends StatefulWidget {
   NavigatorArguments args;
 
@@ -396,57 +380,6 @@ class _DayofWeekState extends State<DayofWeek> {
       ),
     );
   }
-}
-
-Future<List<Book>> getRecentBooks(NavigatorArguments args) async {
-  List<Book> bookList = [];
-
-  final response = await http
-      .get("http://${args.url}:5000/users/${args.user.userID}/recent");
-
-  Iterable i = json.decode(response.body);
-
-  for (var bookJson in i) {
-    Book book = Book.fromJson(bookJson["data"]);
-    bookList.add(book);
-  }
-
-  return bookList;
-}
-
-Future<Map> dayOfWeekStats(NavigatorArguments args, int duration) async {
-  List<FlSpot> timeList = [];
-  List<FlSpot> pageList = [];
-
-  final response = await http
-      .get("http://${args.url}:5000/users/${args.user.userID}/stats/weekly?time=$duration");
-
-  Iterable i = json.decode(response.body)["stats"];
-
-  double pagesY = 0;
-  double timeY = 0;
-  double xValue = 0;
-  for (var a in i) {
-    timeList.add(FlSpot(xValue, a["time"].toDouble()));
-    pageList.add(FlSpot(xValue, a["pages"].toDouble()));
-
-    if (a["pages"].toDouble() > pagesY) pagesY = a["pages"].toDouble();
-
-    if (a["time"].toDouble() > timeY) timeY = a["time"].toDouble();
-
-    xValue += 1;
-  }
-
-  Map returnMap = {
-    "pages": {
-      "maxY": pagesY, "data": pageList
-    },
-    "time": {
-      "maxY": timeY, "data": timeList
-    }
-  };
-
-  return returnMap;
 }
 
 LineChartData dayOfWeek(data, String focus) {

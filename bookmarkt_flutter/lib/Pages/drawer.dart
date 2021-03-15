@@ -1,8 +1,8 @@
+import 'package:bookmarkt_flutter/Models/API%20requests.dart';
 import 'package:bookmarkt_flutter/Models/readingSession.dart';
 import 'package:bookmarkt_flutter/Models/navigatorArguments.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:bookmarkt_flutter/Pages/bookView.dart';
 
 class myDrawer extends StatelessWidget {
   myDrawer(this.args);

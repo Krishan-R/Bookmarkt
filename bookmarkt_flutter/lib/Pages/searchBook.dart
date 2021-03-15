@@ -1,12 +1,9 @@
-import 'dart:convert';
-import 'dart:io';
-
+import 'package:bookmarkt_flutter/Models/API%20requests.dart';
 import 'package:bookmarkt_flutter/Models/book.dart';
-import 'package:bookmarkt_flutter/Pages/library.dart';
 import 'package:bookmarkt_flutter/Models/navigatorArguments.dart';
+import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 
 class SearchBook extends StatefulWidget {
@@ -181,43 +178,4 @@ class _SearchBookState extends State<SearchBook> {
   }
 }
 
-Future<List<Book>> getSearchBooks(String search) async {
-  print("searching");
 
-  List<Book> bookList = [];
-
-  try {
-    if (search == "" || search == null) {
-      return null;
-    }
-
-    final response = await http.get(
-        "https://www.googleapis.com/books/v1/volumes?q=$search&maxResults=40&orderBy=relevance");
-
-    Iterable i = json.decode(response.body)["items"];
-
-    if (i == null) {
-      return bookList;
-    }
-
-    bookList = List<Book>.from(i.map((model) => Book.fromSearchJson(model)));
-
-    // for (Book a in bookList) {
-    //   print("googleID: ${a.googleID}");
-    //   print("isbn: ${a.ISBN}");
-    //   print("selfLink: ${a.selfLink}");
-    //   print(a.title);
-    //   print("author: ${a.author}");
-    //   print(a.description);
-    //   print("total pages: ${a.totalPages}");
-    //   print("thumbnail: ${a.thumbnail}");
-    //   print(a.publishedDate);
-    //   print("==========");
-    // }
-
-    return bookList;
-  } on SocketException {
-    Fluttertoast.showToast(msg: "Error Searching for Book");
-    return null;
-  }
-}

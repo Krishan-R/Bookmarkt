@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:bookmarkt_flutter/Models/user.dart';
 import 'package:bookmarkt_flutter/Models/navigatorArguments.dart';
 import 'package:flutter/material.dart';

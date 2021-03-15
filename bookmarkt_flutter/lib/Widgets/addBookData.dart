@@ -1,11 +1,9 @@
 import 'dart:io';
-
 import 'package:bookmarkt_flutter/Models/bookshelf.dart';
 import 'package:bookmarkt_flutter/Models/navigatorArguments.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-
 import 'package:http/http.dart' as http;
 
 class addBook extends StatefulWidget {

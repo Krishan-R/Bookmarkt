@@ -1,12 +1,10 @@
-import 'dart:convert';
 import 'dart:io';
-
+import 'package:bookmarkt_flutter/Models/API%20requests.dart';
 import 'package:bookmarkt_flutter/Models/bookshelf.dart';
 import 'package:bookmarkt_flutter/Pages/drawer.dart';
 import 'package:bookmarkt_flutter/Models/navigatorArguments.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
 import 'package:http/http.dart' as http;
 
 class Library extends StatefulWidget {
@@ -264,21 +262,4 @@ renameDialog(BuildContext context, NavigatorArguments args, int bookshelfID,
   );
 }
 
-Future<List<Bookshelf>> getBookshelfList(args) async {
-  List<Bookshelf> bookshelfList = [];
-  try {
-    final response = await http.get("http://" +
-        args.url +
-        ":5000/users/" +
-        args.user.userID.toString() +
-        "/bookshelf/all");
 
-    Iterable i = json.decode(response.body);
-    bookshelfList =
-        List<Bookshelf>.from(i.map((model) => Bookshelf.fromJson(model)));
-
-    return bookshelfList;
-  } on SocketException {
-    print("Error connecting to server");
-  }
-}

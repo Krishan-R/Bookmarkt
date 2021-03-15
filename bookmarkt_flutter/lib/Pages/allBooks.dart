@@ -1,10 +1,8 @@
 import 'dart:convert';
-import 'dart:io';
-
+import 'package:bookmarkt_flutter/Models/API%20requests.dart';
 import 'package:bookmarkt_flutter/Models/book.dart';
 import 'package:bookmarkt_flutter/Models/bookshelf.dart';
 import 'package:bookmarkt_flutter/Pages/drawer.dart';
-import 'package:bookmarkt_flutter/Pages/library.dart';
 import 'package:bookmarkt_flutter/Widgets/addBookAlert.dart';
 import 'package:bookmarkt_flutter/Widgets/bookListView.dart';
 import 'package:bookmarkt_flutter/Models/navigatorArguments.dart';
@@ -151,23 +149,4 @@ class _AllBooksState extends State<AllBooks> {
   }
 }
 
-Future<List<Book>> getAllBookData(args) async {
-  List<Book> bookList = [];
 
-  try {
-    final response = await http.get(
-        "http://${args.url}:5000/users/${args.user.userID.toString()}/books/all");
-
-    if (response.body == "No books") {
-      return bookList;
-    }
-
-    Iterable i = json.decode(response.body);
-
-    bookList = List<Book>.from(i.map((model) => Book.fromJson(model)));
-
-    return bookList;
-  } on SocketException {
-    print("Error connecting to server");
-  }
-}

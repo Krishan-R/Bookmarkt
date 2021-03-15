@@ -1,12 +1,8 @@
-import 'dart:convert';
-
-import 'package:bookmarkt_flutter/Models/book.dart';
+import 'package:bookmarkt_flutter/Models/API%20requests.dart';
 import 'package:bookmarkt_flutter/Models/readingSession.dart';
 import 'package:bookmarkt_flutter/Models/navigatorArguments.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
-import 'package:http/http.dart' as http;
 
 class readingSessionCard extends StatelessWidget {
   ReadingSession session;
@@ -91,13 +87,4 @@ class readingSessionCard extends StatelessWidget {
   }
 }
 
-Future<Book> getBook(NavigatorArguments args, int bookInstanceID) async {
-  Book book;
 
-  final response = await http.get(
-      "http://${args.url}:5000/users/${args.user.userID}/books/$bookInstanceID");
-
-  book = Book.fromJson(json.decode(response.body));
-
-  return book;
-}
