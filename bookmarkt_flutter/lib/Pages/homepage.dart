@@ -168,7 +168,7 @@ class _UnreadState extends State<Unread> {
               List<Book> bookList = snapshot.data;
 
               if (bookList.length == 0) {
-                return Text("You've not read any books");
+                return Container();
               }
 
               return Column(

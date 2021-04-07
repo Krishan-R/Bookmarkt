@@ -497,29 +497,47 @@ class _readingPredictionState extends State<readingPrediction> {
           width: double.infinity,
           child: Card(
             child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Text(
-                () {
-                  if (widget.args.book.completed) {
-                    return "You have completed this book, Congratulations!";
-                  } else if (widget.args.book.currentPage == 1 ||
-                      widget.args.book.totalTimeRead == 0) {
-                    return "Please read this book to find out estimate finish";
-                  }
+                padding: const EdgeInsets.all(20.0),
+                child: FutureBuilder(
+                  future: getReadingSessions(
+                      widget.args, widget.args.book.bookInstanceID),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      List<ReadingSession> sessionList = snapshot.data;
+                      return Text(
+                            ()  {
+                          //todo use numbers from reading statistics rather than book information
 
-                  double pagesPerMinute = widget.args.book.totalTimeRead /
-                      widget.args.book.currentPage;
-                  int estimateTime = ((pagesPerMinute *
-                          (widget.args.book.totalPages -
-                              widget.args.book.currentPage)))
-                      .round();
+                          if (widget.args.book.completed) {
+                            return "You have completed this book, Congratulations!";
+                          } else if (widget.args.book.currentPage == 1 ||
+                              widget.args.book.totalTimeRead == 0) {
+                            return "Please add or start a reading session to find out estimate finish";
+                          }
 
-                  return "Reading at a similar pace, you will finish this book in $estimateTime minutes";
-                }(),
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 15, fontStyle: FontStyle.italic),
-              ),
-            ),
+                          int pagesRead = 0;
+                          for (var session in sessionList) {
+                            pagesRead += session.pagesRead;
+                          }
+
+                          double pagesPerMinute = widget.args.book.totalTimeRead /
+                              pagesRead;
+                          int estimateTime = ((pagesPerMinute *
+                              (widget.args.book.totalPages -
+                                  widget.args.book.currentPage)))
+                              .round();
+
+                          return "Reading at a similar pace, you will finish this book in $estimateTime minutes";
+                        }(),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 15, fontStyle: FontStyle.italic),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Text("${snapshot.error}");
+                    }
+                    return CircularProgressIndicator();
+                  },
+                )),
           ),
         ),
         Visibility(
@@ -912,5 +930,3 @@ LineChartData bookGraphData(data, focus) {
     ],
   );
 }
-
-
