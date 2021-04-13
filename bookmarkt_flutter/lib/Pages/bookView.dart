@@ -433,7 +433,7 @@ class _bookViewGraphState extends State<bookViewGraph> {
           ],
         ),
         FutureBuilder(
-            future: getReadingStatistics(widget.args, graphDuration),
+            future: getBookReadingStats(widget.args, graphDuration),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 if (snapshot.data[graphFocus]["maxY"] == 0) {
@@ -460,7 +460,7 @@ class _bookViewGraphState extends State<bookViewGraph> {
                               padding: const EdgeInsets.only(
                                   right: 18.0, left: 12.0, top: 24, bottom: 12),
                               child: LineChart(
-                                bookGraphData(snapshot.data, graphFocus),
+                                historyGraphData(snapshot.data, graphFocus),
                               ),
                             ),
                           ),
@@ -835,7 +835,7 @@ addReadingSessionAlert(BuildContext context, NavigatorArguments args) {
   );
 }
 
-LineChartData bookGraphData(data, focus) {
+LineChartData historyGraphData(data, focus) {
   List<Color> gradientColors = [
     const Color(0xff23b6e6),
     const Color(0xff02d39a),
@@ -896,6 +896,8 @@ LineChartData bookGraphData(data, focus) {
             if (value % 25 == 0) return value.toInt().toString();
           } else if (data[focus]["maxY"] >= 10) {
             if (value % 10 == 0) return value.toInt().toString();
+          } else {
+            if (value % 5 == 0) return value.toInt().toString();
           }
 
           return '';

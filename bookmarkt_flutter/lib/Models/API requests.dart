@@ -211,7 +211,7 @@ Future<List<ReadingSession>> getAllReadingSessions(
   return sessionList;
 }
 
-Future<Map> getReadingStatistics(NavigatorArguments args, int duration) async {
+Future<Map> getBookReadingStats(NavigatorArguments args, int duration) async {
   List<FlSpot> timeList = [];
   List<FlSpot> pageList = [];
   Map dateData = {};
@@ -219,6 +219,62 @@ Future<Map> getReadingStatistics(NavigatorArguments args, int duration) async {
   try {
     final response = await http.get(
         "http://${args.url}:5000/users/${args.user.userID}/books/${args.book.bookInstanceID}/stats?time=${duration - 1}");
+
+    Iterable time = json.decode(response.body)["statistics"]["time"];
+
+    double maxY = 0;
+    double xValue = 0;
+    for (var val in time) {
+      timeList.add(FlSpot(xValue, val["time"].toDouble()));
+      dateData[xValue] = val["date"];
+
+      if (val["time"].toDouble() > maxY) maxY = val["time"].toDouble();
+      xValue += 1;
+    }
+
+    Map timeData = {
+      "maxX": xValue.toDouble() - 1,
+      "maxY": maxY,
+      "data": timeList
+    };
+
+    Iterable pages = json.decode(response.body)["statistics"]["pages"];
+
+    maxY = 0;
+    xValue = 0;
+    for (var val in pages) {
+      pageList.add(FlSpot(xValue, val["pages"].toDouble()));
+
+      if (val["pages"].toDouble() > maxY) maxY = val["pages"].toDouble();
+      xValue += 1;
+    }
+
+    Map pageData = {
+      "maxX": xValue.toDouble() - 1,
+      "maxY": maxY,
+      "data": pageList
+    };
+
+    Map returnData = {
+      "time": timeData,
+      "pages": pageData,
+      "dateData": dateData,
+    };
+
+    return returnData;
+  } on SocketException {
+    print("error connecting to server");
+  }
+}
+
+Future<Map> getGlobalReadingStats(NavigatorArguments args, int duration) async {
+  List<FlSpot> timeList = [];
+  List<FlSpot> pageList = [];
+  Map dateData = {};
+
+  try {
+    final response = await http.get(
+        "http://${args.url}:5000/users/${args.user.userID}/stats?time=${duration}");
 
     Iterable time = json.decode(response.body)["statistics"]["time"];
 

@@ -854,6 +854,9 @@ def getBookInstanceStats(userID, bookInstanceID):
 
     bookInstance = BookInstance.query.filter(BookInstance.bookInstanceID == bookInstanceID).first()
 
+    if bookInstance is None:
+        return "Book Instance cannot be found", 404
+
     if bookInstance.userID != userID:
         return "Book Instance does not belong to that user", 403
 
@@ -886,6 +889,50 @@ def getBookInstanceStats(userID, bookInstanceID):
         returnJson["statistics"]["pages"].append({"date": start_date.strftime("%Y-%m-%d"), "pages": pages})
 
         start_date += delta
+
+    return returnJson, 200
+
+
+@app.route("/users/<userID>/stats", methods=["GET"])
+def getGlobalStats(userID):
+    userID = int(userID)
+
+    requestTime = request.args.get("time", 30)
+    requestTime = int(requestTime)
+    returnJson = {
+        "totalTimeRead": 0,
+        "totalPagesRead": 0,
+        "statistics": {
+            "time": [],
+            "pages": []
+        }
+    }
+
+
+
+    start_date = (datetime.datetime.now() - datetime.timedelta(days=requestTime)).date()
+    end_date = datetime.date.today()
+    delta = datetime.timedelta(days=1)
+
+    while start_date <= end_date:
+        time = 0
+        pages = 0
+        for record in ReadingSession.query \
+                .filter(ReadingSession.userID == userID) \
+                .filter(ReadingSession.date == start_date) \
+                .all():
+            time += record.timeRead
+            pages += record.pagesRead
+            returnJson["totalTimeRead"] += record.timeRead
+            returnJson["totalPagesRead"] += record.pagesRead
+
+
+        returnJson["statistics"]["time"].append({"date": start_date.strftime("%Y-%m-%d"), "time": time})
+        returnJson["statistics"]["pages"].append({"date": start_date.strftime("%Y-%m-%d"), "pages": pages})
+
+
+        start_date += delta
+
 
     return returnJson, 200
 
