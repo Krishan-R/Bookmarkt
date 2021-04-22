@@ -4,6 +4,7 @@ import 'package:bookmarkt_flutter/Models/navigatorArguments.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:percent_indicator/circular_percent_indicator.dart';
@@ -33,19 +34,17 @@ class _readingSessionCoverPageState extends State<readingSessionCoverPage> {
           body: Stack(
             children: [
               Container(
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: NetworkImage("http://${args.url}:5000/getThumbnail?path=${args.book.thumbnail}"),
-                    fit: BoxFit.cover
-                  )
-                ),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 7, sigmaY: 7),
-                  child: Container(
-                    color: Colors.black.withOpacity(0.5),
-                  ),
-                )
-              ),
+                  decoration: BoxDecoration(
+                      image: DecorationImage(
+                          image: NetworkImage(
+                              "http://${args.url}:5000/getThumbnail?path=${args.book.thumbnail}"),
+                          fit: BoxFit.cover)),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 7, sigmaY: 7),
+                    child: Container(
+                      color: Colors.black.withOpacity(0.5),
+                    ),
+                  )),
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: Center(
@@ -58,8 +57,9 @@ class _readingSessionCoverPageState extends State<readingSessionCoverPage> {
                           Text(
                             "Start Reading Session for",
                             style: TextStyle(
-                                fontSize: 25, fontWeight: FontWeight.bold, color: Colors.white
-                            ),
+                                fontSize: 25,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white),
                           ),
                           SizedBox(
                             height: 5,
@@ -67,7 +67,9 @@ class _readingSessionCoverPageState extends State<readingSessionCoverPage> {
                           Text(
                             args.book.title,
                             style: TextStyle(
-                                fontSize: 25, fontWeight: FontWeight.bold, color: Colors.white),
+                                fontSize: 25,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white),
                           )
                         ],
                       ),
@@ -84,9 +86,9 @@ class _readingSessionCoverPageState extends State<readingSessionCoverPage> {
                                 builder: (BuildContext builder) {
                                   return Container(
                                     height: MediaQuery.of(context)
-                                        .copyWith()
-                                        .size
-                                        .height /
+                                            .copyWith()
+                                            .size
+                                            .height /
                                         3,
                                     child: Column(
                                       children: [
@@ -101,11 +103,12 @@ class _readingSessionCoverPageState extends State<readingSessionCoverPage> {
                                         ),
                                         FlatButton(
                                           child: Text("Start",
-                                              style:
-                                              TextStyle(color: Colors.white)),
+                                              style: TextStyle(
+                                                  color: Colors.white)),
                                           color: Theme.of(context).primaryColor,
                                           onPressed: () {
-                                            if (sessionDuration.inSeconds == 0) {
+                                            if (sessionDuration.inSeconds ==
+                                                0) {
                                               Fluttertoast.showToast(
                                                   msg: "Duration cannot be 0");
                                             } else {
@@ -114,10 +117,10 @@ class _readingSessionCoverPageState extends State<readingSessionCoverPage> {
                                                 MaterialPageRoute(
                                                   builder: (context) =>
                                                       readingSessionCountdown(
-                                                        args: args,
-                                                        duration:
-                                                        sessionDuration.inSeconds,
-                                                      ),
+                                                    args: args,
+                                                    duration: sessionDuration
+                                                        .inSeconds,
+                                                  ),
                                                 ),
                                               );
                                             }
@@ -216,32 +219,41 @@ class _readingSessionTimerState extends State<readingSessionTimer> {
               Container(
                   decoration: BoxDecoration(
                       image: DecorationImage(
-                          image: NetworkImage("http://${widget.args.url}:5000/getThumbnail?path=${widget.args.book.thumbnail}"),
-                          fit: BoxFit.cover
-                      )
-                  ),
+                          image: NetworkImage(
+                              "http://${widget.args.url}:5000/getThumbnail?path=${widget.args.book.thumbnail}"),
+                          fit: BoxFit.cover)),
                   child: BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 7, sigmaY: 7),
                     child: Container(
                       color: Colors.black.withOpacity(0.5),
                     ),
-                  )
-              ),
+                  )),
               Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       widget.args.book.title,
-                      style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: Colors.white),
+                      style: TextStyle(
+                          fontSize: 40,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white),
                     ),
                     Text(
                       widget.args.book.author,
-                      style: TextStyle(fontSize: 20, color: Colors.white, fontStyle: FontStyle.italic),
+                      style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.white,),
                     ),
-                    SizedBox(
-                      height: 20,
+                    SizedBox(height: 5),
+                    Text(
+                      "Starting from pg. ${widget.args.book.currentPage}",
+                      style: TextStyle(
+                          fontSize: 15,
+                          color: Colors.white,
+                          fontStyle: FontStyle.italic),
                     ),
+                    SizedBox(height: 20),
                     StreamBuilder<int>(
                       stream: stopWatchTimer.secondTime,
                       initialData: 0,
@@ -252,8 +264,10 @@ class _readingSessionTimerState extends State<readingSessionTimer> {
                             .toString()
                             .padLeft(2, '0');
 
-                        String mins =
-                            ((value / 60) % 60).floor().toString().padLeft(2, '0');
+                        String mins = ((value / 60) % 60)
+                            .floor()
+                            .toString()
+                            .padLeft(2, '0');
 
                         String seconds =
                             (value % 60).floor().toString().padLeft(2, '0');
@@ -306,8 +320,8 @@ class _readingSessionTimerState extends State<readingSessionTimer> {
 
                             if (result) Navigator.pop(context);
                           },
-                          child:
-                              Text("Cancel", style: TextStyle(color: Colors.white)),
+                          child: Text("Cancel",
+                              style: TextStyle(color: Colors.white)),
                         ),
                         SizedBox(
                           width: 20,
@@ -316,12 +330,14 @@ class _readingSessionTimerState extends State<readingSessionTimer> {
                           color: Theme.of(context).primaryColor,
                           onPressed: () {
                             if (paused) {
-                              stopWatchTimer.onExecute.add(StopWatchExecute.start);
+                              stopWatchTimer.onExecute
+                                  .add(StopWatchExecute.start);
                               setState(() {
                                 pauseResume = "Pause";
                               });
                             } else {
-                              stopWatchTimer.onExecute.add(StopWatchExecute.stop);
+                              stopWatchTimer.onExecute
+                                  .add(StopWatchExecute.stop);
                               setState(() {
                                 pauseResume = "Resume";
                               });
@@ -336,8 +352,8 @@ class _readingSessionTimerState extends State<readingSessionTimer> {
                         ),
                         FlatButton(
                           color: Theme.of(context).primaryColor,
-                          child:
-                              Text("Finish", style: TextStyle(color: Colors.white)),
+                          child: Text("Finish",
+                              style: TextStyle(color: Colors.white)),
                           onPressed: () {
                             int timeRead = stopWatchTimer.minuteTime.value;
 
@@ -361,8 +377,10 @@ class _readingSessionTimerState extends State<readingSessionTimer> {
                                             Container(
                                               width: 200,
                                               child: TextFormField(
-                                                controller: currentPageController,
-                                                keyboardType: TextInputType.number,
+                                                controller:
+                                                    currentPageController,
+                                                keyboardType:
+                                                    TextInputType.number,
                                                 textAlign: TextAlign.center,
                                                 decoration: InputDecoration(
                                                     hintText: "Current Page"),
@@ -376,7 +394,8 @@ class _readingSessionTimerState extends State<readingSessionTimer> {
                                                     return "You have already read this page";
                                                   }
                                                   if (int.parse(value) >
-                                                      widget.args.book.totalPages) {
+                                                      widget.args.book
+                                                          .totalPages) {
                                                     return "This book only has ${widget.args.book.totalPages} pages";
                                                   }
                                                   return null;
@@ -446,13 +465,16 @@ class _readingSessionTimerState extends State<readingSessionTimer> {
                                         FlatButton(
                                           child: Text("Add"),
                                           onPressed: () async {
-                                            if (_formKey.currentState.validate()) {
+                                            if (_formKey.currentState
+                                                .validate()) {
                                               String pagesRead =
                                                   "&pagesRead=${int.parse(currentPageController.text) - widget.args.book.currentPage}";
                                               String completedString = "";
                                               if (completed) {
-                                                completedString = "&completed=True";
-                                                widget.args.book.completed = true;
+                                                completedString =
+                                                    "&completed=True";
+                                                widget.args.book.completed =
+                                                    true;
                                               }
 
                                               final response = await http.post(
@@ -462,14 +484,17 @@ class _readingSessionTimerState extends State<readingSessionTimer> {
 
                                               if (response.body ==
                                                   "added reading session") {
-                                                widget.args.book.totalTimeRead +=
-                                                    timeRead;
+                                                widget.args.book
+                                                    .totalTimeRead += timeRead;
                                                 widget.args.book.currentPage =
                                                     int.parse(
-                                                        currentPageController.text);
+                                                        currentPageController
+                                                            .text);
 
-                                                Navigator.popUntil(context,
-                                                    ModalRoute.withName('/book'));
+                                                Navigator.popUntil(
+                                                    context,
+                                                    ModalRoute.withName(
+                                                        '/book'));
                                               } else {
                                                 Fluttertoast.showToast(
                                                     msg:
@@ -563,6 +588,8 @@ class _readingSessionCountdownState extends State<readingSessionCountdown> {
 
               if (value == -1) {
                 stopWatchTimer.onExecute.add(StopWatchExecute.stop);
+                FlutterRingtonePlayer.playNotification();
+
                 return finishSession(
                   args: widget.args,
                   duration: snap.data,
@@ -583,27 +610,38 @@ class _readingSessionCountdownState extends State<readingSessionCountdown> {
                   Container(
                       decoration: BoxDecoration(
                           image: DecorationImage(
-                              image: NetworkImage("http://${widget.args.url}:5000/getThumbnail?path=${widget.args.book.thumbnail}"),
-                              fit: BoxFit.cover
-                          )
-                      ),
+                              image: NetworkImage(
+                                  "http://${widget.args.url}:5000/getThumbnail?path=${widget.args.book.thumbnail}"),
+                              fit: BoxFit.cover)),
                       child: BackdropFilter(
                         filter: ImageFilter.blur(sigmaX: 7, sigmaY: 7),
                         child: Container(
                           color: Colors.black.withOpacity(0.5),
                         ),
-                      )
-                  ),
+                      )),
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
                         widget.args.book.title,
-                        style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: Colors.white),
+                        style: TextStyle(
+                            fontSize: 40,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
                       ),
                       Text(
                         widget.args.book.author,
-                        style: TextStyle(fontSize: 20, fontStyle: FontStyle.italic, color: Colors.white),
+                        style: TextStyle(
+                            fontSize: 20,
+                            color: Colors.white),
+                      ),
+                      SizedBox(height: 5),
+                      Text(
+                        "Starting from pg. ${widget.args.book.currentPage}",
+                        style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.white,
+                            fontStyle: FontStyle.italic),
                       ),
                       SizedBox(
                         height: 20,
@@ -623,7 +661,8 @@ class _readingSessionCountdownState extends State<readingSessionCountdown> {
                             return 0.0;
                           else
                             return 1 -
-                                (stopWatchTimer.secondTime.value / widget.duration);
+                                (stopWatchTimer.secondTime.value /
+                                    widget.duration);
                         }()),
                         center: Text(
                           "$hours:$mins:$seconds",
@@ -638,22 +677,6 @@ class _readingSessionCountdownState extends State<readingSessionCountdown> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Container(
-                            width: 70,
-                            child: FlatButton(
-                              child: Text("+30s",
-                                  style: TextStyle(color: Colors.white)),
-                              color: Theme.of(context).primaryColor,
-                              onPressed: () {
-                                setState(() {
-                                  widget.duration += 30;
-                                });
-                              },
-                            ),
-                          ),
-                          SizedBox(
-                            width: 10,
-                          ),
                           Container(
                             width: 70,
                             child: FlatButton(
@@ -791,7 +814,8 @@ class _readingSessionCountdownState extends State<readingSessionCountdown> {
                                               Container(
                                                 width: 200,
                                                 child: TextFormField(
-                                                  controller: currentPageController,
+                                                  controller:
+                                                      currentPageController,
                                                   keyboardType:
                                                       TextInputType.number,
                                                   textAlign: TextAlign.center,
@@ -807,8 +831,8 @@ class _readingSessionCountdownState extends State<readingSessionCountdown> {
                                                       return "You have already read this page";
                                                     }
                                                     if (int.parse(value) >
-                                                        widget
-                                                            .args.book.totalPages) {
+                                                        widget.args.book
+                                                            .totalPages) {
                                                       return "This book only has ${widget.args.book.totalPages} pages";
                                                     }
                                                     return null;
@@ -859,15 +883,18 @@ class _readingSessionCountdownState extends State<readingSessionCountdown> {
 
                                                 if (response.body ==
                                                     "added reading session") {
-                                                  widget.args.book.totalTimeRead +=
+                                                  widget.args.book
+                                                          .totalTimeRead +=
                                                       timeRead;
                                                   widget.args.book.currentPage =
                                                       int.parse(
                                                           currentPageController
                                                               .text);
 
-                                                  Navigator.popUntil(context,
-                                                      ModalRoute.withName('/book'));
+                                                  Navigator.popUntil(
+                                                      context,
+                                                      ModalRoute.withName(
+                                                          '/book'));
                                                 } else {
                                                   Fluttertoast.showToast(
                                                       msg:
@@ -924,8 +951,6 @@ class _finishSessionState extends State<finishSession> {
         ((widget.duration / 60) % 60).floor().toString().padLeft(2, '0');
 
     String seconds = (widget.duration % 60).floor().toString().padLeft(2, '0');
-
-    print("$hours:$mins:$seconds");
 
     return SafeArea(
       child: Scaffold(
