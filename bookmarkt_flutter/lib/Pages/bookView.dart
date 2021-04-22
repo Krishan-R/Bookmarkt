@@ -506,7 +506,6 @@ class _readingPredictionState extends State<readingPrediction> {
                       List<ReadingSession> sessionList = snapshot.data;
                       return Text(
                             ()  {
-                          //todo use numbers from reading statistics rather than book information
 
                           if (widget.args.book.completed) {
                             return "You have completed this book, Congratulations!";
@@ -538,6 +537,79 @@ class _readingPredictionState extends State<readingPrediction> {
                     return CircularProgressIndicator();
                   },
                 )),
+          ),
+        ),
+        Visibility(
+          visible: widget.args.book.totalTimeRead != 0,
+          child: Container(
+            width: double.infinity,
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: FutureBuilder(
+                  future: getReadingSessions(
+                      widget.args, widget.args.book.bookInstanceID),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      List<ReadingSession> sessionList = snapshot.data;
+                      return Text(
+                            ()  {
+
+                          int pagesRead = 0;
+                          for (var session in sessionList) {
+                            pagesRead += session.pagesRead;
+                          }
+
+                          double secondsPerPage = (widget.args.book.totalTimeRead / pagesRead) * 60;
+
+                          int minutes = (secondsPerPage / 60).floor();
+                          int seconds = (secondsPerPage % 60).floor();
+                          String sMinutes;
+                          String sSeconds;
+
+                          switch (minutes) {
+                            case 1:
+                              sMinutes = "${minutes.toString()} minute";
+                              break;
+                            case 0:
+                              sMinutes = "";
+                              break;
+                            default:
+                              sMinutes = "${minutes.toString()} minutes";
+                          }
+
+                          switch (seconds) {
+                            case 1:
+                              if (minutes == 0) {
+                                sSeconds = "${seconds.toString().padLeft(2, "0")} second";
+                              } else {
+                                sSeconds = " and ${seconds.toString().padLeft(2, "0")} second";
+                              }
+                              break;
+                            case 0:
+                              sSeconds = "";
+                              break;
+                            default:
+                              if (minutes == 0) {
+                                sSeconds = "${seconds.toString().padLeft(2, "0")} seconds";
+                              } else {
+                                sSeconds = " and ${seconds.toString().padLeft(2, "0")} seconds";
+                              }
+                          }
+
+                          return "Currently reading pace is $sMinutes$sSeconds per page";
+                        }(),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 15, fontStyle: FontStyle.italic),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Text("${snapshot.error}");
+                    }
+                    return CircularProgressIndicator();
+                  },
+                ),
+              ),
+            ),
           ),
         ),
         Visibility(
