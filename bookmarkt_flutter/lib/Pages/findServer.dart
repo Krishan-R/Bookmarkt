@@ -87,7 +87,6 @@ class _findServerState extends State<findServer> {
                   },
                   child: Text("Enter"),
                 ),
-                Image.network("https://www.themoviedb.org/t/p/w600_and_h900_bestv2/6FfCtAuVAW8XJjZ7eWeLibRLWTw.jpg")
               ],
             ),
           ),
