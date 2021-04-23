@@ -30,20 +30,13 @@ app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///' + file_path
 
 db.init_app(app)
 
-
-def encryptPassword(password):
-    return hashlib.sha256(password.encode("utf-8")).hexdigest()
-
-
-@app.route('/', methods=["GET"])
-def home():
-    print(f"database path is {file_path}")
-
+with app.app_context():
     try:
         if len(os.listdir(file_path.replace("/database.db", ""))) != 1:
             print("cant find database file")
             db.drop_all()
             db.create_all()
+            print("created database")
     except FileNotFoundError:
         print("database not found, creating")
         os.mkdir(file_path.replace("/database.db", ""))
@@ -53,6 +46,30 @@ def home():
         os.mkdir(file_path.replace("/database.db", ""))
         db.drop_all()
         db.create_all()
+
+
+def encryptPassword(password):
+    return hashlib.sha256(password.encode("utf-8")).hexdigest()
+
+
+@app.route('/', methods=["GET"])
+def home():
+    # print(f"database path is {file_path}")
+    #
+    # try:
+    #     if len(os.listdir(file_path.replace("/database.db", ""))) != 1:
+    #         print("cant find database file")
+    #         db.drop_all()
+    #         db.create_all()
+    # except FileNotFoundError:
+    #     print("database not found, creating")
+    #     os.mkdir(file_path.replace("/database.db", ""))
+    #     db.drop_all()
+    #     db.create_all()
+    # except NotADirectoryError:
+    #     os.mkdir(file_path.replace("/database.db", ""))
+    #     db.drop_all()
+    #     db.create_all()
 
     return "True", 200
 
