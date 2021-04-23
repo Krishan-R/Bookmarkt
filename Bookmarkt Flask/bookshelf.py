@@ -12,9 +12,8 @@ class Bookshelf(db.Model):
     name = db.Column(db.String(50))
     userID = db.Column(db.Integer, db.ForeignKey("User.id"), nullable=False)
     user = db.relationship("User", backref=db.backref("posts", lazy=True))
-    colour = db.Column(db.String(10))
 
-    def __init__(self, bookshelfName="", userID="", colour=None):
+    def __init__(self, bookshelfName="", userID=""):
         """
         :param bookshelfName: Name of the bookshelf
         """
@@ -22,7 +21,6 @@ class Bookshelf(db.Model):
         self.name = bookshelfName
         self.bookList = []
         self.userID = userID
-        self.colour = colour
 
     def getBooks(self):
         """retrieves all the books in the bookshelf
