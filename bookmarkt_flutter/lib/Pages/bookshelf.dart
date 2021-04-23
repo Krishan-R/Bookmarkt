@@ -30,19 +30,19 @@ class _BookshelfWidgetState extends State<BookshelfWidget> {
           actions: <Widget>[
             PopupMenuButton<String>(
               onSelected: (value) async {
-
                 if (value == "Rename") {
-                  renameDialog(context, args, args.bookshelfID, args.bookshelfName);
+                  renameDialog(
+                      context, args, args.bookshelfID, args.bookshelfName);
                 } else if (value == "Delete") {
-
-                  final response = await http.delete("http://${args.url}:5000/users/${args.user.userID.toString()}/bookshelf/${args.bookshelfID}/delete");
+                  final response = await http.delete(
+                      "http://${args.url}:5000/users/${args.user.userID.toString()}/bookshelf/${args.bookshelfID}/delete");
                   if (response.body == "deleted bookshelf") {
-                    Navigator.pushReplacementNamed(context, "/library", arguments: args);
+                    Navigator.pushReplacementNamed(context, "/library",
+                        arguments: args);
                   } else {
                     Fluttertoast.showToast(msg: "Error deleting Bookshelf");
                   }
                 }
-
               },
               itemBuilder: (BuildContext context) {
                 return {'Rename', 'Delete'}.map((String choice) {
@@ -152,8 +152,14 @@ class _BookshelfWidgetState extends State<BookshelfWidget> {
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     List<Book> bookList = snapshot.data;
-                    if (bookList.isEmpty)
-                      return Text("This bookshelf is empty");
+                    if (bookList.isEmpty) {
+                      return Center(
+                        child: Text(
+                          "This bookshelf is empty",
+                          style: TextStyle(color: Colors.grey, fontSize: 20),
+                        ),
+                      );
+                    }
                     return bookListView(args: args, bookList: bookList);
                   } else if (snapshot.hasError) {
                     return Text("${snapshot.error}");
@@ -168,5 +174,3 @@ class _BookshelfWidgetState extends State<BookshelfWidget> {
     );
   }
 }
-
-

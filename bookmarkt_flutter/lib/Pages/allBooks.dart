@@ -132,7 +132,12 @@ class _AllBooksState extends State<AllBooks> {
                     List<Book> bookList = snapshot.data;
 
                     if (bookList.isEmpty)
-                      return Text("No books have been added to your account");
+                      return Center(
+                        child: Text(
+                          "No Books have been added",
+                          style: TextStyle(color: Colors.grey, fontSize: 20),
+                        ),
+                      );
                     else
                       return bookListView(args: args, bookList: bookList);
                   } else if (snapshot.hasError) {

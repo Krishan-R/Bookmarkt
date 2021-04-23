@@ -31,7 +31,17 @@ class _LibraryState extends State<Library> {
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     List<Bookshelf> data = snapshot.data;
-                    return bookshelfListView(data, args);
+
+                    if (data.isEmpty) {
+                      return Center(
+                        child: Text(
+                          "No bookshelves have been added",
+                          style: TextStyle(color: Colors.grey, fontSize: 20),
+                        ),
+                      );
+                    } else {
+                      return bookshelfListView(data, args);
+                    }
                   } else if (snapshot.hasError) {
                     return Text("${snapshot.error}");
                   }
@@ -261,5 +271,3 @@ renameDialog(BuildContext context, NavigatorArguments args, int bookshelfID,
     },
   );
 }
-
-
