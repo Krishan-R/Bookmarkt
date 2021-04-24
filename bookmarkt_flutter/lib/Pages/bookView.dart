@@ -597,7 +597,7 @@ class _readingPredictionState extends State<readingPrediction> {
                               }
                           }
 
-                          return "Currently reading pace is $sMinutes$sSeconds per page";
+                          return "Current reading pace is $sMinutes$sSeconds per page";
                         }(),
                         textAlign: TextAlign.center,
                         style: TextStyle(fontSize: 15, fontStyle: FontStyle.italic),
