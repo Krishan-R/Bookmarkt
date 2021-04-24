@@ -42,10 +42,12 @@ class _BookshelfWidgetState extends State<BookshelfWidget> {
                   } else {
                     Fluttertoast.showToast(msg: "Error deleting Bookshelf");
                   }
+                } else if (value == "Add") {
+                  Navigator.pushNamed(context, '/addBooksToBookshelf', arguments: args).then((value) => setState(() {}));
                 }
               },
               itemBuilder: (BuildContext context) {
-                return {'Rename', 'Delete'}.map((String choice) {
+                return {'Add', 'Delete', 'Rename'}.map((String choice) {
                   return PopupMenuItem<String>(
                     value: choice,
                     child: Text(choice),

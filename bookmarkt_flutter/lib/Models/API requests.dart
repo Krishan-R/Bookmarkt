@@ -359,8 +359,6 @@ Future<Map> dayOfWeekStats(NavigatorArguments args, int duration) async {
 }
 
 Future<List<Book>> getSearchBooks(String search) async {
-  print("searching");
-
   List<Book> bookList = [];
 
   try {
@@ -379,22 +377,15 @@ Future<List<Book>> getSearchBooks(String search) async {
 
     bookList = List<Book>.from(i.map((model) => Book.fromSearchJson(model)));
 
-    // for (Book a in bookList) {
-    //   print("googleID: ${a.googleID}");
-    //   print("isbn: ${a.ISBN}");
-    //   print("selfLink: ${a.selfLink}");
-    //   print(a.title);
-    //   print("author: ${a.author}");
-    //   print(a.description);
-    //   print("total pages: ${a.totalPages}");
-    //   print("thumbnail: ${a.thumbnail}");
-    //   print(a.publishedDate);
-    //   print("==========");
-    // }
-
     return bookList;
   } on SocketException {
     Fluttertoast.showToast(msg: "Error Searching for Book");
     return null;
   }
+}
+
+addBookToBookshelf(NavigatorArguments args, int bookInstanceID, int bookshelfID) async {
+
+  final response = await http.post("http://${args.url}:5000/users/${args.user.userID}/bookshelf/$bookshelfID/add?bookInstanceID=$bookInstanceID");
+
 }

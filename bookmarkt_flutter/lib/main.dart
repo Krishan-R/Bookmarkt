@@ -1,3 +1,4 @@
+import 'package:bookmarkt_flutter/Pages/addBooksToLibrary.dart';
 import 'package:bookmarkt_flutter/Pages/allBooks.dart';
 import 'package:bookmarkt_flutter/Pages/bookshelf.dart';
 import 'package:bookmarkt_flutter/Pages/homepage.dart';
@@ -23,6 +24,7 @@ void main() => runApp(MaterialApp(
     '/home': (context) => homepage(),
     '/library': (context) => Library(),
     '/bookshelf': (context) => BookshelfWidget(),
+    '/addBooksToBookshelf': (context) => AddBooksToBookshelf(),
     '/allBooks': (context) => AllBooks(),
     '/book': (context) => bookView(),
     '/readingSession': (context) => readingSessionCoverPage(),

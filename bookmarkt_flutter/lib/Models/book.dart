@@ -21,6 +21,7 @@ class Book {
   String borrowingFrom;
   String borrowingTo;
   DateTime borrowingTime;
+  bool isSelected = false;
 
   Book(
       {this.bookInstanceID,
