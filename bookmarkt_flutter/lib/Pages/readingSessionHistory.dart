@@ -59,32 +59,46 @@ class allSessionHistory extends StatefulWidget {
 }
 
 class _allSessionHistoryState extends State<allSessionHistory> {
+  GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
+
   @override
   Widget build(BuildContext context) {
     final NavigatorArguments args = ModalRoute.of(context).settings.arguments;
 
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text("Reading Sessions"),
-        ),
-        drawer: myDrawer(args),
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ListView.builder(
-              scrollDirection: Axis.vertical,
-              shrinkWrap: true,
-              itemCount: args.sessionList.length,
-              itemBuilder: (context, index) {
-                return GestureDetector(
-                    onTap: () {
-                      readingSessionActions(context, setState, args,
-                          args.sessionList[index], index);
-                    },
-                    child: readingSessionCard(
-                        session: args.sessionList[index], args: args));
-              },
+    return WillPopScope(
+      onWillPop: () async {
+        if (_scaffoldKey.currentState.isDrawerOpen) {
+          Navigator.of(context).pop();
+        } else {
+          _scaffoldKey.currentState.openDrawer();
+        }
+        return false;
+      },
+      child: SafeArea(
+        child: Scaffold(
+          key: _scaffoldKey,
+          appBar: AppBar(
+            title: Text("Reading Sessions"),
+          ),
+          drawer: myDrawer(args),
+          body: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ListView.builder(
+                scrollDirection: Axis.vertical,
+                shrinkWrap: true,
+                itemCount: args.sessionList.length,
+                itemBuilder: (context, index) {
+                  return GestureDetector(
+                      onTap: () {
+                        readingSessionActions(context, setState, args,
+                            args.sessionList[index], index);
+                      },
+                      child: readingSessionCard(
+                          session: args.sessionList[index], args: args));
+                },
+              ),
             ),
           ),
         ),

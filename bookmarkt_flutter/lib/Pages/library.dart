@@ -13,49 +13,62 @@ class Library extends StatefulWidget {
 }
 
 class _LibraryState extends State<Library> {
+  GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
   @override
   Widget build(BuildContext context) {
     final NavigatorArguments args = ModalRoute.of(context).settings.arguments;
 
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text("Library"),
-        ),
-        drawer: myDrawer(args),
-        body: Column(
-          children: [
-            Expanded(
-              child: FutureBuilder<List<Bookshelf>>(
-                future: getBookshelfList(args),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    List<Bookshelf> data = snapshot.data;
+    return WillPopScope(
+      onWillPop: () async {
+        if (_scaffoldKey.currentState.isDrawerOpen) {
+          Navigator.of(context).pop();
+        } else {
+          _scaffoldKey.currentState.openDrawer();
+        }
+        return false;
+      },
+      child: SafeArea(
+        child: Scaffold(
+          key: _scaffoldKey,
+          appBar: AppBar(
+            title: Text("Library"),
+          ),
+          drawer: myDrawer(args),
+          body: Column(
+            children: [
+              Expanded(
+                child: FutureBuilder<List<Bookshelf>>(
+                  future: getBookshelfList(args),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      List<Bookshelf> data = snapshot.data;
 
-                    if (data.isEmpty) {
-                      return Center(
-                        child: Text(
-                          "No bookshelves have been added",
-                          style: TextStyle(color: Colors.grey, fontSize: 20),
-                        ),
-                      );
-                    } else {
-                      return bookshelfListView(data, args);
+                      if (data.isEmpty) {
+                        return Center(
+                          child: Text(
+                            "No bookshelves have been added",
+                            style: TextStyle(color: Colors.grey, fontSize: 20),
+                          ),
+                        );
+                      } else {
+                        return bookshelfListView(data, args);
+                      }
+                    } else if (snapshot.hasError) {
+                      return Text("${snapshot.error}");
                     }
-                  } else if (snapshot.hasError) {
-                    return Text("${snapshot.error}");
-                  }
-                  return CircularProgressIndicator();
-                },
+                    return CircularProgressIndicator();
+                  },
+                ),
               ),
-            ),
-          ],
-        ),
-        floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.add),
-          onPressed: () {
-            AddBookshelfDialog(context, args);
-          },
+            ],
+          ),
+          floatingActionButton: FloatingActionButton(
+            child: Icon(Icons.add),
+            onPressed: () {
+              AddBookshelfDialog(context, args);
+            },
+          ),
         ),
       ),
     );

@@ -13,37 +13,48 @@ class homepage extends StatefulWidget {
 }
 
 class _homepageState extends State<homepage> {
+  GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   callback() {
-    setState(() {
-    });
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     final NavigatorArguments args = ModalRoute.of(context).settings.arguments;
-    return SafeArea(
-      child: Scaffold(
-          appBar: AppBar(
-            title: Text("Dashboard"),
-          ),
-          drawer: myDrawer(args),
-          // body: Text("homepage"),
-          body: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: ListView(
-              children: [
-                SizedBox(height:10),
-                recentDashboard(args: args, callback: callback),
-                Unread(args: args, callback: callback),
-                Divider(thickness: 2),
-                DayofWeek(args: args),
-                Divider(thickness: 2),
-                bookViewGraph(args: args),
-                SizedBox(height:10),
-              ],
+    return WillPopScope(
+      onWillPop: () async {
+        if (_scaffoldKey.currentState.isDrawerOpen) {
+          Navigator.of(context).pop();
+        } else {
+          _scaffoldKey.currentState.openDrawer();
+        }
+        return false;
+      },
+      child: SafeArea(
+        child: Scaffold(
+            key: _scaffoldKey,
+            appBar: AppBar(
+              title: Text("Dashboard"),
             ),
-          )),
+            drawer: myDrawer(args),
+            // body: Text("homepage"),
+            body: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: ListView(
+                children: [
+                  SizedBox(height: 10),
+                  recentDashboard(args: args, callback: callback),
+                  Unread(args: args, callback: callback),
+                  Divider(thickness: 2),
+                  DayofWeek(args: args),
+                  Divider(thickness: 2),
+                  bookViewGraph(args: args),
+                  SizedBox(height: 10),
+                ],
+              ),
+            )),
+      ),
     );
   }
 }
@@ -193,13 +204,13 @@ class _UnreadState extends State<Unread> {
                           child: InkWell(
                             onTap: () async {
                               List<Bookshelf> bookshelfList =
-                              await getBookshelfList(widget.args);
+                                  await getBookshelfList(widget.args);
 
                               Navigator.pushNamed(context, '/book',
-                                  arguments: NavigatorArguments(
-                                      widget.args.user, widget.args.url,
-                                      bookshelfList: bookshelfList,
-                                      book: bookList[index]))
+                                      arguments: NavigatorArguments(
+                                          widget.args.user, widget.args.url,
+                                          bookshelfList: bookshelfList,
+                                          book: bookList[index]))
                                   .then((value) => widget.callback());
                             },
                             child: Column(
@@ -340,11 +351,13 @@ class _DayofWeekState extends State<DayofWeek> {
             future: dayOfWeekStats(widget.args, graphDuration),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
-
                 if (snapshot.data["pages"]["maxY"] == 0) {
                   return Container(
-                    width: double.infinity,
-                      child: Text("No reading data found for this time period", textAlign: TextAlign.center,));
+                      width: double.infinity,
+                      child: Text(
+                        "No reading data found for this time period",
+                        textAlign: TextAlign.center,
+                      ));
                 }
 
                 return Column(
@@ -452,7 +465,6 @@ LineChartData dayOfWeek(data, String focus) {
           fontSize: 15,
         ),
         getTitles: (value) {
-
           if (data[focus]["maxY"] >= 200) {
             if (value % 50 == 0) return value.toInt().toString();
           } else if (data[focus]["maxY"] >= 100) {
@@ -602,7 +614,8 @@ class _bookViewGraphState extends State<bookViewGraph> {
                               padding: const EdgeInsets.only(
                                   right: 18.0, left: 12.0, top: 24, bottom: 12),
                               child: LineChart(
-                                GlobalHistoryGraphData(snapshot.data, graphFocus),
+                                GlobalHistoryGraphData(
+                                    snapshot.data, graphFocus),
                               ),
                             ),
                           ),
@@ -712,7 +725,7 @@ LineChartData GlobalHistoryGraphData(data, focus) {
         belowBarData: BarAreaData(
           show: true,
           colors:
-          gradientColors.map((color) => color.withOpacity(0.3)).toList(),
+              gradientColors.map((color) => color.withOpacity(0.3)).toList(),
         ),
       ),
     ],
