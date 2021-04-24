@@ -342,7 +342,9 @@ class _DayofWeekState extends State<DayofWeek> {
               if (snapshot.hasData) {
 
                 if (snapshot.data["pages"]["maxY"] == 0) {
-                  return Text("No Reading Data Found");
+                  return Container(
+                    width: double.infinity,
+                      child: Text("No reading data found for this time period", textAlign: TextAlign.center,));
                 }
 
                 return Column(
@@ -582,12 +584,7 @@ class _bookViewGraphState extends State<bookViewGraph> {
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 if (snapshot.data[graphFocus]["maxY"] == 0) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("No reading data found for this time period"),
-                    ],
-                  );
+                  return Text("No reading data found for this time period");
                 }
                 return Column(
                   children: [
