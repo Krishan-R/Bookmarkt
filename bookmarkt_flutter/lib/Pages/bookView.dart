@@ -36,15 +36,43 @@ class _bookViewState extends State<bookView> {
             PopupMenuButton<String>(
               onSelected: (value) async {
                 if (value == "Delete") {
-                  final response = await http.delete(
-                      "http://${args.url}:5000/users/${args.user.userID.toString()}/books/delete?bookInstanceID=${args.book.bookInstanceID}");
 
-                  if (response.body == "deleted book instance") {
-                    Navigator.pushReplacementNamed(context, "/allBooks",
-                        arguments: args);
-                  } else {
-                    print(response.body);
-                    Fluttertoast.showToast(msg: "Error deleting Book");
+                  bool result = await showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text(
+                            "Are you sure you want to delete this book?"),
+                        content: Text("This cannot be undone"),
+                        actions: [
+                          FlatButton(
+                            child: Text("No"),
+                            onPressed: () {
+                              Navigator.of(context).pop(false);
+                            },
+                          ),
+                          FlatButton(
+                            child: Text("Yes"),
+                            onPressed: () {
+                              Navigator.of(context).pop(true);
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
+
+                  if (result) {
+                    final response = await http.delete(
+                        "http://${args.url}:5000/users/${args.user.userID.toString()}/books/delete?bookInstanceID=${args.book.bookInstanceID}");
+
+                    if (response.body == "deleted book instance") {
+                      Navigator.pushReplacementNamed(context, "/allBooks",
+                          arguments: args);
+                    } else {
+                      print(response.body);
+                      Fluttertoast.showToast(msg: "Error deleting Book");
+                    }
                   }
                 } else if (value == "Edit") {
                   args.redirect = "edit";
@@ -72,7 +100,7 @@ class _bookViewState extends State<bookView> {
               SizedBox(height: 10),
               bookDescription(args: args),
               Divider(thickness: 2),
-              readingSessionDetails(args: args),
+              readingSessionDetails(args: args, callback: callback),
               Divider(thickness: 2),
               readingPrediction(args: args),
               Divider(thickness: 2),
@@ -200,10 +228,12 @@ Container bookHeader(args) {
 
 class readingSessionDetails extends StatefulWidget {
   NavigatorArguments args;
+  Function callback;
 
   readingSessionDetails({
     Key key,
     this.args,
+    this.callback,
   }) : super(key: key);
 
   @override
@@ -290,7 +320,7 @@ class _readingSessionDetailsState extends State<readingSessionDetails> {
               onPressed: () {
                 Navigator.pushNamed(context, '/readingSession',
                         arguments: widget.args)
-                    .then((value) => setState(() {}));
+                    .then((value) => widget.callback(widget.args));
               },
               child: Text("Start Reading Session",
                   style: TextStyle(color: Colors.white)),
@@ -505,8 +535,7 @@ class _readingPredictionState extends State<readingPrediction> {
                     if (snapshot.hasData) {
                       List<ReadingSession> sessionList = snapshot.data;
                       return Text(
-                            ()  {
-
+                        () {
                           if (widget.args.book.completed) {
                             return "You have completed this book, Congratulations!";
                           } else if (widget.args.book.currentPage == 1 ||
@@ -519,17 +548,18 @@ class _readingPredictionState extends State<readingPrediction> {
                             pagesRead += session.pagesRead;
                           }
 
-                          double pagesPerMinute = widget.args.book.totalTimeRead /
-                              pagesRead;
+                          double pagesPerMinute =
+                              widget.args.book.totalTimeRead / pagesRead;
                           int estimateTime = ((pagesPerMinute *
-                              (widget.args.book.totalPages -
-                                  widget.args.book.currentPage)))
+                                  (widget.args.book.totalPages -
+                                      widget.args.book.currentPage)))
                               .round();
 
                           return "Reading at a similar pace, you will finish this book in $estimateTime minutes";
                         }(),
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 15, fontStyle: FontStyle.italic),
+                        style: TextStyle(
+                            fontSize: 15, fontStyle: FontStyle.italic),
                       );
                     } else if (snapshot.hasError) {
                       return Text("${snapshot.error}");
@@ -553,17 +583,20 @@ class _readingPredictionState extends State<readingPrediction> {
                     if (snapshot.hasData) {
                       List<ReadingSession> sessionList = snapshot.data;
                       return Text(
-                            ()  {
-
+                        () {
                           int pagesRead = 0;
                           for (var session in sessionList) {
                             pagesRead += session.pagesRead;
                           }
 
-                          double secondsPerPage = (widget.args.book.totalTimeRead / pagesRead) * 60;
+                          double secondsPerPage =
+                              (widget.args.book.totalTimeRead / pagesRead) * 60;
 
                           int minutes = (secondsPerPage / 60).floor();
                           int seconds = (secondsPerPage % 60).floor();
+                          print(minutes);
+                          print(seconds);
+
                           String sMinutes;
                           String sSeconds;
 
@@ -581,9 +614,11 @@ class _readingPredictionState extends State<readingPrediction> {
                           switch (seconds) {
                             case 1:
                               if (minutes == 0) {
-                                sSeconds = "${seconds.toString().padLeft(2, "0")} second";
+                                sSeconds =
+                                    "${seconds.toString().padLeft(2, "0")} second";
                               } else {
-                                sSeconds = " and ${seconds.toString().padLeft(2, "0")} second";
+                                sSeconds =
+                                    " and ${seconds.toString().padLeft(2, "0")} second";
                               }
                               break;
                             case 0:
@@ -591,16 +626,19 @@ class _readingPredictionState extends State<readingPrediction> {
                               break;
                             default:
                               if (minutes == 0) {
-                                sSeconds = "${seconds.toString().padLeft(2, "0")} seconds";
+                                sSeconds =
+                                    "${seconds.toString().padLeft(2, "0")} seconds";
                               } else {
-                                sSeconds = " and ${seconds.toString().padLeft(2, "0")} seconds";
+                                sSeconds =
+                                    " and ${seconds.toString().padLeft(2, "0")} seconds";
                               }
                           }
 
                           return "Current reading pace is $sMinutes$sSeconds per page";
                         }(),
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 15, fontStyle: FontStyle.italic),
+                        style: TextStyle(
+                            fontSize: 15, fontStyle: FontStyle.italic),
                       );
                     } else if (snapshot.hasError) {
                       return Text("${snapshot.error}");

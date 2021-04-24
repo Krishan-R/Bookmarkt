@@ -385,9 +385,10 @@ class _readingSessionTimerState extends State<readingSessionTimer> {
                                                 decoration: InputDecoration(
                                                     hintText: "Current Page"),
                                                 validator: (value) {
-                                                  if (value.isEmpty)
+                                                  if (completed) return null;
+                                                  else if (value.isEmpty)
                                                     return "Cannot be empty";
-                                                  if (int.parse(value) -
+                                                  else if (int.parse(value) -
                                                           widget.args.book
                                                               .currentPage <
                                                       0) {
@@ -467,14 +468,20 @@ class _readingSessionTimerState extends State<readingSessionTimer> {
                                           onPressed: () async {
                                             if (_formKey.currentState
                                                 .validate()) {
-                                              String pagesRead =
-                                                  "&pagesRead=${int.parse(currentPageController.text) - widget.args.book.currentPage}";
+
+                                              String pagesRead;
+
+                                              if (currentPageController.text.isEmpty && completed) {
+                                                pagesRead =
+                                                "&pagesRead=${widget.args.book.totalPages - widget.args.book.currentPage}";
+                                              } else {
+                                                pagesRead =
+                                                "&pagesRead=${int.parse(currentPageController.text) - widget.args.book.currentPage}";
+                                              }
+
                                               String completedString = "";
                                               if (completed) {
-                                                completedString =
-                                                    "&completed=True";
-                                                widget.args.book.completed =
-                                                    true;
+                                                completedString = "&completed=True";
                                               }
 
                                               final response = await http.post(
@@ -482,23 +489,22 @@ class _readingSessionTimerState extends State<readingSessionTimer> {
 
                                               print(response.body);
 
-                                              if (response.body ==
-                                                  "added reading session") {
-                                                widget.args.book
-                                                    .totalTimeRead += timeRead;
-                                                widget.args.book.currentPage =
-                                                    int.parse(
-                                                        currentPageController
-                                                            .text);
+                                              if (response.body == "added reading session") {
+                                                widget.args.book.totalTimeRead += timeRead;
+
+                                                if (completed) {
+                                                  widget.args.book.currentPage = widget.args.book.totalPages;
+                                                  widget.args.book.completed = true;
+                                                } else {
+                                                  widget.args.book.currentPage =
+                                                      int.parse(currentPageController.text);
+                                                }
 
                                                 Navigator.popUntil(
-                                                    context,
-                                                    ModalRoute.withName(
-                                                        '/book'));
+                                                    context, ModalRoute.withName('/book'));
                                               } else {
                                                 Fluttertoast.showToast(
-                                                    msg:
-                                                        "Error adding reading session");
+                                                    msg: "Error adding reading session");
                                               }
                                             }
                                           },
@@ -592,7 +598,7 @@ class _readingSessionCountdownState extends State<readingSessionCountdown> {
 
                 return finishSession(
                   args: widget.args,
-                  duration: snap.data,
+                  duration: snap.data-1,
                   mins: stopWatchTimer.minuteTime.value,
                 );
               }
@@ -822,9 +828,10 @@ class _readingSessionCountdownState extends State<readingSessionCountdown> {
                                                   decoration: InputDecoration(
                                                       hintText: "Current Page"),
                                                   validator: (value) {
-                                                    if (value.isEmpty)
+                                                    if (completed) return null;
+                                                    else if (value.isEmpty)
                                                       return "Cannot be empty";
-                                                    if (int.parse(value) -
+                                                    else if (int.parse(value) -
                                                             widget.args.book
                                                                 .currentPage <
                                                         0) {
@@ -868,28 +875,40 @@ class _readingSessionCountdownState extends State<readingSessionCountdown> {
                                             onPressed: () async {
                                               if (_formKey.currentState
                                                   .validate()) {
-                                                String pagesRead =
-                                                    "&pagesRead=${int.parse(currentPageController.text) - widget.args.book.currentPage}";
+
+                                                String pagesRead;
+
+                                                if (currentPageController.text.isEmpty && completed) {
+                                                  pagesRead =
+                                                  "&pagesRead=${widget.args.book.totalPages - widget.args.book.currentPage}";
+                                                } else {
+                                                  pagesRead =
+                                                  "&pagesRead=${int.parse(currentPageController.text) - widget.args.book.currentPage}";
+                                                }
+
                                                 String completedString = "";
                                                 if (completed) {
-                                                  completedString =
-                                                      "&completed=True";
+                                                  completedString = "&completed=True";
                                                 }
 
                                                 final response = await http.post(
                                                     "http://${widget.args.url}:5000/users/${widget.args.user.userID}/books/${widget.args.book.bookInstanceID}/read?timeRead=$timeRead$completedString$pagesRead");
-
-                                                print(response.body);
 
                                                 if (response.body ==
                                                     "added reading session") {
                                                   widget.args.book
                                                           .totalTimeRead +=
                                                       timeRead;
-                                                  widget.args.book.currentPage =
-                                                      int.parse(
-                                                          currentPageController
-                                                              .text);
+
+                                                  if (completed) {
+                                                    widget.args.book.currentPage = widget.args.book.totalPages;
+                                                    widget.args.book.completed = true;
+                                                  } else {
+                                                    widget.args.book.currentPage =
+                                                        int.parse(
+                                                            currentPageController
+                                                                .text);
+                                                  }
 
                                                   Navigator.popUntil(
                                                       context,
@@ -942,7 +961,6 @@ class _finishSessionState extends State<finishSession> {
 
   @override
   Widget build(BuildContext context) {
-    widget.duration -= 1;
 
     String hours =
         ((widget.duration / (60 * 60)) % 60).floor().toString().padLeft(2, '0');
@@ -986,11 +1004,12 @@ class _finishSessionState extends State<finishSession> {
                   textAlign: TextAlign.center,
                   decoration: InputDecoration(hintText: "Current Page"),
                   validator: (value) {
-                    if (value.isEmpty) return "Cannot be empty";
-                    if (int.parse(value) - widget.args.book.currentPage < 0) {
+                    if (completed) {
+                      return null;
+                    } else if (value.isEmpty) return "Cannot be empty";
+                    else if (int.parse(value) - widget.args.book.currentPage < 0) {
                       return "You have already read this page";
-                    }
-                    if (int.parse(value) > widget.args.book.totalPages) {
+                    } else if (int.parse(value) > widget.args.book.totalPages) {
                       return "This book only has ${widget.args.book.totalPages} pages";
                     }
                     return null;
@@ -1029,22 +1048,35 @@ class _finishSessionState extends State<finishSession> {
                     color: Theme.of(context).primaryColor,
                     onPressed: () async {
                       if (_formKey.currentState.validate()) {
-                        String pagesRead =
-                            "&pagesRead=${int.parse(currentPageController.text) - widget.args.book.currentPage}";
+
+                        String pagesRead;
+
+                        if (currentPageController.text.isEmpty && completed) {
+                          pagesRead =
+                          "&pagesRead=${widget.args.book.totalPages - widget.args.book.currentPage}";
+                        } else {
+                          pagesRead =
+                          "&pagesRead=${int.parse(currentPageController.text) - widget.args.book.currentPage}";
+                        }
+
                         String completedString = "";
                         if (completed) {
                           completedString = "&completed=True";
                         }
 
                         final response = await http.post(
-                            "http://${widget.args.url}:5000/users/${widget.args.user.userID}/books/${widget.args.book.bookInstanceID}/read?timeRead=${widget.mins}$completedString$pagesRead");
-
-                        print(response.body);
+                            "http://${widget.args.url}:5000/users/${widget.args.user.userID}/books/${widget.args.book.bookInstanceID}/read?timeRead=${widget.mins}$completedString$pagesRead&updateProgress=true");
 
                         if (response.body == "added reading session") {
                           widget.args.book.totalTimeRead += widget.mins;
-                          widget.args.book.currentPage =
-                              int.parse(currentPageController.text);
+
+                          if (completed) {
+                            widget.args.book.currentPage = widget.args.book.totalPages;
+                            widget.args.book.completed = true;
+                          } else {
+                            widget.args.book.currentPage =
+                                int.parse(currentPageController.text);
+                          }
 
                           Navigator.popUntil(
                               context, ModalRoute.withName('/book'));

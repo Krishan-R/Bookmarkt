@@ -475,13 +475,21 @@ def addReadingSession(userID, bookInstanceID):
     # updates bookinstance object
     if updateProgress:
 
-        # if the new book instance page is the total pages, set as completed
-        if (bookInstance.currentPage + pagesRead) <= bookInstance.totalPages:
-            bookInstance.currentPage += pagesRead
-            bookInstance.completed = completed
-        else:
-            bookInstance.currentPage = book.totalPages
+        if completed:
+            bookInstance.currentPage = bookInstance.totalPages
+            bookInstance.dateCompleted = datetime.datetime.today()
             bookInstance.completed = True
+        else:
+            bookInstance.currentPage += pagesRead
+
+        # if the new book instance page is the total pages, set as completed
+        # if (bookInstance.currentPage + pagesRead) <= bookInstance.totalPages:
+        #     bookInstance.currentPage += pagesRead
+        #     bookInstance.completed = completed
+        # else:
+        #     bookInstance.currentPage = book.totalPages
+        #     bookInstance.completed = True
+        #     bookInstance.dateCompleted = datetime.datetime.today().strftime('%Y-%m-%d')
 
     db.session.commit()
 
