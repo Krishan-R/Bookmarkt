@@ -63,7 +63,7 @@ class _bookViewState extends State<bookView> {
 
                   if (result) {
                     final response = await http.delete(
-                        "http://${args.url}:5000/users/${args.user.userID.toString()}/books/delete?bookInstanceID=${args.book.bookInstanceID}");
+                        "http://${args.url}:5000/users/${args.user.userID.toString()}/books/${args.book.bookInstanceID}/delete");
 
                     if (response.statusCode == 200) {
                       Navigator.pushReplacementNamed(context, "/allBooks",

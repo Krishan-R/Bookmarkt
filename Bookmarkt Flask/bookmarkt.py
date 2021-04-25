@@ -223,7 +223,7 @@ def addUserBook(userID):
             # checks to see if bookshelf exists and belongs to that user
             bookshelf = Bookshelf.query.filter(Bookshelf.bookshelfID == bookshelfID).first()
             if bookshelf is None:
-                return "Bookshelf does not not exist", 422
+                return "Bookshelf does not not exist", 404
 
             if bookshelf.userID != int(userID):
                 return "Bookshelf does not belong to that user", 403
@@ -281,7 +281,7 @@ def updateBookInstance(userID, bookInstanceID):
     bookInstance = BookInstance.query.filter(BookInstance.bookInstanceID == bookInstanceID).first()
 
     if bookInstance is None:
-        return "Book Instance does not exist", 422
+        return "Book Instance does not exist", 404
 
     # check if bookinstance belongs to that userid
     if bookInstance.userID != userID:
@@ -378,31 +378,13 @@ def updateBookInstance(userID, bookInstanceID):
     return bookInstance.toJson(), 200
 
 
-@app.route("/bookinstance/delete", methods=["DELETE"])
-def deleteBookInstance():
-    bookInstanceID = request.args.get("bookInstanceID", None)
-
-    if BookInstance.query.filter(BookInstance.bookInstanceID == bookInstanceID).first() is None:
-        return "Book Instance does not exist", 422
-
-    BookInstance.query.filter(BookInstance.bookInstanceID == bookInstanceID).delete()
-
-    # deletes relevant rows in ReadingSession table
-    ReadingSession.query.filter(ReadingSession.bookInstanceID == bookInstanceID).delete()
-
-    db.session.commit()
-
-    return f"deleted book instance id {bookInstanceID}", 200
-
-
-@app.route("/users/<userID>/books/delete", methods=["DELETE"])
-def deleteUserBookInstance(userID):
-    bookInstanceID = request.args.get("bookInstanceID", None)
+@app.route("/users/<userID>/books/<bookInstanceID>/delete", methods=["DELETE"])
+def deleteBookInstance(userID, bookInstanceID):
 
     bookInstance = BookInstance.query.filter(BookInstance.bookInstanceID == bookInstanceID).first()
 
     if bookInstance is None:
-        return "Book Instance not found", 422
+        return "Book Instance not found", 404
 
     # checks to see if book instance belongs to that user
     if bookInstance.userID != int(userID):

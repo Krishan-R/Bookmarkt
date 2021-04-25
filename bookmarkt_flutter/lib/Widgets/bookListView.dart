@@ -130,7 +130,7 @@ longPressBookDialog(BuildContext context, setState, NavigatorArguments args,
           child: Text("Delete"),
           onPressed: () async {
             final response = await http.delete(
-                "http://${args.url}:5000/users/${args.user.userID.toString()}/books/delete?bookInstanceID=$bookInstanceID");
+                "http://${args.url}:5000/users/${args.user.userID.toString()}/books/$bookInstanceID/delete");
 
             if (response.statusCode == 200) {
               Navigator.pushReplacementNamed(context, "/allBooks",
