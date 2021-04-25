@@ -47,7 +47,7 @@ class _BookshelfWidgetState extends State<BookshelfWidget> {
                 }
               },
               itemBuilder: (BuildContext context) {
-                return {'Add', 'Delete', 'Rename'}.map((String choice) {
+                return {'Add', 'Rename', 'Delete'}.map((String choice) {
                   return PopupMenuItem<String>(
                     value: choice,
                     child: Text(choice),
