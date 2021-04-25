@@ -8,7 +8,7 @@
     <!-- Required to fetch data from the internet. -->
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="bookmarkt_flutter"
+        android:label="Bookmarkt"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true">
         <activity
