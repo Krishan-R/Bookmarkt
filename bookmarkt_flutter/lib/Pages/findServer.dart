@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:bookmarkt_flutter/Models/API%20requests.dart';
 import 'package:bookmarkt_flutter/Models/navigatorArguments.dart';
 import 'package:flutter/material.dart';
@@ -19,73 +21,97 @@ class _findServerState extends State<findServer> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: new Text("Find Server"),
+          title: new Text("Find Bookmarkt Server"),
         ),
         body: Padding(
           padding: const EdgeInsets.all(10),
-          child: Form(
-            key: _formKey,
+          child: Container(
+            color: Colors.white,
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                FutureBuilder(
-                  future: getSavedURL(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      url = snapshot.data;
-
-                      return TextFormField(
-                        initialValue: snapshot.data,
-                        validator: (value) {
-                          if (url.isEmpty) {
-                            return "Server URL must not be empty";
-                          }
-                          return null;
-                        },
-                        onChanged: (value) {
-                          url = value;
-                        },
-                        decoration:
-                            InputDecoration(hintText: "Enter Server URL"),
-                      );
-                    } else if (snapshot.hasError) {
-                      return Text(snapshot.error);
-                    }
-                    return Text("loading");
-                  },
-                ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Visibility(
-                    child: Text(
-                      "Server not found",
-                      style: TextStyle(
-                        color: Colors.red,
-                      ),
-                    ),
-                    visible: serverURLError,
+                  child: Text(
+                    "You need a Bookmarkt server to connect to, please enter its IP address below",
+                    style: TextStyle(fontSize: 20),
+                    textAlign: TextAlign.center,
                   ),
                 ),
-                FlatButton(
-                  onPressed: () async {
-                    if (_formKey.currentState.validate()) {
-                      bool serverFound = await connectToServer(url);
+                SizedBox(height: 30),
+                Center(
+                  child: Container(
+                    width: MediaQuery.of(context).size.width * 0.5,
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          FutureBuilder(
+                            future: getSavedURL(),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                url = snapshot.data;
 
-                      if (serverFound) {
-                        setState(() {
-                          serverURLError = false;
-                        });
+                                return TextFormField(
+                                  initialValue: snapshot.data,
+                                  validator: (value) {
+                                    if (url.isEmpty) {
+                                      return "Server URL must not be empty";
+                                    }
+                                    return null;
+                                  },
+                                  onChanged: (value) {
+                                    url = value;
+                                  },
+                                  decoration: InputDecoration(
+                                      hintText: "Enter Server URL"),
+                                  textAlign: TextAlign.center,
+                                );
+                              } else if (snapshot.hasError) {
+                                return Text(snapshot.error);
+                              }
+                              return Text("loading");
+                            },
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Visibility(
+                              child: Text(
+                                "Server not found",
+                                style: TextStyle(
+                                  color: Colors.red,
+                                ),
+                              ),
+                              visible: serverURLError,
+                            ),
+                          ),
+                          FlatButton(
+                            onPressed: () async {
+                              if (_formKey.currentState.validate()) {
+                                bool serverFound = await connectToServer(url);
 
-                        saveURL(url);
-                        Navigator.pushNamed(context, '/login',
-                            arguments: NavigatorArguments(null, url));
-                      } else {
-                        setState(() {
-                          serverURLError = true;
-                        });
-                      }
-                    }
-                  },
-                  child: Text("Enter"),
+                                if (serverFound) {
+                                  setState(() {
+                                    serverURLError = false;
+                                  });
+
+                                  saveURL(url);
+                                  Navigator.pushNamed(context, '/login',
+                                      arguments: NavigatorArguments(null, url));
+                                } else {
+                                  setState(() {
+                                    serverURLError = true;
+                                  });
+                                }
+                              }
+                            },
+                            child: Text("Enter"),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
