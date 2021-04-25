@@ -79,7 +79,7 @@ class _AllBooksState extends State<AllBooks> {
 
                     args.redirect = "/allBooks";
 
-                    if (response.body == "Cannot be found") {
+                    if (response.statusCode == 404) {
                       print("Cannot be found");
                       Book book = new Book();
                       book.ISBN = int.parse(barcode);

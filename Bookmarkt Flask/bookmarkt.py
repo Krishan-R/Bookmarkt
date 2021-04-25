@@ -54,67 +54,85 @@ def encryptPassword(password):
 
 @app.route('/', methods=["GET"])
 def home():
-    # print(f"database path is {file_path}")
-    #
-    # try:
-    #     if len(os.listdir(file_path.replace("/database.db", ""))) != 1:
-    #         print("cant find database file")
-    #         db.drop_all()
-    #         db.create_all()
-    # except FileNotFoundError:
-    #     print("database not found, creating")
-    #     os.mkdir(file_path.replace("/database.db", ""))
-    #     db.drop_all()
-    #     db.create_all()
-    # except NotADirectoryError:
-    #     os.mkdir(file_path.replace("/database.db", ""))
-    #     db.drop_all()
-    #     db.create_all()
-
     return "True", 200
 
 
-@app.route('/users/all', methods=["GET"])
-def getAllUsers():
-    jsonList = []
-    try:
-        for user in User.query.all():
-            jsonList.append({
-                "id": user.id,
-                "username": user.username,
-                "email": user.email
-            })
-    except:
-        print("error occured")
-
-    return jsonify(jsonList), 200
-
-
 @app.route('/users/<userID>', methods=["GET"])
-def getSpecificUser(userID):
-    if User.query.filter(User.id == userID).first() is None:
-        return "User does not exist", 422
+def getUser(userID):
 
-    jsonList = []
-    try:
-        for user in User.query.filter(User.id == userID):
-            jsonList.append({
-                "id": user.id,
-                "username": user.username,
-                "email": user.email
-            })
-    except:
-        print("error occured")
+    user = User.query.filter(User.id == userID).first()
 
-    return jsonify(jsonList[0]), 200
+    if user is None:
+        return "User does not exist", 404
+
+    return user.toJson(), 200
+
+
+@app.route('/users/add', methods=["POST"])
+def addNewUser():
+    newUsername = request.args.get("username", None)
+    email = request.args.get("email", None)
+    password = request.args.get("password", None)
+
+    if newUsername is None:
+        return "username is missing", 422
+    if email is None:
+        return "email is missing", 422
+    if password is None:
+        return "password is missing", 422
+
+    user = User.query.filter(User.email == email).first()
+
+    if user is not None:
+        return "There is already an account associated with this email", 409
+
+    user = User.query.filter(User.username == newUsername).first()
+
+    if user is not None:
+        return "username already exists", 409
+
+    newUser = User(username=newUsername, email=email, password=encryptPassword(password))
+    db.session.add(newUser)
+    db.session.commit()
+
+    return newUser.toJson(), 201
+
+
+@app.route("/users/<userID>/delete", methods=["DELETE"])
+def deleteUser(userID):
+    User.query.filter(User.id == userID).delete()
+    Bookshelf.query.filter(Bookshelf.userID == userID).delete()
+    BookInstance.query.filter(BookInstance.userID == userID).delete()
+    ReadingSession.query.filter(BookInstance.userID == userID).delete()
+
+    db.session.commit()
+
+    return f"deleted user {userID}", 200
+
+
+@app.route("/login", methods=["GET"])
+def login():
+    username = request.args.get("username", None)
+    password = request.args.get("password", None)
+
+    if username is None:
+        return "username is missing", 422
+    if password is None:
+        return "email is missing", 422
+
+    user = User.query.filter(User.username == username).first()
+
+    if user is None:
+        return f"User cannot be found", 404
+
+    if user.password == encryptPassword(password):
+        return user.toJson(), 200
+    else:
+        return "incorrect credentials", 403
 
 
 @app.route('/users/<userID>/books/all', methods=["GET"])
 def getAllUserBooks(userID):
-    bookInstance = BookInstance.query.filter(BookInstance.userID == userID).first()
-    if bookInstance is None:
-        return "No books", 200
-
     JsonList = []
 
     for index, instance in enumerate(BookInstance.query.filter(BookInstance.userID == userID)):
@@ -152,27 +170,8 @@ def getSpecificUserBook(userID, bookInstanceID):
     return jsonify(json), 200
 
 
-@app.route("/bookinstance/all", methods=["GET"])
-def getAllBookInstances():
-    JsonList = []
-
-    for index, instance in enumerate(BookInstance.query.all()):
-
-        JsonList.append({"userData": {},
-                         "bookData": {}})
-
-        JsonList[index]["userData"] = instance.toJson()
-
-        for book in Book.query.filter(Book.isbn == instance.isbn):
-            JsonList[index]["bookData"] = book.toJson()
-
-    return jsonify(JsonList), 200
-
-
 @app.route("/users/<userID>/books/add", methods=["POST"])
 def addUserBook(userID):
-    # todo accept automaticallyscraped and edit book details, same with edit
-    # todo maybe pagecount should be in bookinstance as well
 
     isbn = request.args.get("isbn", None)
     currentPage = request.args.get("currentPage", None)
@@ -196,7 +195,6 @@ def addUserBook(userID):
             currentPage = int(currentPage)
         except Exception as e:
             print(e)
-            print("An Error has occurred")
             return "currentPage value not valid", 422
     else:
         currentPage = 0
@@ -261,7 +259,7 @@ def addUserBook(userID):
     db.session.add(newBookInstance)
     db.session.commit()
 
-    return "added new BookInstance", 201
+    return newBookInstance.toJson(), 201
 
 
 @app.route('/users/<userID>/books/<bookInstanceID>/edit', methods=["PUT"])
@@ -377,7 +375,7 @@ def updateBookInstance(userID, bookInstanceID):
 
     db.session.commit()
 
-    return f"Edited book instance {bookInstanceID}", 200
+    return bookInstance.toJson(), 200
 
 
 @app.route("/bookinstance/delete", methods=["DELETE"])
@@ -482,115 +480,9 @@ def addReadingSession(userID, bookInstanceID):
         else:
             bookInstance.currentPage += pagesRead
 
-        # if the new book instance page is the total pages, set as completed
-        # if (bookInstance.currentPage + pagesRead) <= bookInstance.totalPages:
-        #     bookInstance.currentPage += pagesRead
-        #     bookInstance.completed = completed
-        # else:
-        #     bookInstance.currentPage = book.totalPages
-        #     bookInstance.completed = True
-        #     bookInstance.dateCompleted = datetime.datetime.today().strftime('%Y-%m-%d')
-
     db.session.commit()
 
-    return "added reading session", 201
-
-
-@app.route('/users/add', methods=["POST"])
-def addNewUser():
-    newUsername = request.args.get("username", None)
-    email = request.args.get("email", None)
-    password = request.args.get("password", None)
-
-    if newUsername is None:
-        return "username is missing", 422
-    if email is None:
-        return "email is missing", 422
-    if password is None:
-        return "password is missing", 422
-
-    user = User.query.filter(User.email == email).first()
-
-    if user is not None:
-        return "There is already an account associated with this email", 409
-
-    user = User.query.filter(User.username == newUsername).first()
-
-    if user is not None:
-        return "username already exists", 409
-
-    newUser = User(username=newUsername, email=email, password=encryptPassword(password))
-    db.session.add(newUser)
-    db.session.commit()
-
-    return "added new User", 201
-
-
-@app.route("/users/<userID>/delete", methods=["DELETE"])
-def deleteUser(userID):
-    User.query.filter(User.id == userID).delete()
-    Bookshelf.query.filter(Bookshelf.userID == userID).delete()
-    BookInstance.query.filter(BookInstance.userID == userID).delete()
-
-    db.session.commit()
-
-    return f"deleted user {userID}", 200
-
-
-@app.route("/login", methods=["GET"])
-def login():
-    username = request.args.get("username", None)
-    password = request.args.get("password", None)
-
-    if username is None:
-        return "username is missing", 422
-    if password is None:
-        return "email is missing", 422
-
-    user = User.query.filter(User.username == username).first()
-
-    if user is None:
-        return f"User cannot be found", 422
-
-    if user.password == encryptPassword(password):
-
-        jsonList = {
-            "userID": user.id,
-            "username": user.username,
-            "email": user.email
-        }
-
-        return jsonify(jsonList), 200
-    else:
-        return "incorrect credentials", 403
-
-
-@app.route('/dropDatabase', methods=["DELETE"])
-def dropDatabase():
-    db.drop_all()
-
-    return "dropped database", 200
-
-
-@app.route("/createDatabase", methods=["POST"])
-def createDatabase():
-    db.create_all()
-
-    return "created database", 200
-
-
-@app.route("/books/all", methods=["GET"])
-def getAllBooks():
-    jsonList = []
-    try:
-        for book in Book.query.all():
-            jsonList.append(book.toJson())
-    except Exception as e:
-        print(e)
-        print("error occurred")
-        return "An error has occured", 400
-
-    return jsonify(jsonList), 200
+    return readingSession.toJson(), 201
 
 
 @app.route("/books/<isbn>", methods=["PUT"])
@@ -628,7 +520,7 @@ def updateBook(isbn):
     db.session.execute(d)
     db.session.commit()
 
-    return "Updated Book Instance", 200
+    return book.toJson(), 200
 
 
 @app.route("/users/<userID>/bookshelf/all", methods=["GET"])
@@ -639,23 +531,6 @@ def getAllUserBookshelves(userID):
             jsonList.append({
                 "bookshelfID": bookshelf.bookshelfID,
                 "name": bookshelf.name
-            })
-    except Exception as e:
-        print(e)
-        print("error occurred")
-
-    return jsonify(jsonList), 200
-
-
-@app.route("/bookshelf/all", methods=["GET"])
-def getAllBookshelves():
-    jsonList = []
-    try:
-        for bookshelf in Bookshelf.query.all():
-            jsonList.append({
-                "bookshelfID": bookshelf.bookshelfID,
-                "name": bookshelf.name,
-                "userID": bookshelf.userID
             })
     except Exception as e:
         print(e)
@@ -675,7 +550,7 @@ def addNewBookshelf(userID):
     db.session.add(newBookshelf)
     db.session.commit()
 
-    return "added new bookshelf", 201
+    return newBookshelf.toJson(), 201
 
 
 @app.route("/users/<userID>/bookshelf/<bookshelfID>/rename", methods=["PUT"])
@@ -692,12 +567,11 @@ def renameBookshelf(userID, bookshelfID):
     bookshelf.name = newName
     db.session.commit()
 
-    return "renamed bookshelf", 200
+    return bookshelf.toJson(), 200
 
 
 @app.route("/users/<userID>/bookshelf/<bookshelfID>/delete", methods=["DELETE"])
 def deleteBookshelf(userID, bookshelfID):
-    newName = request.args.get("name", None)
     bookshelfID = int(bookshelfID)
     userID = int(userID)
 
@@ -765,55 +639,10 @@ def addBookToBookshelf(userID, bookshelfID):
     if bookInstance.userID == bookshelf.userID:
         bookInstance.bookshelfID = bookshelfID
         db.session.commit()
-        return f"added book {bookInstanceID} to bookshelf {bookshelfID}", 200
+        return bookInstance.toJson(), 200
     else:
         print("Book Instance userID and Bookshelf UserID do not match")
         return f"That book does not belong to owner of bookshelf", 403
-
-
-@app.route("/authors/all", methods=["GET"])
-def getAllAuthors():
-    JsonList = []
-
-    for index, author in enumerate(Author.query.all()):
-        print(author.authorName)
-        JsonList.append({
-            "authorData": {},
-            "books": []
-        })
-
-        JsonList[index]["authorData"] = {
-            "authorID": author.authorID,
-            "authorName": author.authorName,
-        }
-
-        for book in author.books:
-            JsonList[index]["books"].append(book.toJson())
-
-    return jsonify(JsonList), 200
-
-
-@app.route("/authors/<authorID>", methods=["GET"])
-def getSpecificAuthor(authorID):
-    author = Author.query.filter(Author.authorID == authorID).first()
-
-    if author is None:
-        return "Author does not exist", 422
-
-    JsonList = [{
-        "authorData": {},
-        "books": []
-    }]
-
-    JsonList[0]["authorData"] = {
-        "authorID": author.authorID,
-        "authorName": author.authorName,
-    }
-
-    for book in author.books:
-        JsonList[0]["books"].append(book.toJson())
-
-    return jsonify(JsonList), 200
 
 
 @app.route("/getThumbnail", methods=["GET"])
@@ -929,8 +758,6 @@ def getGlobalStats(userID):
         }
     }
 
-
-
     start_date = (datetime.datetime.now() - datetime.timedelta(days=requestTime)).date()
     end_date = datetime.date.today()
     delta = datetime.timedelta(days=1)
@@ -947,13 +774,10 @@ def getGlobalStats(userID):
             returnJson["totalTimeRead"] += record.timeRead
             returnJson["totalPagesRead"] += record.pagesRead
 
-
         returnJson["statistics"]["time"].append({"date": start_date.strftime("%Y-%m-%d"), "time": time})
         returnJson["statistics"]["pages"].append({"date": start_date.strftime("%Y-%m-%d"), "pages": pages})
 
-
         start_date += delta
-
 
     return returnJson, 200
 
@@ -1143,7 +967,7 @@ def editReadingSession(userID):
 
     db.session.commit()
 
-    return "Successfully edited reading session", 200
+    return readingSession.toJson(), 200
 
 
 @app.route("/users/<userID>/readingSessions/delete", methods=["DELETE"])

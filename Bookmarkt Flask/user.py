@@ -10,6 +10,11 @@ class User(db.Model):
     password = db.Column(db.String(64), nullable=False)
 
     def __repr__(self):
-
         return '<User %r>' % self.username
 
+    def toJson(self):
+        return {
+            "userID": self.id,
+            "username": self.username,
+            "email": self.email
+        }

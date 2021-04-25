@@ -36,13 +36,12 @@ class _bookViewState extends State<bookView> {
             PopupMenuButton<String>(
               onSelected: (value) async {
                 if (value == "Delete") {
-
                   bool result = await showDialog(
                     context: context,
                     builder: (BuildContext context) {
                       return AlertDialog(
-                        title: Text(
-                            "Are you sure you want to delete this book?"),
+                        title:
+                            Text("Are you sure you want to delete this book?"),
                         content: Text("This cannot be undone"),
                         actions: [
                           FlatButton(
@@ -66,7 +65,7 @@ class _bookViewState extends State<bookView> {
                     final response = await http.delete(
                         "http://${args.url}:5000/users/${args.user.userID.toString()}/books/delete?bookInstanceID=${args.book.bookInstanceID}");
 
-                    if (response.body == "deleted book instance") {
+                    if (response.statusCode == 200) {
                       Navigator.pushReplacementNamed(context, "/allBooks",
                           arguments: args);
                     } else {
@@ -296,7 +295,7 @@ class _readingSessionDetailsState extends State<readingSessionDetails> {
                   Text("Time Read:",
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   Text(
-                    ((){
+                    (() {
                       int hours = (widget.args.book.totalTimeRead / 60).floor();
                       int mins = widget.args.book.totalTimeRead % 60;
 
@@ -553,9 +552,6 @@ class _readingPredictionState extends State<readingPrediction> {
 
                           int minutes = (secondsPerPage / 60).floor();
                           int seconds = (secondsPerPage % 60).floor();
-                          print(minutes);
-                          print(seconds);
-
                           String sMinutes;
                           String sSeconds;
 
@@ -668,24 +664,27 @@ class _readingPredictionState extends State<readingPrediction> {
                 padding: const EdgeInsets.all(20.0),
                 child: Text(
                   () {
-                    try {
-                      Duration remainingDays =
-                          widget.args.book.goalDate.difference(DateTime.now());
-                      int pagesLeft = widget.args.book.totalPages -
-                          widget.args.book.currentPage;
+                    if (((widget.args.book.goalDate != null) &&
+                        !widget.args.book.completed)) {
+                      try {
+                        Duration remainingDays = widget.args.book.goalDate
+                            .difference(DateTime.now());
+                        int pagesLeft = widget.args.book.totalPages -
+                            widget.args.book.currentPage;
 
-                      remainingDays += Duration(days: 1);
+                        remainingDays += Duration(days: 1);
 
-                      if (remainingDays.inDays == 0) {
-                        return "You are on the last day!\n You need to read $pagesLeft pages today!";
-                      } else if (remainingDays.isNegative) {
-                        return "You missed your reading goal :(";
+                        if (remainingDays.inDays == 0) {
+                          return "You are on the last day!\n You need to read $pagesLeft pages today!";
+                        } else if (remainingDays.isNegative) {
+                          return "You missed your reading goal :(";
+                        }
+
+                        return "There are ${remainingDays.inDays} days left to hit your reading target!\nYou need to read ${(pagesLeft / remainingDays.inDays).ceil()} pages a day";
+                      } catch (e) {
+                        print(e);
+                        print("^^expected error");
                       }
-
-                      return "There are ${remainingDays.inDays} days left to hit your reading target!\nYou need to read ${(pagesLeft / remainingDays.inDays).ceil()} pages a day";
-                    } catch (e) {
-                      print(e);
-                      print("^^expected error");
                     }
                     return "";
                   }(),
@@ -852,7 +851,7 @@ addReadingSessionAlert(BuildContext context, NavigatorArguments args) {
         final response = await http.post(
             "http://${args.url}:5000/users/${args.user.userID}/books/${args.book.bookInstanceID}/read?pagesRead=${pagesRead}&timeRead=${timeRead}&date=${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}&updateProgress=true&completed=$completed");
 
-        if (response.body == "added reading session") {
+        if (response.statusCode == 201) {
           Navigator.popUntil(context, ModalRoute.withName("/book"));
           Navigator.pushReplacementNamed(context, "/book", arguments: args);
         }

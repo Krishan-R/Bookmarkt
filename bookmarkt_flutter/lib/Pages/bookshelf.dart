@@ -36,7 +36,7 @@ class _BookshelfWidgetState extends State<BookshelfWidget> {
                 } else if (value == "Delete") {
                   final response = await http.delete(
                       "http://${args.url}:5000/users/${args.user.userID.toString()}/bookshelf/${args.bookshelfID}/delete");
-                  if (response.body == "deleted bookshelf") {
+                  if (response.statusCode == 200) {
                     Navigator.pushReplacementNamed(context, "/library",
                         arguments: args);
                   } else {
@@ -90,7 +90,7 @@ class _BookshelfWidgetState extends State<BookshelfWidget> {
 
                   args.redirect = "/allBooks";
 
-                  if (response.body == "Cannot be found") {
+                  if (response.statusCode == 404) {
                     print("Cannot be found");
                     Book book = new Book();
                     book.ISBN = int.parse(barcode);

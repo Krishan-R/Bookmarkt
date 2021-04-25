@@ -30,7 +30,7 @@ addBookAlert(BuildContext context, NavigatorArguments args) {
           final response = await http.post(
               "http://${args.url}:5000/books/scrape?isbn=${bookISBNController.text}");
 
-          if (response.body == "Cannot be found") {
+          if (response.statusCode == 404) {
             print("Cannot be found");
             Book book = new Book();
             book.ISBN = int.parse(bookISBNController.text);

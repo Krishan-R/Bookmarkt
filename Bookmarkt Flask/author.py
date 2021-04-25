@@ -17,5 +17,3 @@ class Author(db.Model):
 
     def __repr__(self):
         return "<Author %r>" % self.authorName
-
-

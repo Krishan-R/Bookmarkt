@@ -14,7 +14,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 Future<bool> connectToServer(url) async {
   try {
     final response = await http.get("http://" + url + ":5000");
-    if (response.body == "True") {
+    if (response.statusCode == 200) {
       return Future.value(true);
     }
   } on SocketException {
@@ -25,15 +25,23 @@ Future<bool> connectToServer(url) async {
 }
 
 Future<String> signUp(url, username, password, email) async {
-
   try {
-    final response = await http.post("http://" + url + ":5000/users/add?username=" + username + "&email=" + email + "&password=" + password);
-    print(response.body);
+    final response = await http.post("http://" +
+        url +
+        ":5000/users/add?username=" +
+        username +
+        "&email=" +
+        email +
+        "&password=" +
+        password);
 
-    if (response.body == "added new User") return "success";
-    else if (response.body == "username already exists") return "usernameConflict";
-    else if (response.body == "There is already an account associated with this email") return "emailConflict";
-
+    if (response.statusCode == 201)
+      return "success";
+    else if (response.body == "username already exists")
+      return "usernameConflict";
+    else if (response.body ==
+        "There is already an account associated with this email")
+      return "emailConflict";
   } on SocketException {
     print("Cannot connect to server");
     return Future.value("SocketException");
@@ -49,8 +57,7 @@ Future<User> loginToServer(url, username, password) async {
         "&password=" +
         password);
 
-    if (response.body == "User cannot be found" ||
-        response.body == "incorrect credentials") {
+    if (response.statusCode == 403 || response.statusCode == 404) {
       return null;
     } else {
       var jsonData = json.decode(response.body);
@@ -77,9 +84,12 @@ Future<Book> getBook(NavigatorArguments args, int bookInstanceID) async {
   final response = await http.get(
       "http://${args.url}:5000/users/${args.user.userID}/books/$bookInstanceID");
 
-  book = Book.fromJson(json.decode(response.body));
-
-  return book;
+  if (response.statusCode == 200) {
+    book = Book.fromJson(json.decode(response.body));
+    return book;
+  } else {
+    return null;
+  }
 }
 
 Future<List<Bookshelf>> getBookshelfList(args) async {
@@ -93,7 +103,7 @@ Future<List<Bookshelf>> getBookshelfList(args) async {
 
     Iterable i = json.decode(response.body);
     bookshelfList =
-    List<Bookshelf>.from(i.map((model) => Bookshelf.fromJson(model)));
+        List<Bookshelf>.from(i.map((model) => Bookshelf.fromJson(model)));
 
     return bookshelfList;
   } on SocketException {
@@ -139,10 +149,6 @@ Future<List<Book>> getAllBookData(args) async {
     final response = await http.get(
         "http://${args.url}:5000/users/${args.user.userID.toString()}/books/all");
 
-    if (response.body == "No books") {
-      return bookList;
-    }
-
     Iterable i = json.decode(response.body);
 
     bookList = List<Book>.from(i.map((model) => Book.fromJson(model)));
@@ -172,7 +178,8 @@ Future<List<Book>> getRecentBooks(NavigatorArguments args) async {
 Future<List<Book>> getUnreadBooks(NavigatorArguments args) async {
   List<Book> bookList = [];
 
-  final response = await http.get("http://${args.url}:5000/users/${args.user.userID}/unread");
+  final response = await http
+      .get("http://${args.url}:5000/users/${args.user.userID}/unread");
 
   Iterable i = json.decode(response.body)["books"];
 
@@ -327,8 +334,8 @@ Future<Map> dayOfWeekStats(NavigatorArguments args, int duration) async {
   List<FlSpot> timeList = [];
   List<FlSpot> pageList = [];
 
-  final response = await http
-      .get("http://${args.url}:5000/users/${args.user.userID}/stats/weekly?time=$duration");
+  final response = await http.get(
+      "http://${args.url}:5000/users/${args.user.userID}/stats/weekly?time=$duration");
 
   Iterable i = json.decode(response.body)["stats"];
 
@@ -347,12 +354,8 @@ Future<Map> dayOfWeekStats(NavigatorArguments args, int duration) async {
   }
 
   Map returnMap = {
-    "pages": {
-      "maxY": pagesY, "data": pageList
-    },
-    "time": {
-      "maxY": timeY, "data": timeList
-    }
+    "pages": {"maxY": pagesY, "data": pageList},
+    "time": {"maxY": timeY, "data": timeList}
   };
 
   return returnMap;
@@ -384,8 +387,8 @@ Future<List<Book>> getSearchBooks(String search) async {
   }
 }
 
-addBookToBookshelf(NavigatorArguments args, int bookInstanceID, int bookshelfID) async {
-
-  final response = await http.post("http://${args.url}:5000/users/${args.user.userID}/bookshelf/$bookshelfID/add?bookInstanceID=$bookInstanceID");
-
+addBookToBookshelf(
+    NavigatorArguments args, int bookInstanceID, int bookshelfID) async {
+  final response = await http.post(
+      "http://${args.url}:5000/users/${args.user.userID}/bookshelf/$bookshelfID/add?bookInstanceID=$bookInstanceID");
 }

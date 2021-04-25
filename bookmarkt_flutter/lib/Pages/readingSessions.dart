@@ -242,8 +242,9 @@ class _readingSessionTimerState extends State<readingSessionTimer> {
                     Text(
                       widget.args.book.author,
                       style: TextStyle(
-                          fontSize: 20,
-                          color: Colors.white,),
+                        fontSize: 20,
+                        color: Colors.white,
+                      ),
                     ),
                     SizedBox(height: 5),
                     Text(
@@ -385,7 +386,8 @@ class _readingSessionTimerState extends State<readingSessionTimer> {
                                                 decoration: InputDecoration(
                                                     hintText: "Current Page"),
                                                 validator: (value) {
-                                                  if (completed) return null;
+                                                  if (completed)
+                                                    return null;
                                                   else if (value.isEmpty)
                                                     return "Cannot be empty";
                                                   else if (int.parse(value) -
@@ -468,20 +470,22 @@ class _readingSessionTimerState extends State<readingSessionTimer> {
                                           onPressed: () async {
                                             if (_formKey.currentState
                                                 .validate()) {
-
                                               String pagesRead;
 
-                                              if (currentPageController.text.isEmpty && completed) {
+                                              if (currentPageController
+                                                      .text.isEmpty &&
+                                                  completed) {
                                                 pagesRead =
-                                                "&pagesRead=${widget.args.book.totalPages - widget.args.book.currentPage}";
+                                                    "&pagesRead=${widget.args.book.totalPages - widget.args.book.currentPage}";
                                               } else {
                                                 pagesRead =
-                                                "&pagesRead=${int.parse(currentPageController.text) - widget.args.book.currentPage}";
+                                                    "&pagesRead=${int.parse(currentPageController.text) - widget.args.book.currentPage}";
                                               }
 
                                               String completedString = "";
                                               if (completed) {
-                                                completedString = "&completed=True";
+                                                completedString =
+                                                    "&completed=True";
                                               }
 
                                               final response = await http.post(
@@ -489,22 +493,31 @@ class _readingSessionTimerState extends State<readingSessionTimer> {
 
                                               print(response.body);
 
-                                              if (response.body == "added reading session") {
-                                                widget.args.book.totalTimeRead += timeRead;
+                                              if (response.statusCode == 201) {
+                                                widget.args.book
+                                                    .totalTimeRead += timeRead;
 
                                                 if (completed) {
-                                                  widget.args.book.currentPage = widget.args.book.totalPages;
-                                                  widget.args.book.completed = true;
+                                                  widget.args.book.currentPage =
+                                                      widget
+                                                          .args.book.totalPages;
+                                                  widget.args.book.completed =
+                                                      true;
                                                 } else {
                                                   widget.args.book.currentPage =
-                                                      int.parse(currentPageController.text);
+                                                      int.parse(
+                                                          currentPageController
+                                                              .text);
                                                 }
 
                                                 Navigator.popUntil(
-                                                    context, ModalRoute.withName('/book'));
+                                                    context,
+                                                    ModalRoute.withName(
+                                                        '/book'));
                                               } else {
                                                 Fluttertoast.showToast(
-                                                    msg: "Error adding reading session");
+                                                    msg:
+                                                        "Error adding reading session");
                                               }
                                             }
                                           },
@@ -598,7 +611,7 @@ class _readingSessionCountdownState extends State<readingSessionCountdown> {
 
                 return finishSession(
                   args: widget.args,
-                  duration: snap.data-1,
+                  duration: snap.data - 1,
                   mins: stopWatchTimer.minuteTime.value,
                 );
               }
@@ -637,9 +650,7 @@ class _readingSessionCountdownState extends State<readingSessionCountdown> {
                       ),
                       Text(
                         widget.args.book.author,
-                        style: TextStyle(
-                            fontSize: 20,
-                            color: Colors.white),
+                        style: TextStyle(fontSize: 20, color: Colors.white),
                       ),
                       SizedBox(height: 5),
                       Text(
@@ -828,7 +839,8 @@ class _readingSessionCountdownState extends State<readingSessionCountdown> {
                                                   decoration: InputDecoration(
                                                       hintText: "Current Page"),
                                                   validator: (value) {
-                                                    if (completed) return null;
+                                                    if (completed)
+                                                      return null;
                                                     else if (value.isEmpty)
                                                       return "Cannot be empty";
                                                     else if (int.parse(value) -
@@ -875,36 +887,43 @@ class _readingSessionCountdownState extends State<readingSessionCountdown> {
                                             onPressed: () async {
                                               if (_formKey.currentState
                                                   .validate()) {
-
                                                 String pagesRead;
 
-                                                if (currentPageController.text.isEmpty && completed) {
+                                                if (currentPageController
+                                                        .text.isEmpty &&
+                                                    completed) {
                                                   pagesRead =
-                                                  "&pagesRead=${widget.args.book.totalPages - widget.args.book.currentPage}";
+                                                      "&pagesRead=${widget.args.book.totalPages - widget.args.book.currentPage}";
                                                 } else {
                                                   pagesRead =
-                                                  "&pagesRead=${int.parse(currentPageController.text) - widget.args.book.currentPage}";
+                                                      "&pagesRead=${int.parse(currentPageController.text) - widget.args.book.currentPage}";
                                                 }
 
                                                 String completedString = "";
                                                 if (completed) {
-                                                  completedString = "&completed=True";
+                                                  completedString =
+                                                      "&completed=True";
                                                 }
 
                                                 final response = await http.post(
                                                     "http://${widget.args.url}:5000/users/${widget.args.user.userID}/books/${widget.args.book.bookInstanceID}/read?timeRead=$timeRead$completedString$pagesRead");
 
-                                                if (response.body ==
-                                                    "added reading session") {
+                                                if (response.statusCode ==
+                                                    201) {
                                                   widget.args.book
                                                           .totalTimeRead +=
                                                       timeRead;
 
                                                   if (completed) {
-                                                    widget.args.book.currentPage = widget.args.book.totalPages;
-                                                    widget.args.book.completed = true;
+                                                    widget.args.book
+                                                            .currentPage =
+                                                        widget.args.book
+                                                            .totalPages;
+                                                    widget.args.book.completed =
+                                                        true;
                                                   } else {
-                                                    widget.args.book.currentPage =
+                                                    widget.args.book
+                                                            .currentPage =
                                                         int.parse(
                                                             currentPageController
                                                                 .text);
@@ -961,7 +980,6 @@ class _finishSessionState extends State<finishSession> {
 
   @override
   Widget build(BuildContext context) {
-
     String hours =
         ((widget.duration / (60 * 60)) % 60).floor().toString().padLeft(2, '0');
 
@@ -1006,8 +1024,10 @@ class _finishSessionState extends State<finishSession> {
                   validator: (value) {
                     if (completed) {
                       return null;
-                    } else if (value.isEmpty) return "Cannot be empty";
-                    else if (int.parse(value) - widget.args.book.currentPage < 0) {
+                    } else if (value.isEmpty)
+                      return "Cannot be empty";
+                    else if (int.parse(value) - widget.args.book.currentPage <
+                        0) {
                       return "You have already read this page";
                     } else if (int.parse(value) > widget.args.book.totalPages) {
                       return "This book only has ${widget.args.book.totalPages} pages";
@@ -1048,15 +1068,14 @@ class _finishSessionState extends State<finishSession> {
                     color: Theme.of(context).primaryColor,
                     onPressed: () async {
                       if (_formKey.currentState.validate()) {
-
                         String pagesRead;
 
                         if (currentPageController.text.isEmpty && completed) {
                           pagesRead =
-                          "&pagesRead=${widget.args.book.totalPages - widget.args.book.currentPage}";
+                              "&pagesRead=${widget.args.book.totalPages - widget.args.book.currentPage}";
                         } else {
                           pagesRead =
-                          "&pagesRead=${int.parse(currentPageController.text) - widget.args.book.currentPage}";
+                              "&pagesRead=${int.parse(currentPageController.text) - widget.args.book.currentPage}";
                         }
 
                         String completedString = "";
@@ -1067,11 +1086,12 @@ class _finishSessionState extends State<finishSession> {
                         final response = await http.post(
                             "http://${widget.args.url}:5000/users/${widget.args.user.userID}/books/${widget.args.book.bookInstanceID}/read?timeRead=${widget.mins}$completedString$pagesRead&updateProgress=true");
 
-                        if (response.body == "added reading session") {
+                        if (response.statusCode == 201) {
                           widget.args.book.totalTimeRead += widget.mins;
 
                           if (completed) {
-                            widget.args.book.currentPage = widget.args.book.totalPages;
+                            widget.args.book.currentPage =
+                                widget.args.book.totalPages;
                             widget.args.book.completed = true;
                           } else {
                             widget.args.book.currentPage =

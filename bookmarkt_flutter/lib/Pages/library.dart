@@ -125,7 +125,7 @@ AddBookshelfDialog(BuildContext context, NavigatorArguments args) {
               args.user.userID.toString() +
               "/bookshelf/add?name=" +
               bookshelfNameController.text);
-          if (response.body == "added new bookshelf") {
+          if (response.statusCode == 201) {
             // Navigator.pop(context);
             Navigator.pushReplacementNamed(context, "/library",
                 arguments: NavigatorArguments(args.user, args.url));
@@ -194,7 +194,7 @@ longPressBookshelfDialog(BuildContext context, NavigatorArguments args,
               final response = await http.delete(
                   "http://${args.url}:5000/users/${args.user.userID.toString()}/bookshelf/$bookshelfID/delete");
 
-              if (response.body == "deleted bookshelf") {
+              if (response.statusCode == 200) {
                 Navigator.pop(context);
                 Navigator.pushReplacementNamed(context, "/library",
                     arguments: args);
@@ -245,7 +245,7 @@ renameDialog(BuildContext context, NavigatorArguments args, int bookshelfID,
               "/rename?name=" +
               bookshelfRenameController.text);
 
-          if (response.body == "renamed bookshelf") {
+          if (response.statusCode == 200) {
             Navigator.pushReplacementNamed(context, "/library",
                 arguments: NavigatorArguments(args.user, args.url));
           }

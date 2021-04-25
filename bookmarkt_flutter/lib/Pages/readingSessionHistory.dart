@@ -61,7 +61,6 @@ class allSessionHistory extends StatefulWidget {
 class _allSessionHistoryState extends State<allSessionHistory> {
   GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
-
   @override
   Widget build(BuildContext context) {
     final NavigatorArguments args = ModalRoute.of(context).settings.arguments;
@@ -79,7 +78,7 @@ class _allSessionHistoryState extends State<allSessionHistory> {
         child: Scaffold(
           key: _scaffoldKey,
           appBar: AppBar(
-            title: Text("Reading Sessions"),
+            title: Text("All Reading Sessions"),
           ),
           drawer: myDrawer(args),
           body: SafeArea(
@@ -140,20 +139,29 @@ readingSessionActions(BuildContext context, setState, NavigatorArguments args,
             final response = await http.delete(
                 "http://${args.url}:5000/users/${args.user.userID}/readingSessions/delete?readingSessionID=${session.readingSessionID}");
 
-            if (response.body == "Deleted reading session") {
-              args.book.totalTimeRead -= session.timeRead;
-              args.book.currentPage -= session.pagesRead;
+            if (response.statusCode == 200) {
+              try {
+                args.book.totalTimeRead -= session.timeRead;
+                args.book.currentPage -= session.pagesRead;
 
-              if (args.book.currentPage < 0) args.book.currentPage = 0;
+                if (args.book.currentPage < 0) args.book.currentPage = 0;
 
-              args.sessionList.removeAt(index);
+                args.sessionList.removeAt(index);
 
-              if (args.sessionList.length == 0) {
-                Navigator.popUntil(context, ModalRoute.withName("/book"));
-              } else {
+                if (args.sessionList.length == 0) {
+                  Navigator.popUntil(context, ModalRoute.withName("/book"));
+                } else {
+                  Navigator.pop(context);
+                  Navigator.popAndPushNamed(context, '/readingSessionHistory',
+                      arguments: args);
+                }
+              } catch (e) {
+                // when in all reading sessions
+                args.sessionList.removeAt(index);
                 Navigator.pop(context);
-                Navigator.popAndPushNamed(context, '/readingSessionHistory',
+                Navigator.popAndPushNamed(context, '/allReadingSessions',
                     arguments: args);
+                return true;
               }
             }
           },
@@ -210,7 +218,7 @@ class _editReadingSessionState extends State<editReadingSession> {
               final response = await http.put(
                   "http://${args.url}:5000/users/${args.user.userID}/readingSessions/edit?readingSessionID=${args.readingSession.readingSessionID}&pagesRead=${args.readingSession.pagesRead}&timeRead=${args.readingSession.timeRead}&date=${args.readingSession.date.year}-${args.readingSession.date.month}-${args.readingSession.date.day}");
 
-              if (response.body == "Successfully edited reading session") {
+              if (response.statusCode == 200) {
                 Navigator.pop(context);
               }
             },

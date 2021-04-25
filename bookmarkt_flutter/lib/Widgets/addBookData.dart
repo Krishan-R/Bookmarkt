@@ -4,6 +4,7 @@ import 'package:bookmarkt_flutter/Models/navigatorArguments.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 
 class addBook extends StatefulWidget {
@@ -222,12 +223,28 @@ class _addBookState extends State<addBook> {
                       final response = await http.post(
                           "http://${args.url}:5000/users/${args.user.userID.toString()}/books/add?isbn=${args.book.ISBN}$bookshelfID$currentPage$completed$rating$title$author$description$totalPages$publishedDate$borrowing$goal");
 
-                      if (response.body == "added new BookInstance") {
+                      if (response.statusCode == 201) {
+
                         Navigator.popUntil(
                             context, ModalRoute.withName(args.redirect));
                         Navigator.pushReplacementNamed(context, args.redirect,
                             arguments: args);
+
+                      } else if (response.statusCode == 403 || response.statusCode == 42) {
+
+                        switch (response.body) {
+                          case "currentPage value not valid":
+                            Fluttertoast.showToast(msg: "Error with Current Page");
+                            break;
+                          case "Bookshelf does not belong to that user":
+                          case "bookshelfID is not valid":
+                          case "Bookshelf does not not exist":
+                            Fluttertoast.showToast(msg: "Error with Bookshelf");
+                            break;
+
+                        }
                       }
+
                     } on SocketException {
                       print("Error connecting to server");
                     }

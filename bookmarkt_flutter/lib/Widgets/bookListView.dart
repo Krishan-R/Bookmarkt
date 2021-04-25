@@ -132,7 +132,7 @@ longPressBookDialog(BuildContext context, setState, NavigatorArguments args,
             final response = await http.delete(
                 "http://${args.url}:5000/users/${args.user.userID.toString()}/books/delete?bookInstanceID=$bookInstanceID");
 
-            if (response.body == "deleted book instance") {
+            if (response.statusCode == 200) {
               Navigator.pushReplacementNamed(context, "/allBooks",
                   arguments: args);
             } else {
