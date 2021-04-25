@@ -3,9 +3,9 @@ FROM python:alpine3.8
 ENV FLASK_APP=bookmarkt.py
 ENV PYTHONUNBUFFERED=1
 
-copy . /app
+copy . /bookmarkt
 
-workdir /app
+workdir /bookmarkt
 
 run pip install -r requirements.txt
 

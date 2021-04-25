@@ -36,7 +36,7 @@ class Book(db.Model):
         self.title = title
         self.authorName = author
         self.description = description
-        self.thumbnail = "Assets/bookThumbnails/default.jpg"
+        self.thumbnail = "Assets/default.jpg"
         self.totalPages = totalPages
         self.publishedDate = publishedDate
         self.selfLink = selfLink
@@ -101,8 +101,8 @@ class Book(db.Model):
 
                         # store image locally
                         urllib.request.urlretrieve(parsedJson["items"][0]["volumeInfo"]["imageLinks"]["thumbnail"],
-                                                   f"Assets/bookThumbnails/{self.isbn}.jpg")
-                        self.thumbnail = f"Assets/bookThumbnails/{self.isbn}.jpg"
+                                                   f"Assets/Thumbnails/{self.isbn}.jpg")
+                        self.thumbnail = f"Assets/Thumbnails/{self.isbn}.jpg"
 
                         self.addBookToAuthor()
 
@@ -177,8 +177,8 @@ class Book(db.Model):
 
         # store image locally
         urllib.request.urlretrieve(parsedJson["volumeInfo"]["imageLinks"]["thumbnail"],
-                                   f"Assets/bookThumbnails/{self.isbn}.jpg")
-        self.thumbnail = f"Assets/bookThumbnails/{self.isbn}.jpg"
+                                   f"Assets/Thumbnails/{self.isbn}.jpg")
+        self.thumbnail = f"Assets/Thumbnails/{self.isbn}.jpg"
 
         # in case user needs to change details
         # self.automaticallyScraped = False
