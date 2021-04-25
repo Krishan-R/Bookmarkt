@@ -296,7 +296,12 @@ class _readingSessionDetailsState extends State<readingSessionDetails> {
                   Text("Time Read:",
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   Text(
-                    "${widget.args.book.totalTimeRead} minutes",
+                    ((){
+                      int hours = (widget.args.book.totalTimeRead / 60).floor();
+                      int mins = widget.args.book.totalTimeRead % 60;
+
+                      return "${hours}h ${mins}m";
+                    }()),
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ],
@@ -523,52 +528,6 @@ class _readingPredictionState extends State<readingPrediction> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Container(
-          width: double.infinity,
-          child: Card(
-            child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: FutureBuilder(
-                  future: getReadingSessions(
-                      widget.args, widget.args.book.bookInstanceID),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      List<ReadingSession> sessionList = snapshot.data;
-                      return Text(
-                        () {
-                          if (widget.args.book.completed) {
-                            return "You have completed this book, Congratulations!";
-                          } else if (widget.args.book.currentPage == 1 ||
-                              widget.args.book.totalTimeRead == 0) {
-                            return "Please add or start a reading session to find out estimate finish";
-                          }
-
-                          int pagesRead = 0;
-                          for (var session in sessionList) {
-                            pagesRead += session.pagesRead;
-                          }
-
-                          double pagesPerMinute =
-                              widget.args.book.totalTimeRead / pagesRead;
-                          int estimateTime = ((pagesPerMinute *
-                                  (widget.args.book.totalPages -
-                                      widget.args.book.currentPage)))
-                              .round();
-
-                          return "Reading at a similar pace, you will finish this book in $estimateTime minutes";
-                        }(),
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 15, fontStyle: FontStyle.italic),
-                      );
-                    } else if (snapshot.hasError) {
-                      return Text("${snapshot.error}");
-                    }
-                    return CircularProgressIndicator();
-                  },
-                )),
-          ),
-        ),
         Visibility(
           visible: widget.args.book.totalTimeRead != 0,
           child: Container(
@@ -648,6 +607,55 @@ class _readingPredictionState extends State<readingPrediction> {
                 ),
               ),
             ),
+          ),
+        ),
+        Container(
+          width: double.infinity,
+          child: Card(
+            child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: FutureBuilder(
+                  future: getReadingSessions(
+                      widget.args, widget.args.book.bookInstanceID),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      List<ReadingSession> sessionList = snapshot.data;
+                      return Text(
+                        () {
+                          if (widget.args.book.completed) {
+                            return "You have completed this book, Congratulations!";
+                          } else if (widget.args.book.currentPage == 1 ||
+                              widget.args.book.totalTimeRead == 0) {
+                            return "Please add or start a reading session to find out reading pace and estimate finish";
+                          }
+
+                          int pagesRead = 0;
+                          for (var session in sessionList) {
+                            pagesRead += session.pagesRead;
+                          }
+
+                          double pagesPerMinute =
+                              widget.args.book.totalTimeRead / pagesRead;
+                          int estimateTime = ((pagesPerMinute *
+                                  (widget.args.book.totalPages -
+                                      widget.args.book.currentPage)))
+                              .round();
+
+                          int hours = (estimateTime / 60).floor();
+                          int mins = estimateTime % 60;
+
+                          return "Reading at a similar pace, you will finish this book in ${hours} hours and ${mins} minutes";
+                        }(),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 15, fontStyle: FontStyle.italic),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Text("${snapshot.error}");
+                    }
+                    return CircularProgressIndicator();
+                  },
+                )),
           ),
         ),
         Visibility(
