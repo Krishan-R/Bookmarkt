@@ -400,14 +400,6 @@ def deleteBookInstance(userID, bookInstanceID):
     return f"deleted book instance", 200
 
 
-@app.route("/users/<userID>/books/delete/all", methods=["DELETE"])
-def deleteAllUserBook(userID):
-    BookInstance.query.filter(BookInstance.userID == userID).delete()
-    db.session.commit()
-
-    return f"deleted all book instances from user {userID}", 200
-
-
 @app.route("/users/<userID>/books/<bookInstanceID>/read", methods=["POST"])
 def addReadingSession(userID, bookInstanceID):
     pagesRead = request.args.get("pagesRead", None)
@@ -428,6 +420,9 @@ def addReadingSession(userID, bookInstanceID):
         print(bookInstance.userID, bookInstance.book.title, userID)
         print("Book instance does not belong to user")
         return f"Book Instance {bookInstanceID} does not belong to user {userID}", 403
+
+    if bookInstance is None:
+        return "Book Instance does not exist", 404
 
     if pagesRead is None:
         return "pagesRead missing", 422
@@ -465,44 +460,6 @@ def addReadingSession(userID, bookInstanceID):
     db.session.commit()
 
     return readingSession.toJson(), 201
-
-
-@app.route("/books/<isbn>", methods=["PUT"])
-def updateBook(isbn):
-    title = request.args.get("title", None)
-    author = request.args.get("author", None)
-    description = request.args.get("description", None)
-    totalPages = request.args.get("totalPages", None)
-    publishedDate = request.args.get("publishedDate", None)
-
-    book = Book.query.filter(Book.isbn == isbn).first()
-    authorObj = Author.query.filter(Author.authorName == book.authorName).first()
-
-    if book is None:
-        return "Book cannot be found", 404
-
-    if book.automaticallyScraped:
-        return "Book cannot be edited", 403
-
-    if title is not None:
-        book.title = title
-    if author is not None:
-        book.authorName = author
-    if description is not None:
-        book.description = description
-    if totalPages is not None:
-        book.totalPages = totalPages
-    if publishedDate is not None:
-        book.publishedDate = publishedDate
-
-    book.addBookToAuthor()
-    db.session.commit()
-
-    d = AuthorToBook.delete().where(AuthorToBook.c.authorID == authorObj.authorID and AuthorToBook.c.isbn == book.isbn)
-    db.session.execute(d)
-    db.session.commit()
-
-    return book.toJson(), 200
 
 
 @app.route("/users/<userID>/bookshelf/all", methods=["GET"])
@@ -543,6 +500,9 @@ def renameBookshelf(userID, bookshelfID):
 
     bookshelf = Bookshelf.query.filter(Bookshelf.bookshelfID == bookshelfID).first()
 
+    if bookshelf is None:
+        return "Bookshelf does not exist", 404
+
     if bookshelf.userID != userID:
         return "Bookshelf does not belong to that user", 403
 
@@ -558,6 +518,9 @@ def deleteBookshelf(userID, bookshelfID):
     userID = int(userID)
 
     bookshelf = Bookshelf.query.filter(Bookshelf.bookshelfID == bookshelfID).first()
+
+    if bookshelf is None:
+        return "Bookshelf does not exist", 404
 
     if bookshelf.userID != userID:
         return "Bookshelf does not belong to that user", 403
@@ -726,7 +689,7 @@ def getBookInstanceStats(userID, bookInstanceID):
 
 
 @app.route("/users/<userID>/stats", methods=["GET"])
-def getGlobalStats(userID):
+def getReadingStats(userID):
     userID = int(userID)
 
     requestTime = request.args.get("time", 30)
@@ -840,16 +803,18 @@ def getUserRecent(userID):
             instance = BookInstance.query.filter(BookInstance.bookInstanceID == session.bookInstanceID).first()
             book = Book.query.filter(Book.isbn == instance.isbn).first()
 
-            returnJson.append({
-                "index": index + 1,
-                "data": {
-                    "bookData": book.toJson(),
-                    "userData": instance.toJson()
-                }
-            })
+            if not instance.completed:
 
-            last5Books.append(session.bookInstanceID)
-            index += 1
+                returnJson.append({
+                    "index": index + 1,
+                    "data": {
+                        "bookData": book.toJson(),
+                        "userData": instance.toJson()
+                    }
+                })
+
+                last5Books.append(session.bookInstanceID)
+                index += 1
 
         if len(last5Books) == 5:
             break
@@ -925,6 +890,7 @@ def editReadingSession(userID):
     date = request.args.get("date", None)
 
     timeRead = int(timeRead)
+    pagesRead = int(pagesRead)
 
     if readingSessionID is None:
         return "Please give readingSessionID", 400
@@ -939,9 +905,17 @@ def editReadingSession(userID):
         return "Reading session does not belong to that user", 403
 
     if pagesRead is not None:
+        instance.currentPage -= readingSession.pagesRead - pagesRead
+        if instance.currentPage < 0:
+            instance.currentPage = 0
+
         readingSession.pagesRead = pagesRead
+
     if timeRead is not None:
         instance.totalTimeRead += timeRead - readingSession.timeRead
+        if instance.totalTimeRead < 0:
+            instance.totalTimeRead = 0
+
         readingSession.timeRead = timeRead
     if date is not None:
         dateObj = datetime.datetime.strptime(date, "%Y-%m-%d")
