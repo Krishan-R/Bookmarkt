@@ -70,10 +70,36 @@ class _bookListViewState extends State<bookListView> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                widget.bookList[index].title,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(fontSize: 20),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    widget.bookList[index].title,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(fontSize: 20),
+                                  ),
+                                  RatingBar.builder(
+                                    initialRating:
+                                    widget.bookList[index].rating / 2,
+                                    minRating: 0,
+                                    direction: Axis.horizontal,
+                                    itemSize: 15,
+                                    itemCount: 5,
+                                    allowHalfRating: true,
+                                    itemPadding: EdgeInsets.symmetric(horizontal: 0.5),
+                                    itemBuilder: (context, _) => Icon(
+                                      Icons.star,
+                                      color: Colors.amber,
+                                    ),
+                                    onRatingUpdate: (rating) async {
+                                      widget.bookList[index]
+                                        ..rating = (rating * 2).toInt();
+
+                                      final response = await http.put(
+                                          "http://${widget.args.url}:5000/users/${widget.args.user.userID}/books/${ widget.bookList[index].bookInstanceID}/edit?rating=${rating * 2}");
+                                    },
+                                  ),
+                                ],
                               ),
                               Text(
                                 widget.bookList[index].author,
@@ -83,31 +109,22 @@ class _bookListViewState extends State<bookListView> {
                                 "${widget.bookList[index].currentPage.toString()}/${widget.bookList[index].totalPages}",
                                 style: TextStyle(color: Colors.grey),
                               ),
-                              RatingBar.builder(
-                                initialRating:
-                                    widget.bookList[index].rating / 2,
-                                minRating: 0,
-                                direction: Axis.horizontal,
-                                itemSize: 15,
-                                itemCount: 5,
-                                allowHalfRating: true,
-                                itemPadding: EdgeInsets.symmetric(horizontal: 0.5),
-                                itemBuilder: (context, _) => Icon(
-                                  Icons.star,
-                                  color: Colors.amber,
+                              SizedBox(height: 4),
+                              Visibility(
+                                visible: widget.bookList[index].currentPage > 0,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                                  child: LinearProgressIndicator(
+                                    value: widget.bookList[index].currentPage / widget.bookList[index].totalPages,
+                                    // uses theme color if color is set to null
+                                    valueColor: widget.bookList[index].completed ? AlwaysStoppedAnimation<Color>(Colors.green) : null,
+                                  ),
                                 ),
-                                onRatingUpdate: (rating) async {
-                                  widget.bookList[index]
-                                    ..rating = (rating * 2).toInt();
-
-                                  final response = await http.put(
-                                      "http://${widget.args.url}:5000/users/${widget.args.user.userID}/books/${ widget.bookList[index].bookInstanceID}/edit?rating=${rating * 2}");
-                                },
-                              ),
+                              )
                             ],
                           ),
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ),
