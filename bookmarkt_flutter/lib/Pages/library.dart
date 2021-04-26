@@ -102,9 +102,9 @@ ListView bookshelfListView(data, args) {
                   Text(
                     data[index].name,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                    style: TextStyle(fontSize: 20),
                   ),
-                  Text("${data[index].bookCount.toString()} ${ data[index].bookCount > 1 ? "books" : "book" }")
+                  Text("${data[index].bookCount.toString()} ${ data[index].bookCount > 1 ? "books" : "book" }", style: TextStyle(color: Colors.grey),)
                 ],
               ),
             ),
