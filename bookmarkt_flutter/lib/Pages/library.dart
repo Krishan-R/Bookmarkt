@@ -82,7 +82,7 @@ ListView bookshelfListView(data, args) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 1, horizontal: 4),
         child: Card(
-          child: ListTile(
+          child: InkWell(
             onTap: () {
               Navigator.pushNamed(context, '/bookshelf',
                   arguments: NavigatorArguments(args.user, args.url,
@@ -94,7 +94,20 @@ ListView bookshelfListView(data, args) {
               longPressBookshelfDialog(
                   context, args, data[index].bookshelfID, data[index].name);
             },
-            title: Text(data[index].name),
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    data[index].name,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                  ),
+                  Text("${data[index].bookCount.toString()} ${ data[index].bookCount > 1 ? "books" : "book" }")
+                ],
+              ),
+            ),
           ),
         ),
       );

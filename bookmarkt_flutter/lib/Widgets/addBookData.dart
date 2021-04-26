@@ -170,7 +170,7 @@ class _addBookState extends State<addBook> {
                       if (bookshelfDropdownValue == -1 || bookshelfDropdownValue == null) {
                         bookshelfID = "";
                       } else {
-                        bookshelfID = "&bookshelfID=$bookshelfDropdownValue}";
+                        bookshelfID = "&bookshelfID=$bookshelfDropdownValue";
                         args.book.bookshelfID = bookshelfDropdownValue;
                       }
 
