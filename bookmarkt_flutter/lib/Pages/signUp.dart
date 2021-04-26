@@ -38,7 +38,6 @@ class _SignUpState extends State<SignUp> {
               child: Form(
                 key: _formKey,
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text("Register New Account",
                         style: TextStyle(fontSize: 20),
@@ -71,7 +70,7 @@ class _SignUpState extends State<SignUp> {
                       decoration: InputDecoration(
                           hintText: "Password",
                           suffixIcon: IconButton(
-                            icon: Icon(Icons.lock,
+                            icon: Icon(Icons.remove_red_eye,
                                 color: Theme.of(context).primaryColorDark),
                             onPressed: () {
                               setState(() {
@@ -91,7 +90,7 @@ class _SignUpState extends State<SignUp> {
                         hintText: "Confirm Password",
                         suffixIcon: IconButton(
                           icon: Icon(
-                            Icons.lock,
+                            Icons.remove_red_eye,
                             color: Theme.of(context).primaryColorDark,
                           ),
                           onPressed: () {

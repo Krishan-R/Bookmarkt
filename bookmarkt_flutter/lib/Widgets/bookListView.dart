@@ -4,6 +4,7 @@ import 'package:bookmarkt_flutter/Models/bookshelf.dart';
 import 'package:bookmarkt_flutter/Models/navigatorArguments.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 
@@ -43,11 +44,11 @@ class _bookListViewState extends State<bookListView> {
                 onLongPress: () {
                   widget.args.book = widget.bookList[index];
                   longPressBookDialog(
-                          context,
-                          setState,
-                          widget.args,
-                          widget.bookList[index].bookInstanceID,
-                          widget.bookList[index].title);
+                      context,
+                      setState,
+                      widget.args,
+                      widget.bookList[index].bookInstanceID,
+                      widget.bookList[index].title);
                 },
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -66,7 +67,7 @@ class _bookListViewState extends State<bookListView> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 10),
                           child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
@@ -81,7 +82,28 @@ class _bookListViewState extends State<bookListView> {
                               Text(
                                 "${widget.bookList[index].currentPage.toString()}/${widget.bookList[index].totalPages}",
                                 style: TextStyle(color: Colors.grey),
-                              )
+                              ),
+                              RatingBar.builder(
+                                initialRating:
+                                    widget.bookList[index].rating / 2,
+                                minRating: 0,
+                                direction: Axis.horizontal,
+                                itemSize: 15,
+                                itemCount: 5,
+                                allowHalfRating: true,
+                                itemPadding: EdgeInsets.symmetric(horizontal: 0.5),
+                                itemBuilder: (context, _) => Icon(
+                                  Icons.star,
+                                  color: Colors.amber,
+                                ),
+                                onRatingUpdate: (rating) async {
+                                  widget.bookList[index]
+                                    ..rating = (rating * 2).toInt();
+
+                                  final response = await http.put(
+                                      "http://${widget.args.url}:5000/users/${widget.args.user.userID}/books/${ widget.bookList[index].bookInstanceID}/edit?rating=${rating * 2}");
+                                },
+                              ),
                             ],
                           ),
                         ),
@@ -123,7 +145,8 @@ longPressBookDialog(BuildContext context, setState, NavigatorArguments args,
             args.bookshelfList = bookshelfList;
 
             Navigator.pushNamed(context, "/addBook", arguments: args)
-                .then((value) => Navigator.pop(context)).then((value) => setState(() {}));
+                .then((value) => Navigator.pop(context))
+                .then((value) => setState(() {}));
           },
         ),
         FlatButton(

@@ -32,7 +32,6 @@ class _LoginState extends State<Login> {
               child: Form(
                 key: _formKey,
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       "Server found, Please log in",
@@ -62,7 +61,7 @@ class _LoginState extends State<Login> {
                         hintText: "Password",
                         suffixIcon: IconButton(
                           icon: Icon(
-                            Icons.lock,
+                            Icons.remove_red_eye,
                             color: Theme.of(context).primaryColorDark,
                           ),
                           onPressed: () {
@@ -73,6 +72,23 @@ class _LoginState extends State<Login> {
                         ),
                       ),
                       obscureText: passwordVisible,
+                      onEditingComplete: () async {
+                        if (_formKey.currentState.validate()) {
+                          User u = await loginToServer(args.url,
+                              usernameController.text, passwordController.text);
+
+                          if (u != null) {
+                            incorrectCredentials = false;
+                            Navigator.pushNamedAndRemoveUntil(
+                                context, "/home", (route) => false,
+                                arguments: NavigatorArguments(u, args.url));
+                          } else {
+                            setState(() {
+                              incorrectCredentials = true;
+                            });
+                          }
+                        }
+                      },
                     ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),

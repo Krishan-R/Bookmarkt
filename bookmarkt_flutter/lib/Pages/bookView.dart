@@ -162,22 +162,23 @@ Container bookHeader(args) {
                 Container(
                   // color: Colors.grey,
                   child: RatingBar.builder(
-                      initialRating: args.book.rating / 2,
-                      minRating: 0,
-                      direction: Axis.horizontal,
-                      allowHalfRating: true,
-                      itemCount: 5,
-                      itemPadding: EdgeInsets.symmetric(horizontal: 1),
-                      itemBuilder: (context, _) => Icon(
-                            Icons.star,
-                            color: Colors.amber,
-                          ),
-                      onRatingUpdate: (rating) async {
-                        args.book.rating = (rating * 2).toInt();
+                    initialRating: args.book.rating / 2,
+                    minRating: 0,
+                    direction: Axis.horizontal,
+                    allowHalfRating: true,
+                    itemCount: 5,
+                    itemPadding: EdgeInsets.symmetric(horizontal: 1),
+                    itemBuilder: (context, _) => Icon(
+                      Icons.star,
+                      color: Colors.amber,
+                    ),
+                    onRatingUpdate: (rating) async {
+                      args.book.rating = (rating * 2).toInt();
 
-                        final response = await http.put(
-                            "http://${args.url}:5000/users/${args.user.userID}/books/${args.book.bookInstanceID}/edit?rating=${rating * 2}");
-                      }),
+                      final response = await http.put(
+                          "http://${args.url}:5000/users/${args.user.userID}/books/${args.book.bookInstanceID}/edit?rating=${rating * 2}");
+                    },
+                  ),
                 ),
                 SizedBox(
                   height: 5,

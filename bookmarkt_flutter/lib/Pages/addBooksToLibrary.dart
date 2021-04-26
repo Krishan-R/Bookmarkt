@@ -10,6 +10,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
@@ -126,7 +127,23 @@ class _SelectableBookCardsState extends State<SelectableBookCards> {
                               Text(
                                 "${widget.bookList[index].currentPage.toString()}/${widget.bookList[index].totalPages}",
                                 style: TextStyle(color: Colors.grey),
-                              )
+                              ),
+                              RatingBar.builder(
+                                initialRating:
+                                widget.bookList[index].rating / 2,
+                                minRating: 0,
+                                direction: Axis.horizontal,
+                                itemSize: 15,
+                                itemCount: 5,
+                                allowHalfRating: true,
+                                ignoreGestures: true,
+                                itemPadding: EdgeInsets.symmetric(horizontal: 0.5),
+                                itemBuilder: (context, _) => Icon(
+                                  Icons.star,
+                                  color: Colors.amber,
+                                ),
+                                onRatingUpdate: (rating) {},
+                              ),
                             ],
                           ),
                         ),
