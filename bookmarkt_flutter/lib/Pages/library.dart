@@ -15,6 +15,10 @@ class Library extends StatefulWidget {
 class _LibraryState extends State<Library> {
   GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
+  callback() {
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     final NavigatorArguments args = ModalRoute.of(context).settings.arguments;
@@ -52,7 +56,8 @@ class _LibraryState extends State<Library> {
                           ),
                         );
                       } else {
-                        return bookshelfListView(data, args);
+                        return bookshelfListView(
+                            args: args, bookshelfList: data, callback: callback);
                       }
                     } else if (snapshot.hasError) {
                       return Text("${snapshot.error}");
@@ -75,44 +80,67 @@ class _LibraryState extends State<Library> {
   }
 }
 
-ListView bookshelfListView(data, args) {
-  return ListView.builder(
-    itemCount: data.length,
-    itemBuilder: (context, index) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 1, horizontal: 4),
-        child: Card(
-          child: InkWell(
-            onTap: () {
-              Navigator.pushNamed(context, '/bookshelf',
-                  arguments: NavigatorArguments(args.user, args.url,
-                      bookshelfID: data[index].bookshelfID,
-                      bookshelfName: data[index].name,
-                      bookshelfList: data));
-            },
-            onLongPress: () {
-              longPressBookshelfDialog(
-                  context, args, data[index].bookshelfID, data[index].name);
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    data[index].name,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 20),
-                  ),
-                  Text("${data[index].bookCount.toString()} ${ data[index].bookCount > 1 ? "books" : "book" }", style: TextStyle(color: Colors.grey),)
-                ],
+class bookshelfListView extends StatefulWidget {
+  NavigatorArguments args;
+  List<Bookshelf> bookshelfList;
+  Function callback;
+
+  bookshelfListView({Key key, this.args, this.bookshelfList, this.callback}) : super(key: key);
+
+  @override
+  _bookshelfListViewState createState() => _bookshelfListViewState();
+}
+
+class _bookshelfListViewState extends State<bookshelfListView> {
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: widget.bookshelfList.length,
+      itemBuilder: (context, index) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 1, horizontal: 4),
+          child: Card(
+            child: InkWell(
+              onTap: () {
+                Navigator.pushNamed(context, '/bookshelf',
+                        arguments: NavigatorArguments(
+                            widget.args.user, widget.args.url,
+                            bookshelfID:
+                                widget.bookshelfList[index].bookshelfID,
+                            bookshelfName: widget.bookshelfList[index].name,
+                            bookshelfList: widget.bookshelfList))
+                    .then((value) => widget.callback());
+              },
+              onLongPress: () {
+                longPressBookshelfDialog(
+                    context,
+                    widget.args,
+                    widget.bookshelfList[index].bookshelfID,
+                    widget.bookshelfList[index].name);
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.bookshelfList[index].name,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 20),
+                    ),
+                    Text(
+                      "${widget.bookshelfList[index].bookCount.toString()} ${widget.bookshelfList[index].bookCount == 1 ? "book" : "books"}",
+                      style: TextStyle(color: Colors.grey),
+                    )
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-      );
-    },
-  );
+        );
+      },
+    );
+  }
 }
 
 AddBookshelfDialog(BuildContext context, NavigatorArguments args) {
