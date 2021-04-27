@@ -126,10 +126,9 @@ class _BookshelfWidgetState extends State<BookshelfWidget> {
               labelBackgroundColor: Colors.white,
               labelStyle: TextStyle(fontSize: 15),
               onTap: () {
-                addBookAlert(
-                    context,
-                    NavigatorArguments(args.user, args.url,
-                        redirect: "/allBooks"));
+                args.redirect = "/allBooks";
+                args.printStuff();
+                addBookAlert(context, args);
               },
             ),
             SpeedDialChild(

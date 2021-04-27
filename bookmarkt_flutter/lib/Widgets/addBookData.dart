@@ -123,8 +123,8 @@ class _addBookState extends State<addBook> {
         goalCheckbox = true;
       }
 
-      if (args.book.bookshelfID != null) {
-        bookshelfDropdownValue = args.book.bookshelfID;
+      if (args.bookshelfID != null) {
+        bookshelfDropdownValue = args.bookshelfID;
       }
 
       if (args.bookshelfList.isEmpty) {
@@ -225,10 +225,8 @@ class _addBookState extends State<addBook> {
 
                       if (response.statusCode == 201) {
 
-                        Navigator.popUntil(
-                            context, ModalRoute.withName(args.redirect));
-                        Navigator.pushReplacementNamed(context, args.redirect,
-                            arguments: args);
+                        print("redirect:");
+                        Navigator.pushNamedAndRemoveUntil(context, args.redirect, (r) => false, arguments: args);
 
                       } else if (response.statusCode == 403 || response.statusCode == 42) {
 
