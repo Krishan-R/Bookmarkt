@@ -118,10 +118,12 @@ class _SelectableBookCardsState extends State<SelectableBookCards> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
-                                    widget.bookList[index].title,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(fontSize: 20),
+                                  Flexible(
+                                    child: Text(
+                                      widget.bookList[index].title,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(fontSize: 20),
+                                    ),
                                   ),
                                   RatingBar.builder(
                                     initialRating:
@@ -143,6 +145,8 @@ class _SelectableBookCardsState extends State<SelectableBookCards> {
                               ),
                               Text(
                                 widget.bookList[index].author,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                                 style: TextStyle(color: Colors.grey),
                               ),
                               Text(
