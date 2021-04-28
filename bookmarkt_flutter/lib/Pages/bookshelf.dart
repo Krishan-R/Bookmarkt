@@ -127,7 +127,6 @@ class _BookshelfWidgetState extends State<BookshelfWidget> {
               labelStyle: TextStyle(fontSize: 15),
               onTap: () {
                 args.redirect = "/allBooks";
-                args.printStuff();
                 addBookAlert(context, args);
               },
             ),

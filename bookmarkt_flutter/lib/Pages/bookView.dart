@@ -623,7 +623,7 @@ class _readingPredictionState extends State<readingPrediction> {
                             return "You have completed this book, Congratulations!";
                           } else if (widget.args.book.currentPage == 1 ||
                               widget.args.book.totalTimeRead == 0) {
-                            return "Please add or start a reading session to find out reading pace and estimate finish";
+                            return "Please add or start a reading session to discover reading insights";
                           }
 
                           int pagesRead = 0;
@@ -656,8 +656,7 @@ class _readingPredictionState extends State<readingPrediction> {
           ),
         ),
         Visibility(
-          visible: ((widget.args.book.goalDate != null) &&
-              !widget.args.book.completed),
+          visible: (widget.args.book.goalDate != null),
           child: Container(
             width: double.infinity,
             child: Card(
@@ -665,8 +664,22 @@ class _readingPredictionState extends State<readingPrediction> {
                 padding: const EdgeInsets.all(20.0),
                 child: Text(
                   () {
-                    if (((widget.args.book.goalDate != null) &&
-                        !widget.args.book.completed)) {
+                    if (widget.args.book.goalDate != null) {
+
+                      if (widget.args.book.completed) {
+
+                        print("printing date stuff");
+                        print(widget.args.book.completedDate);
+                        print(widget.args.book.goalDate);
+
+                        if (widget.args.book.completedDate
+                                .isBefore(widget.args.book.goalDate) ||
+                            widget.args.book.completedDate
+                                .isAtSameMomentAs(widget.args.book.goalDate)) {
+                          return "You have achieved your goal!";
+                        } else return "You have missed your reading goal :(";
+                      }
+
                       try {
                         Duration remainingDays = widget.args.book.goalDate
                             .difference(DateTime.now());

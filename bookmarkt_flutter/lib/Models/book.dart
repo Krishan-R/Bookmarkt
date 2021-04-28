@@ -67,9 +67,9 @@ class Book {
         borrowingTime = json["userData"]["borrowingTime"] == null
             ? null
             : DateTime.parse(json["userData"]["borrowingTime"]),
-        completedDate = json["userData"]["completedDate"] == null
+        completedDate = json["userData"]["dateCompleted"] == null
             ? null
-            : DateTime.parse(json["userData"]["completedDate"]),
+            : DateTime.parse(json["userData"]["dateCompleted"]),
         goalDate = json["userData"]["goalDate"] == null
             ? null
             : DateTime.parse(json["userData"]["goalDate"]),
