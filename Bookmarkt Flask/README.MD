@@ -1,9 +1,9 @@
-#Bookmarkt server
+# Bookmarkt server
 This folder holds all the code for the Bookmarkt server written using Python and Flask. API requests are handled by the server, often manipulating the SQL database. Instructions on installation can be seen below.
 
 ## Docker Installation
 
-Below a template can be seen which allows for rapid deployment of the Bookmarkt server using Docker. This will pull the image `iamafk/bookmarkt-server` from the DockerHub repository and spin up a container in detached mode. This image works on x86-64 (AMD64) processors, and will work on any operating system will Docker installed. 
+Below a template can be seen which allows for rapid deployment of the Bookmarkt server using Docker. This will pull the image `iamafk/bookmarkt-server` from the DockerHub repository and spin up a container in detached mode. This image works on x86-64 (AMD64) processors, and will work on any operating system with Docker installed. 
 
 This is the preferred method of running the Bookmarkt server due easy deployment and management. The Docker image has been tested on both Ubuntu 20.04 and Windows 10, both running a x86-64 processor.
 
@@ -33,17 +33,17 @@ Containers can be configured using parameters and flags during creation. Paramet
 
 This method of installation requires downloading all the relevant files, installing the necessary requirements and running the Flask server in a command prompt/terminal window. Below are some instructions to help installation.
 
-To install with this method, you need Python 3.8 installed and added to the PATH.
+To install with this method, you need Python 3.8 or higher installed and added to the PATH.
 
 1. Download the server files locally
 
 `git clone https://campus.cs.le.ac.uk/gitlab/ug_project/20-21/kr217.git && cd "kr217/Bookmarkt Flask"`
 
-2. Install all the python requirements
+2. Install the python requirements
 
 `pip install -r requirements.txt`
 
-3. Set the FLASK_APP environmental variable (Note. if running in Windows command prompt replace `export` with `set`, and if running in Windows powershell replace with `$env:` to set environmental variable)
+3. Set the FLASK_APP environment variable (Note. if running in Windows command prompt replace `export` with `set`, and if running in Windows powershell replace with `$env:` to set environment variable)
 
 `export FLASK_APP=bookmarkt.py`
 
@@ -54,7 +54,7 @@ To install with this method, you need Python 3.8 installed and added to the PATH
 5. Accept any firewall requirements if prompted
 
 
-6. The server is now running, to access this on your mobile device you must use the IP address of the host machine. This can be found with `ipconfig` on Windows and `ip addr` or `ifconfig` on Linux
+6. The server is now running, to access this on the mobile Bookmarkt app you must use the IP address of the host machine. This can be found with `ipconfig` on Windows and `ip addr` or `ifconfig` on Linux
 
 ## Folders
 
