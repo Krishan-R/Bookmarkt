@@ -2,10 +2,7 @@ from exts import db
 
 
 class Bookshelf(db.Model):
-    """Bookshelf class which stores multiple Book objects
-
-    :param bookshelfName: Name of the bookshelf
-    """
+    """Bookshelf class which stores multiple Book objects"""
 
     __tablename__ = "Bookshelf"
     bookshelfID = db.Column(db.Integer, unique=True, primary_key=True)
@@ -16,6 +13,7 @@ class Bookshelf(db.Model):
     def __init__(self, bookshelfName="", userID=""):
         """
         :param bookshelfName: Name of the bookshelf
+        :param userID: Bookshelf's owner userID
         """
 
         self.name = bookshelfName
@@ -23,6 +21,8 @@ class Bookshelf(db.Model):
         self.userID = userID
 
     def toJson(self):
+        """Returns a Json containing relevant details"""
+
         return {
             "bookshelfID": self.bookshelfID,
             "name": self.name,

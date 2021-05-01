@@ -51,6 +51,8 @@ class Book(db.Model):
             print("no isbn or google books ID provided, automatic scraping will not occur")
 
     def toJson(self):
+        """Returns a Json containing relevant details"""
+
         return {
             "isbn": self.isbn,
             "title": self.title,
@@ -151,6 +153,7 @@ class Book(db.Model):
             print("google ID empty")
 
     def __scrapeFromSelfLink(self):
+        """Adds relevant book fields from information retrieved from a direct link to a Google Books API response"""
 
         r = requests.get(self.selfLink)
         parsedJson = r.json()
@@ -180,10 +183,8 @@ class Book(db.Model):
                                    f"Assets/Thumbnails/{self.isbn}.jpg")
         self.thumbnail = f"Assets/Thumbnails/{self.isbn}.jpg"
 
-        # in case user needs to change details
-        # self.automaticallyScraped = False
-
     def addBookToAuthor(self):
+        """Add author to Author and AuthorToBook table"""
 
         # adds author to database if it doesnt already exist
         if Author.query.filter(Author.authorName == self.authorName).count() == 0:

@@ -16,6 +16,14 @@ class ReadingSession(db.Model):
     date = db.Column(db.Date)
 
     def __init__(self, bookInstanceID, pagesRead, timeRead, userID, date=datetime.date.today()):
+        """
+        :param bookInstanceID: reading session's bookInstanceID
+        :param pagesRead: number of pages read in session
+        :param timeRead: minutes spent reading in session
+        :param userID: userID
+        :param date: Date of reading session
+        """
+
         self.bookInstanceID = bookInstanceID
         self.pagesRead = pagesRead
         self.timeRead = timeRead
@@ -26,6 +34,7 @@ class ReadingSession(db.Model):
         return "<ReadingSession> %r" % self.readingSessionID
 
     def toJson(self):
+        """Returns a Json containing relevant details"""
 
         sessionJson = {
             "readingSessionID": self.readingSessionID,

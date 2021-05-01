@@ -2,10 +2,7 @@ from exts import db
 
 
 class BookInstance(db.Model):
-    """BookInstance stores all user specific data about books
-
-    :param isbn: ISBN of book
-    :param userID: ID of user"""
+    """BookInstance stores all user specific data about books"""
 
     __tablename__ = "BookInstance"
     bookInstanceID = db.Column(db.Integer, primary_key=True)
@@ -28,6 +25,22 @@ class BookInstance(db.Model):
 
     def __init__(self, isbn, userID, currentPage=0, totalPages=1, completed=False, bookshelfID=None, rating=0, totalTimeRead=0,
                  dateCompleted=None, borrowingFrom=None, borrowingTo=None, borrowingTime=None, goalDate=None):
+        """
+        :param isbn: ISBN of book
+        :param userID: ID of user
+        :param currentPage: current page of book
+        :param totalPages: total number of pages in book
+        :param completed: bool indicated if book has been read
+        :param bookshelfID: ID of bookshelf
+        :param rating: 0-10 rating of book
+        :param totalTimeRead: number of minutes read integer
+        :param dateCompleted: Date of completion
+        :param borrowingFrom: name book is being borrowed from
+        :param borrowingTo: name book is being lent to
+        :param borrowingTime: Date showing when book borrowing is due
+        :param goalDate: Date showing when the user wants to finish reading the book
+        """
+
         self.isbn = isbn
         self.userID = userID
         self.completed = completed
@@ -43,6 +56,7 @@ class BookInstance(db.Model):
         self.goalDate = goalDate
 
     def toJson(self):
+        """Returns a Json containing relevant details"""
 
         self.returnGoalDate = None
         self.returnDateCompleted = None

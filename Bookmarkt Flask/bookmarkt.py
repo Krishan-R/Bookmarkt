@@ -6,10 +6,8 @@ from flask import request, jsonify, send_file
 import hashlib
 from user import User
 from bookshelf import Bookshelf
-from author import Author
 from book import Book
 from bookInstance import BookInstance
-from authorToBook import AuthorToBook
 from readingSession import ReadingSession
 
 import os
@@ -467,9 +465,13 @@ def getAllUserBookshelves(userID):
     jsonList = []
     try:
         for bookshelf in Bookshelf.query.filter(Bookshelf.userID == userID):
+
+            count = len(BookInstance.query.filter(BookInstance.bookshelfID == bookshelf.bookshelfID).all())
+
             jsonList.append({
                 "bookshelfID": bookshelf.bookshelfID,
-                "name": bookshelf.name
+                "name": bookshelf.name,
+                "bookCount": count
             })
     except Exception as e:
         print(e)

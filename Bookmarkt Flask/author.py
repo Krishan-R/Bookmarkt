@@ -3,9 +3,7 @@ from authorToBook import AuthorToBook
 
 
 class Author(db.Model):
-    """Author class to store information about book authors
-
-    :param authorName: Name of the author"""
+    """Author class to store information about book authors"""
 
     __tablename__ = "Author"
     authorID = db.Column(db.Integer, primary_key=True)
