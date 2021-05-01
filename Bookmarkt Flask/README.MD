@@ -54,4 +54,25 @@ To install with this method, you need Python 3.8 installed and added to the PATH
 5. Accept any firewall requirements if prompted
 
 
-6. The server is now running, to access this on your mobile device you must use the IP address of the host machine. This can be found with `ipconfig` on Windows and `` on Linux
+6. The server is now running, to access this on your mobile device you must use the IP address of the host machine. This can be found with `ipconfig` on Windows and `ip addr` or `ifconfig` on Linux
+
+## Folders
+
+- Assets - This contains all the relevant assets that the server needs to function correctly, such as book art thumbnails
+- database - This folder contains the database file 
+
+## Files
+
+- .dockerignore - This is the dockerignore file to exclude files from being included in the Docker image
+- .Dockerfile - This file helps build the Docker image
+- README.MD - This README file
+- author.py - Contains the `Author` class
+- authorToBook.py - Contains the table that enables the many-to-many relationship between the `Author` and `Book` tables
+- book.py - Contains the `Book` class
+- bookInstance.py - Contains the `BookInstance` class
+- bookmarkt.py - The main server file where the API requests are handled. This is the file that is ran when the server is started.
+- bookshelf.py - Contains the `Bookshelf` class
+- exts.py - Contains the database initialisation to allow all the classes to use the same database
+- readingSession.py - Contains the `ReadingSession` class
+- requirements.py - Contains all the python requirements that should be installed before running the server
+- user.py - Contains the `User` class
