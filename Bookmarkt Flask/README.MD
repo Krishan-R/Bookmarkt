@@ -43,7 +43,7 @@ To install with this method, you need Python 3.8 installed and added to the PATH
 
 `pip install -r requirements.txt`
 
-3. Set the FLASK_APP environmental variable (Note. if running in Windows command prompt replace `export` with `set`, and if running in Windows powershell replace with `\$env:` to set environmental variable)
+3. Set the FLASK_APP environmental variable (Note. if running in Windows command prompt replace `export` with `set`, and if running in Windows powershell replace with `$env:` to set environmental variable)
 
 `export FLASK_APP=bookmarkt.py`
 
