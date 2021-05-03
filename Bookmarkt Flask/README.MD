@@ -33,7 +33,7 @@ Containers can be configured using parameters and flags during creation. Paramet
 
 This method of installation requires downloading all the relevant files, installing the necessary requirements and running the Flask server in a command prompt/terminal window. Below are some instructions to help installation.
 
-To install with this method, you need Python 3.8 or higher installed and added to the PATH.
+To install with this method, you need Python 3.8 or higher installed and added to the PATH. This method will work in Windows 10, Linux, and MacOS.
 
 1. Download the server files locally
 
