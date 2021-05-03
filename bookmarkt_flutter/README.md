@@ -69,5 +69,6 @@ When writing and testing the application, I used a Pixel 3 XL and Pixel 4 XL bot
 - lib/Widgets/readingSessionCard.dart - Widget that shows a card containing reading session information
 - lib/main.dart - The main dart file that is ran when the application is started
 - .README - This README file
+- bookmarkt.apk - The Bookmarkt APK
 - pubspec.lock - File that locks packages to a specific version
 - pubspec.yaml - File that lists package dependencies and other metadata
