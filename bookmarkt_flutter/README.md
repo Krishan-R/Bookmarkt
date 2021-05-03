@@ -75,44 +75,58 @@ When writing and testing the application, I used a Pixel 3 XL and Pixel 4 XL bot
 
 ## Screenshots
 
-splashScreen: 
+### splashScreen: 
+
 ![splashScreen](../App%20Screenshots/misc/findServer%20with%20SafeArea.png)
 
-findServer: 
+### findServer: 
+
 ![findServer](../App%20Screenshots/misc/findServer%20with%20SafeArea.png)
 
-login: 
+### login: 
+
 ![login](../App%20Screenshots/misc/login.png)
 
-register: 
+### register: 
+
 ![register](../App%20Screenshots/misc/register.png)
 
-drawer: 
+### drawer: 
+
 ![drawer](../App%20Screenshots/misc/drawer.png)
 
-addBook: 
+### addBook: 
+
 ![addBook](../App%20Screenshots/addBook/addBook.png)
 
-bookView: 
+### bookView: 
+
 ![bookView](../App%20Screenshots/bookView/bookView%20partially%20read.png)
 
-dashboard: 
+### dashboard: 
+
 ![dashboard](../App%20Screenshots/dashboard/dashboard%20with%20data1.png)
 
-library: 
+### library: 
+
 ![library](../App%20Screenshots/library/library.png)
 
-bookshelf: 
+### bookshelf: 
+
 ![bookshelf](../App%20Screenshots/bookshelf/bookshelf.png)
 
-allBooks: 
+### allBooks: 
+
 ![allBooks](../App%20Screenshots/books/books.png)
 
-readingSession timed: 
+### readingSession timed: 
+
 ![readingSession timed](../App%20Screenshots/readingSessions/readingSessions%20timed.png)
 
-readingSession untimed: 
+### readingSession untimed: 
+
 ![readingSession untimed](../App%20Screenshots/readingSessions/readingSessions%20untimed.png)
 
-readingSessionHistory: 
+### readingSessionHistory: 
+
 ![readingSessionHistory](../App%20Screenshots/readingSessionsHistory/readingSessions.png)
