@@ -2,6 +2,7 @@
 /Bookmarkt Flask/database/
 .idea
 local.properties
+.metadata
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
