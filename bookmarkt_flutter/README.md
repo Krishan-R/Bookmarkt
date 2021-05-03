@@ -75,17 +75,44 @@ When writing and testing the application, I used a Pixel 3 XL and Pixel 4 XL bot
 
 ## Screenshots
 
-splashScreen: ![splashScreen](https://campus.cs.le.ac.uk/gitlab/ug_project/20-21/kr217/-/blob/master/App%20Screenshots/misc/splash%20screen.png)
-findServer: ![findServer](https://campus.cs.le.ac.uk/gitlab/ug_project/20-21/kr217/-/blob/master/App%20Screenshots/misc/findServer%20with%20SafeArea.png)
-login: ![login](https://campus.cs.le.ac.uk/gitlab/ug_project/20-21/kr217/-/blob/master/App%20Screenshots/misc/login.png)
-register: ![register](https://campus.cs.le.ac.uk/gitlab/ug_project/20-21/kr217/-/blob/master/App%20Screenshots/misc/register.png)
-drawer: ![drawer](https://campus.cs.le.ac.uk/gitlab/ug_project/20-21/kr217/-/blob/master/App%20Screenshots/misc/drawer.png)
-addBook: ![addBook](https://campus.cs.le.ac.uk/gitlab/ug_project/20-21/kr217/-/blob/master/App%20Screenshots/addBook/addBook.png)
-bookView: ![bookView](https://campus.cs.le.ac.uk/gitlab/ug_project/20-21/kr217/-/blob/master/App%20Screenshots/bookView/bookView%20partially%20read.png)
-dashboard: ![dashboard](https://campus.cs.le.ac.uk/gitlab/ug_project/20-21/kr217/-/blob/master/App%20Screenshots/dashboard/dashboard%20with%20data1.png)
-library: ![library](https://campus.cs.le.ac.uk/gitlab/ug_project/20-21/kr217/-/blob/master/App%20Screenshots/library/library.png)
-bookshelf: ![bookshelf](https://campus.cs.le.ac.uk/gitlab/ug_project/20-21/kr217/-/blob/master/App%20Screenshots/bookshelf/bookshelf.png)
-allBooks: ![allBooks](https://campus.cs.le.ac.uk/gitlab/ug_project/20-21/kr217/-/blob/master/App%20Screenshots/books/books.png)
-readingSession timed: ![readingSession timed](https://campus.cs.le.ac.uk/gitlab/ug_project/20-21/kr217/-/blob/master/App%20Screenshots/readingSessions/readingSessions%20timed.png)
-readingSession untimed: ![readingSession untimed](https://campus.cs.le.ac.uk/gitlab/ug_project/20-21/kr217/-/blob/master/App%20Screenshots/readingSessions/readingSessions%20untimed.png)
-readingSessionHistory: ![readingSessionHistory](https://campus.cs.le.ac.uk/gitlab/ug_project/20-21/kr217/-/blob/master/App%20Screenshots/readingSessionsHistory/readingSessions.png)
+splashScreen: 
+![splashScreen](https://campus.cs.le.ac.uk/gitlab/ug_project/20-21/kr217/-/blob/master/App%20Screenshots/misc/splash%20screen.png)
+
+findServer: 
+![findServer](https://campus.cs.le.ac.uk/gitlab/ug_project/20-21/kr217/-/blob/master/App%20Screenshots/misc/findServer%20with%20SafeArea.png)
+
+login: 
+![login](https://campus.cs.le.ac.uk/gitlab/ug_project/20-21/kr217/-/blob/master/App%20Screenshots/misc/login.png)
+
+register: 
+![register](https://campus.cs.le.ac.uk/gitlab/ug_project/20-21/kr217/-/blob/master/App%20Screenshots/misc/register.png)
+
+drawer: 
+![drawer](https://campus.cs.le.ac.uk/gitlab/ug_project/20-21/kr217/-/blob/master/App%20Screenshots/misc/drawer.png)
+
+addBook: 
+![addBook](https://campus.cs.le.ac.uk/gitlab/ug_project/20-21/kr217/-/blob/master/App%20Screenshots/addBook/addBook.png)
+
+bookView: 
+![bookView](https://campus.cs.le.ac.uk/gitlab/ug_project/20-21/kr217/-/blob/master/App%20Screenshots/bookView/bookView%20partially%20read.png)
+
+dashboard: 
+![dashboard](https://campus.cs.le.ac.uk/gitlab/ug_project/20-21/kr217/-/blob/master/App%20Screenshots/dashboard/dashboard%20with%20data1.png)
+
+library: 
+![library](https://campus.cs.le.ac.uk/gitlab/ug_project/20-21/kr217/-/blob/master/App%20Screenshots/library/library.png)
+
+bookshelf: 
+![bookshelf](https://campus.cs.le.ac.uk/gitlab/ug_project/20-21/kr217/-/blob/master/App%20Screenshots/bookshelf/bookshelf.png)
+
+allBooks: 
+![allBooks](https://campus.cs.le.ac.uk/gitlab/ug_project/20-21/kr217/-/blob/master/App%20Screenshots/books/books.png)
+
+readingSession timed: 
+![readingSession timed](https://campus.cs.le.ac.uk/gitlab/ug_project/20-21/kr217/-/blob/master/App%20Screenshots/readingSessions/readingSessions%20timed.png)
+
+readingSession untimed: 
+![readingSession untimed](https://campus.cs.le.ac.uk/gitlab/ug_project/20-21/kr217/-/blob/master/App%20Screenshots/readingSessions/readingSessions%20untimed.png)
+
+readingSessionHistory: 
+![readingSessionHistory](https://campus.cs.le.ac.uk/gitlab/ug_project/20-21/kr217/-/blob/master/App%20Screenshots/readingSessionsHistory/readingSessions.png)
