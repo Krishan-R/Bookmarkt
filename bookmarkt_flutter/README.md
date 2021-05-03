@@ -1,16 +1,19 @@
-# bookmarkt_flutter
+# Bookmarkt Mobile Application
+This folder holds all the code for the Bookmarkt mobile application written using Flutter. API requests are sent and their responses are handled by this application. Instructions on installation can be seen below.
 
-A new Flutter project.
+## Installation
 
-## Getting Started
+To install this application,
+1. Download the APK file on your mobile Android device
+2. Navigate to the download directory in your phone's file browser
+3. Run in the APK to install the application
+4. Accept any privilege requests
+5. The app should now be installed
 
-This project is a starting point for a Flutter application.
+## Building the APK
+To build the APK from the source code, you need to have Flutter installed ([instructions can be found here](https://flutter.dev/docs/get-started/install)).
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+1. Run `flutter doctor` in a command prompt/terminal in the bookmarkt_flutter directory to ensure that your installation is valid
+2. Run `flutter build apk` to build the release version of the APK. This will automatically run `flutter pub get` which retrieves all the necessary packages
+3. The APK will be built, with its output being printed in the terminal. Usually this is `build/app/outputs/flutter-apk`
+4. The command `flutter clean` will remove the build folder in case of corruption

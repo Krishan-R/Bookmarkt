@@ -1,4 +1,4 @@
-# Bookmarkt server
+# Bookmarkt Server
 This folder holds all the code for the Bookmarkt server written using Python and Flask. API requests are handled by the server, often manipulating the SQL database. Instructions on installation can be seen below.
 
 ## Docker Installation
