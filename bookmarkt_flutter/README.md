@@ -15,17 +15,18 @@ To build the APK from the source code, you need to have Flutter installed ([inst
 
 1. Download the mobile application files locally
 
-`git clone https://campus.cs.le.ac.uk/gitlab/ug_project/20-21/kr217.git && cd "kr217/bookmarkt_flask"`
+`git clone https://campus.cs.le.ac.uk/gitlab/ug_project/20-21/kr217.git && cd "kr217/bookmarkt_flutter"`
 
 2. Run `flutter doctor` to ensure that your Flutter installation is valid
 3. Run `flutter build apk` to build the release version of the APK. This will automatically run `flutter pub get` which retrieves all the necessary packages
-4. The APK will be built, with its output being printed in the terminal. Usually this is `build/app/outputs/flutter-apk`
+
+The APK will be built, with its output being printed in the terminal. Usually this is `build/app/outputs/flutter-apk/app-release.apk`
 
 ## Compatibility
 
-Flutter naturally supports Android SDK 16 (Android 4.1) and higher, however due to particular Android functions and APIs that i have utilised, the minimum SDK version supported is 21 (Android 5). This means that any phone that is running at least Android 5 should be able to install and run the application without any issues.
+Flutter naturally supports Android SDK 16 (Android 4.1) and higher, however due to particular Android functions and APIs that have been utilised, the minimum SDK version that Bookmarkt supports is 21 (Android 5). This means that any phone that is running at least Android 5 should be able to install and run the application without any issues.
 
-When writing and testing the application, I used a Pixel 3 XL and Pixel 4 XL both with SDK 28 (Android 9), as well as a OnePlus 6T and OnePlus 7 Pro running Android 10.
+When writing and testing the application, a Pixel 3 XL and Pixel 4 XL both with SDK 28 (Android 9) were used, as well as a OnePlus 6T and OnePlus 7 Pro running Android 10.
 
 ## Relevant Folders
 
@@ -42,11 +43,11 @@ When writing and testing the application, I used a Pixel 3 XL and Pixel 4 XL bot
 
 - lib/Assets/BookmarktLogo.png - A 2048x2048 transparent copy of the Bookmarkt logo
 - lib/Assets/DrawerImgOriginal - The original copy of the image used in the Drawer
-- lib/Assets/DrawerImg - The cropped and edited Drawer imager
-- lib/Models/API requests.dart - Contains all the API requests sent my the mobile application to the server.
+- lib/Assets/DrawerImg - The cropped and edited Drawer image
+- lib/Models/API requests.dart - Contains all the API requests sent by the mobile application to the server.
 - lib/Models/book.dart - The Book class and its methods
 - lib/Models/bookshelf.dart - The Bookshelf class and its methods
-- lib/Models/navigatorArguments.dart - The NavigatorArguments class which helps transfer data between pages and widgets
+- lib/Models/navigatorArguments.dart - The NavigatorArguments class which transfers data between pages and widgets
 - lib/Models/readingSession.dart - The ReadingSession class and its methods
 - lib/Models/user.dart - The User class and its methods
 - lib/Pages/addBooksToLibrary.dart - Page that allows users to select which books they want to add to a specific bookshelf
@@ -77,7 +78,7 @@ When writing and testing the application, I used a Pixel 3 XL and Pixel 4 XL bot
 
 ### splashScreen: 
 
-![splashScreen](../App%20Screenshots/misc/findServer%20with%20SafeArea.png)
+![splashScreen](../App%20Screenshots/misc/splash%20screen.png)
 
 ### findServer: 
 
