@@ -1,9 +1,19 @@
-# Your project name here
+# Bookmarkt
 
-## Information about this repository
+Bookmarkt is a software stack that allows for users to manage, plan, and track what books they are reading, with the intention of encouraging more people to read. This repository contains all the necessary software and documents to install and run both the Bookmarkt server and the mobile application.
 
-This is the repository that you are going to use **individually** for developing your project. Please use the resources provided in the module to learn about **plagiarism** and how plagiarism awareness can foster your learning.
+## Server Files
 
-Regarding the use of this repository, once a feature (or part of it) is developed and **working** or parts of your system are integrated and **working**, define a commit and push it to the remote repository. You may find yourself making a commit after a productive hour of work (or even after 20 minutes!), for example. Choose commit message wisely and be concise.
+All the files relating to the Flask server can be found in the `Bookmarkt Flask/` directory. Requirements and compatibility can be found in the README, along with installation instructions.
 
-Please choose the structure of the contents of this repository that suits the needs of your project but do indicate in this file where the main software artefacts are located.
+## Mobile Application Files
+
+The files relating to the Flutter mobile application can be found in the `bookmarkt_flask/` directory. Build and installation instructions can be found in the README, alongside Android version compatibility.
+
+## Folders and Files
+
+The root directory of this repository contains the folders for the server and application as previously mentioned. Also included are:
+
+- App Screenshots - A folder containing all the App Screenshots used in the README's and Dissertation
+- .gitignore - gitignore file to prevent irrelevant files from being added to this repository
+- README.md - This README file

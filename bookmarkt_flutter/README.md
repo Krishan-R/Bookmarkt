@@ -69,7 +69,7 @@ When writing and testing the application, a Pixel 3 XL and Pixel 4 XL both with 
 - lib/Widgets/bookListView.dart - Widget that shows a list of cards of Books that is shown in allBooks.dart and bookshelf.dart
 - lib/Widgets/readingSessionCard.dart - Widget that shows a card containing reading session information
 - lib/main.dart - The main dart file that is ran when the application is started
-- .README - This README file
+- README.md - This README file
 - bookmarkt.apk - The Bookmarkt APK
 - pubspec.lock - File that locks packages to a specific version
 - pubspec.yaml - File that lists package dependencies and other metadata
