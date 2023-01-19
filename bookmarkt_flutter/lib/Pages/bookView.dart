@@ -336,45 +336,29 @@ class _readingSessionDetailsState extends State<readingSessionDetails> {
   }
 }
 
-class bookDescription extends StatelessWidget {
-  const bookDescription({
-    Key key,
-    @required this.args,
-  }) : super(key: key);
+class bookDescription extends StatefulWidget {
+  NavigatorArguments args;
 
-  final NavigatorArguments args;
+  bookDescription({Key key, this.args}) : super(key: key);
+
+  @override
+  State<bookDescription> createState() => _bookDescriptionState();
+}
+
+class _bookDescriptionState extends State<bookDescription> {
+  bool expanded = false;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        showDialog(
-          context: context,
-          builder: (context) {
-            return StatefulBuilder(builder: (context, setState) {
-              return AlertDialog(
-                content: SingleChildScrollView(
-                  child: Text(
-                    args.book.description,
-                    style: TextStyle(fontSize: 15),
-                  ),
-                ),
-                actions: [
-                  FlatButton(
-                    child: Text("OK"),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  )
-                ],
-              );
-            });
-          },
-        );
+        setState(() {
+          expanded = !expanded;
+        });
       },
       child: Text(
-        args.book.description,
-        maxLines: 3,
+        widget.args.book.description,
+        maxLines: expanded ? 10000 : 3,
         overflow: TextOverflow.ellipsis,
         textAlign: TextAlign.center,
       ),
