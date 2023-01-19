@@ -100,7 +100,6 @@ class _addBookState extends State<addBook> {
         currentPageController.text = args.book.currentPage.toString();
 
       bookTotalPages = args.book.totalPages;
-      print(args.book.totalPages);
 
       // sets borrowing information
       if (args.book.borrowingTo != null) {
@@ -128,7 +127,6 @@ class _addBookState extends State<addBook> {
       }
 
       if (args.bookshelfList.isEmpty) {
-        print("no bookshelves found");
         Bookshelf emptyBookshelf =
         Bookshelf(bookshelfID: -1, name: "No Bookshelves");
         args.bookshelfList.add(emptyBookshelf);
@@ -144,7 +142,6 @@ class _addBookState extends State<addBook> {
 
       init = true;
     }
-
 
     return SafeArea(
       child: Scaffold(
@@ -270,13 +267,11 @@ class _addBookState extends State<addBook> {
 
                       }
 
-                      print(args.book.currentPage);
                       if (bookCurrentPage == null) {
                         args.book.currentPage = 0;
                       } else {
                         args.book.currentPage = bookCurrentPage;
                       }
-                      print(args.book.currentPage);
 
                       String currentPage =
                           "&currentPage=$bookCurrentPage";
@@ -334,6 +329,7 @@ class _addBookState extends State<addBook> {
                       args.book.author = bookAuthor;
                       args.book.description = bookDescription;
                       args.book.totalPages = bookTotalPages;
+                      args.book.completed = completedCheckBox;
 
                       final response = await http.put(
                           "http://${args.url}:5000/users/${args.user.userID.toString()}/books/${args.book.bookInstanceID}/edit?$currentPage$completed$bookshelf$borrowing$goal$totalPages");

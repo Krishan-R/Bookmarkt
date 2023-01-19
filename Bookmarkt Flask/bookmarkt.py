@@ -666,8 +666,21 @@ def getBookInstanceStats(userID, bookInstanceID):
         }
     }
 
-    start_date = (datetime.datetime.now() - datetime.timedelta(days=time)).date()
-    end_date = datetime.date.today()
+    if bookInstance.completed:
+        firstReadingSession = ReadingSession.query.filter(ReadingSession.bookInstanceID == bookInstanceID).first()
+        if firstReadingSession is None:
+
+            # if no reading sessions added, defaults reading session period
+
+            start_date = (datetime.datetime.now() - datetime.timedelta(days=time)).date()
+            end_date = datetime.date.today()
+        else:
+            start_date = firstReadingSession.date - datetime.timedelta(days=1)
+            end_date = bookInstance.dateCompleted + datetime.timedelta(days=1)
+    else:
+        start_date = (datetime.datetime.now() - datetime.timedelta(days=time)).date()
+        end_date = datetime.date.today()
+
     delta = datetime.timedelta(days=1)
     while start_date <= end_date:
 

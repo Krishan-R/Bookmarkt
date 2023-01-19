@@ -400,70 +400,75 @@ class _bookViewGraphState extends State<bookViewGraph> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Text(
-                  "History",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                ),
-                SizedBox(width: 5),
-                Container(
-                  height: 30,
-                  child: ToggleButtons(
-                    children: [Text("Pages"), Text("Time")],
-                    isSelected: isSelected,
-                    borderColor: Colors.white,
-                    onPressed: (int index) {
-                      setState(() {
-                        isSelected[0] = !isSelected[0];
-                        isSelected[1] = !isSelected[1];
-
-                        if (isSelected[0])
-                          graphFocus = "pages";
-                        else
-                          graphFocus = "time";
-                      });
-                    },
+        Container(
+          height: 50,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Text(
+                    "History",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                   ),
-                ),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text("last"),
-                Container(
-                    width: 40,
-                    child: TextFormField(
-                      decoration: new InputDecoration(
-                        border: InputBorder.none,
-                        focusedBorder: InputBorder.none,
-                        enabledBorder: InputBorder.none,
-                        errorBorder: InputBorder.none,
-                        disabledBorder: InputBorder.none,
-                      ),
-                      initialValue: graphDuration.toString(),
-                      textAlign: TextAlign.center,
-                      keyboardType: TextInputType.number,
-                      onChanged: (value) {
+                  SizedBox(width: 5),
+                  Container(
+                    height: 30,
+                    child: ToggleButtons(
+                      children: [Text("Pages"), Text("Time")],
+                      isSelected: isSelected,
+                      onPressed: (int index) {
                         setState(() {
-                          // if 0, graphs are removed due to lack of data
-                          if (int.parse(value) == 0) {
-                            graphDuration = 1;
-                          } else {
-                            graphDuration = int.parse(value);
-                          }
+                          isSelected[0] = !isSelected[0];
+                          isSelected[1] = !isSelected[1];
+
+                          if (isSelected[0])
+                            graphFocus = "pages";
+                          else
+                            graphFocus = "time";
                         });
                       },
-                    )),
-                Text("days")
-              ],
-            ),
-          ],
+                    ),
+                  ),
+                ],
+              ),
+              Visibility(
+                visible: !widget.args.book.completed,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text("last"),
+                    Container(
+                        width: 40,
+                        child: TextFormField(
+                          decoration: new InputDecoration(
+                            border: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            errorBorder: InputBorder.none,
+                            disabledBorder: InputBorder.none,
+                          ),
+                          initialValue: graphDuration.toString(),
+                          textAlign: TextAlign.center,
+                          keyboardType: TextInputType.number,
+                          onChanged: (value) {
+                            setState(() {
+                              // if 0, graphs are removed due to lack of data
+                              if (int.parse(value) == 0) {
+                                graphDuration = 1;
+                              } else {
+                                graphDuration = int.parse(value);
+                              }
+                            });
+                          },
+                        )),
+                    Text("days")
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
         FutureBuilder(
             future: getBookReadingStats(widget.args, graphDuration),
@@ -618,7 +623,7 @@ class _readingPredictionState extends State<readingPrediction> {
                       return Text(
                         () {
                           if (widget.args.book.completed) {
-                            return "You have completed this book, Congratulations!";
+                            return "You have completed this book, congratulations!";
                           } else if (widget.args.book.currentPage == 1 ||
                               widget.args.book.totalTimeRead == 0) {
                             return "Please add or start a reading session to discover reading insights";
