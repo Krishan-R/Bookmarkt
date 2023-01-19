@@ -298,7 +298,6 @@ class _DayofWeekState extends State<DayofWeek> {
                     child: ToggleButtons(
                       children: [Text("Pages"), Text("Time")],
                       isSelected: isSelected,
-                      borderColor: Colors.white,
                       onPressed: (int index) {
                         setState(() {
                           isSelected[0] = !isSelected[0];
@@ -542,7 +541,6 @@ class _bookViewGraphState extends State<bookViewGraph> {
                   child: ToggleButtons(
                     children: [Text("Pages"), Text("Time")],
                     isSelected: isSelected,
-                    borderColor: Colors.white,
                     onPressed: (int index) {
                       setState(() {
                         isSelected[0] = !isSelected[0];

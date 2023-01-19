@@ -57,10 +57,9 @@ class _AllBooksState extends State<AllBooks> {
                 backgroundColor: Colors.blue,
                 foregroundColor: Colors.white,
                 label: "Scan ISBN",
-                labelBackgroundColor: Colors.white,
+                labelBackgroundColor: Theme.of(context).colorScheme.primary,
                 labelStyle: TextStyle(fontSize: 15),
                 onTap: () async {
-                  print("scan ISBN pressed");
 
                   String barcode;
                   try {
@@ -112,7 +111,7 @@ class _AllBooksState extends State<AllBooks> {
                 backgroundColor: Colors.blue,
                 foregroundColor: Colors.white,
                 label: "Enter ISBN",
-                labelBackgroundColor: Colors.white,
+                labelBackgroundColor: Theme.of(context).colorScheme.primary,
                 labelStyle: TextStyle(fontSize: 15),
                 onTap: () {
                   addBookAlert(
@@ -126,7 +125,7 @@ class _AllBooksState extends State<AllBooks> {
                 backgroundColor: Colors.blue,
                 foregroundColor: Colors.white,
                 label: "Search",
-                labelBackgroundColor: Colors.white,
+                labelBackgroundColor: Theme.of(context).colorScheme.primary,
                 labelStyle: TextStyle(fontSize: 15),
                 onTap: () {
                   args.redirect = "/allBooks";

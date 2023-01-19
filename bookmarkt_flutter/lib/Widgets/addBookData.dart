@@ -519,6 +519,7 @@ class _addBookState extends State<addBook> {
                     children: [
                       Checkbox(
                           value: completedCheckBox,
+                          activeColor: Theme.of(context).colorScheme.primary,
                           onChanged: (val) {
                             setState(() {
                               completedCheckBox = val;
@@ -541,6 +542,7 @@ class _addBookState extends State<addBook> {
                     children: [
                       Checkbox(
                           value: borrowingCheckBox,
+                          activeColor: Theme.of(context).colorScheme.primary,
                           onChanged: (value) {
                             setState(() {
                               borrowingCheckBox = !borrowingCheckBox;
@@ -607,6 +609,7 @@ class _addBookState extends State<addBook> {
                     children: [
                       Checkbox(
                           value: goalCheckbox,
+                          activeColor: Theme.of(context).colorScheme.primary,
                           onChanged: (value) {
                             setState(() {
                               goalCheckbox = !goalCheckbox;

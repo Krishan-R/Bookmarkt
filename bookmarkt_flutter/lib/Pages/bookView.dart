@@ -191,8 +191,7 @@ Container bookHeader(args) {
                         return Text("No bookshelf",
                             style: TextStyle(
                                 fontSize: 15,
-                                color: Colors.grey,
-                                fontStyle: FontStyle.italic));
+                                color: Colors.grey));
 
                       return InkWell(
                         onTap: () async {
@@ -207,8 +206,7 @@ Container bookHeader(args) {
                           snapshot.data,
                           style: TextStyle(
                               fontSize: 15,
-                              color: Colors.grey,
-                              fontStyle: FontStyle.italic),
+                              color: Colors.grey),
                         ),
                       );
                     } else if (snapshot.hasError) {
@@ -270,7 +268,7 @@ class _readingSessionDetailsState extends State<readingSessionDetails> {
                 lineWidth: 5,
                 percent: (widget.args.book.currentPage /
                     widget.args.book.totalPages),
-                center: Icon(Icons.book, color: Theme.of(context).primaryColor),
+                center: Icon(Icons.book, color: Theme.of(context).colorScheme.primary),
                 progressColor: Colors.green,
                 backgroundColor: Colors.grey,
               ),
@@ -282,7 +280,7 @@ class _readingSessionDetailsState extends State<readingSessionDetails> {
                 lineWidth: 5,
                 percent: 1,
                 center: Icon(Icons.watch_later,
-                    color: Theme.of(context).primaryColor),
+                    color: Theme.of(context).colorScheme.primary),
                 progressColor: Colors.green,
                 backgroundColor: Colors.grey,
               ),
@@ -667,10 +665,6 @@ class _readingPredictionState extends State<readingPrediction> {
                     if (widget.args.book.goalDate != null) {
 
                       if (widget.args.book.completed) {
-
-                        print("printing date stuff");
-                        print(widget.args.book.completedDate);
-                        print(widget.args.book.goalDate);
 
                         if (widget.args.book.completedDate
                                 .isBefore(widget.args.book.goalDate) ||

@@ -16,6 +16,13 @@ import 'package:flutter/material.dart';
 
 void main() => runApp(MaterialApp(
   initialRoute: '/',
+  theme: ThemeData(
+    brightness: Brightness.light
+  ),
+  darkTheme: ThemeData(
+    brightness: Brightness.dark
+  ),
+  themeMode: ThemeMode.system,
   routes: {
     '/': (context) => Loading(),
     '/findServer': (context) => findServer(),

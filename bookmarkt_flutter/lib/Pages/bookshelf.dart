@@ -69,7 +69,7 @@ class _BookshelfWidgetState extends State<BookshelfWidget> {
               backgroundColor: Colors.blue,
               foregroundColor: Colors.white,
               label: "Scan ISBN",
-              labelBackgroundColor: Colors.white,
+              labelBackgroundColor: Theme.of(context).colorScheme.primary,
               labelStyle: TextStyle(fontSize: 15),
               onTap: () async {
                 print("scan ISBN pressed");
@@ -123,7 +123,7 @@ class _BookshelfWidgetState extends State<BookshelfWidget> {
               backgroundColor: Colors.blue,
               foregroundColor: Colors.white,
               label: "Enter ISBN",
-              labelBackgroundColor: Colors.white,
+              labelBackgroundColor: Theme.of(context).colorScheme.primary,
               labelStyle: TextStyle(fontSize: 15),
               onTap: () {
                 args.redirect = "/allBooks";
@@ -135,7 +135,7 @@ class _BookshelfWidgetState extends State<BookshelfWidget> {
               backgroundColor: Colors.blue,
               foregroundColor: Colors.white,
               label: "Search",
-              labelBackgroundColor: Colors.white,
+              labelBackgroundColor: Theme.of(context).colorScheme.primary,
               labelStyle: TextStyle(fontSize: 15),
               onTap: () {
                 args.redirect = "/allBooks";

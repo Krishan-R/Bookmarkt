@@ -69,7 +69,8 @@ class _LibraryState extends State<Library> {
             ],
           ),
           floatingActionButton: FloatingActionButton(
-            child: Icon(Icons.add),
+            child: Icon(Icons.add, color: Colors.white,),
+            backgroundColor: Theme.of(context).colorScheme.primary,
             onPressed: () {
               AddBookshelfDialog(context, args);
             },
