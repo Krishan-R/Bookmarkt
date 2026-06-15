@@ -1,13 +1,14 @@
-FROM python:alpine3.8
+FROM python:3.11-alpine
 
 ENV FLASK_APP=bookmarkt.py
 ENV PYTHONUNBUFFERED=1
 
-copy . /bookmarkt
+COPY . /bookmarkt
 
-workdir /bookmarkt
+WORKDIR /bookmarkt
 
-run pip install -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
 EXPOSE 5000
 

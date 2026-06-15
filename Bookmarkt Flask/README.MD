@@ -33,7 +33,7 @@ Containers can be configured using parameters and flags during creation. Paramet
 
 This method of installation requires downloading all the relevant files, installing the necessary requirements and running the Flask server in a command prompt/terminal window. Below are some instructions to help installation.
 
-To install with this method, you need Python 3.8 or higher installed and added to the PATH. This method will work in Windows 10, Linux, and MacOS.
+To install with this method, you need Python 3.11 or higher installed and added to the PATH. This method will work in Windows 10/11, Linux, and MacOS.
 
 1. Download the server files locally
 
@@ -64,7 +64,7 @@ To install with this method, you need Python 3.8 or higher installed and added t
 ## Files
 
 - .dockerignore - This is the dockerignore file to exclude files from being included in the Docker image
-- .Dockerfile - This file helps build the Docker image
+- Dockerfile - This file helps build the Docker image
 - README.MD - This README file
 - author.py - Contains the `Author` class
 - authorToBook.py - Contains the table that enables the many-to-many relationship between the `Author` and `Book` tables
@@ -74,5 +74,5 @@ To install with this method, you need Python 3.8 or higher installed and added t
 - bookshelf.py - Contains the `Bookshelf` class
 - exts.py - Contains the database initialisation to allow all the classes to use the same database
 - readingSession.py - Contains the `ReadingSession` class
-- requirements.py - Contains all the python requirements that should be installed before running the server
+- requirements.txt - Contains all the python requirements that should be installed before running the server
 - user.py - Contains the `User` class
