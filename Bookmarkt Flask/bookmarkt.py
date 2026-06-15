@@ -172,6 +172,14 @@ def getSpecificUserBook(userID, bookInstanceID):
 def addUserBook(userID):
 
     isbn = request.args.get("isbn", None)
+    if isbn is None and request.is_json:
+        isbn = request.json.get("isbn", None)
+    if isbn is None and request.form:
+        isbn = request.form.get("isbn", None)
+
+    if isbn is not None:
+        isbn = str(isbn).replace("-", "").replace(" ", "")
+
     currentPage = request.args.get("currentPage", None)
     completed = request.args.get("completed", None)
     bookshelfID = request.args.get("bookshelfID", None)
@@ -235,19 +243,24 @@ def addUserBook(userID):
     book = Book.query.filter(Book.isbn == isbn).first()
     if book is None:
         print("book not found, trying to scrape")
-        newBook = Book(isbn=isbn,
-                       title=title,
-                       author=author,
-                       description=description,
-                       totalPages=totalPages,
-                       publishedDate=publishedDate)
-        print(newBook.totalPages)
-        db.session.add(newBook)
+        book = Book(isbn=isbn,
+                    title=title,
+                    author=author,
+                    description=description,
+                    totalPages=totalPages,
+                    publishedDate=publishedDate)
+        print(book.totalPages)
+        db.session.add(book)
         db.session.commit()
 
     # sets total pages for book instance if not in request
     if totalPages is None:
-        totalPages = book.totalPages
+        totalPages = book.totalPages if (book and book.totalPages is not None) else 1
+    else:
+        try:
+            totalPages = int(totalPages)
+        except (ValueError, TypeError):
+            totalPages = book.totalPages if (book and book.totalPages is not None) else 1
 
     newBookInstance = BookInstance(isbn, userID, completed=completed, currentPage=currentPage, totalPages=totalPages,
                                    bookshelfID=bookshelfID, rating=rating, totalTimeRead=totalTimeRead,
@@ -610,7 +623,16 @@ def scrapeBook():
     """
 
     isbn = request.args.get("isbn", None)
+    if isbn is None and request.is_json:
+        isbn = request.json.get("isbn", None)
+    if isbn is None and request.form:
+        isbn = request.form.get("isbn", None)
+
     selfLink = request.args.get("selfLink", None)
+    if selfLink is None and request.is_json:
+        selfLink = request.json.get("selfLink", None)
+    if selfLink is None and request.form:
+        selfLink = request.form.get("selfLink", None)
 
     if selfLink is not None:
         scrapedBook = Book(selfLink=selfLink)
@@ -620,6 +642,8 @@ def scrapeBook():
         return scrapedBook.toJson(), 200
 
     elif isbn is not None:
+        # Normalize ISBN
+        isbn = str(isbn).replace("-", "").replace(" ", "")
         book = Book.query.filter(Book.isbn == isbn).first()
 
         # book does not exist in database

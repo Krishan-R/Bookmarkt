@@ -31,6 +31,13 @@ class Book(db.Model):
         """
 
         self.isbn = isbn
+        if self.isbn is not None and self.isbn != "":
+            self.isbn = str(self.isbn).replace("-", "").replace(" ", "")
+            try:
+                self.isbn = int(self.isbn)
+            except ValueError:
+                pass
+
         self.googleID = googleID
 
         self.title = title
@@ -40,6 +47,7 @@ class Book(db.Model):
         self.totalPages = totalPages
         self.publishedDate = publishedDate
         self.selfLink = selfLink
+        self.automaticallyScraped = False
 
         if self.selfLink is not None:
             self.__scrapeFromSelfLink()
@@ -69,36 +77,58 @@ class Book(db.Model):
         """Adds relevant book fields from information retrieved by searching ISBN on Google Books API"""
 
         if self.isbn is not None and self.isbn != "":
+            # Normalize ISBN: remove hyphens and spaces
+            normalized_isbn = str(self.isbn).replace("-", "").replace(" ", "")
 
             apiKey = "AIzaSyBu5i0kpWKfoJ0Juhg5lhpYCU5Xonodo8g"
             orderBy = "relevance"
 
             # Use only one request with the API key
             r = requests.get(
-                f"https://www.googleapis.com/books/v1/volumes?q=isbn:{self.isbn}&orderBy={orderBy}&key={apiKey}")
+                f"https://www.googleapis.com/books/v1/volumes?q=isbn:{normalized_isbn}&orderBy={orderBy}&key={apiKey}")
 
             if r.status_code != 200:
-                print(f"Error from Google Books API: {r.status_code}")
+                print(f"Error from Google Books API: {r.status_code}. Response: {r.text}")
                 # Fallback to no-key request if 429 or 400 (expired key)
                 if r.status_code in [400, 429]:
-                    r = requests.get(f"https://www.googleapis.com/books/v1/volumes?q=isbn:{self.isbn}&orderBy={orderBy}")
+                    r = requests.get(f"https://www.googleapis.com/books/v1/volumes?q=isbn:{normalized_isbn}&orderBy={orderBy}")
 
             parsedJson = r.json()
 
-            # Safely check for totalItems and items
+            if "error" in parsedJson:
+                print(f"Google Books API returned an error: {parsedJson['error'].get('message')}")
+                # We don't return here yet, we might want to try fallback search if it was a 429/400
+                if r.status_code not in [400, 429]:
+                    return
+
+            # Fallback: If no items found with isbn: prefix, try a plain search
+            if parsedJson.get("totalItems", 0) == 0:
+                print(f"No items found with isbn: prefix for {normalized_isbn}, trying plain search")
+                r = requests.get(f"https://www.googleapis.com/books/v1/volumes?q={normalized_isbn}&orderBy={orderBy}&key={apiKey}")
+                if r.status_code != 200 and r.status_code in [400, 429]:
+                    r = requests.get(f"https://www.googleapis.com/books/v1/volumes?q={normalized_isbn}&orderBy={orderBy}")
+                parsedJson = r.json()
+
             if parsedJson.get("totalItems", 0) > 0 and "items" in parsedJson:
                 try:
-                    volumeInfo = parsedJson["items"][0]["volumeInfo"]
-                    # Robust identifier check
-                    identifiers = [id_obj.get("identifier") for id_obj in volumeInfo.get("industryIdentifiers", [])]
+                    # Look through results to find a matching ISBN
+                    matching_item = None
+                    for item in parsedJson["items"]:
+                        volumeInfo = item.get("volumeInfo", {})
+                        identifiers = [id_obj.get("identifier") for id_obj in volumeInfo.get("industryIdentifiers", [])]
+                        normalized_identifiers = [id.replace("-", "").replace(" ", "") for id in identifiers if id]
+                        if normalized_isbn in normalized_identifiers:
+                            matching_item = item
+                            break
                     
-                    if str(self.isbn) in identifiers:
+                    if matching_item:
+                        volumeInfo = matching_item["volumeInfo"]
                         self.title = volumeInfo.get("title")
                         authors = volumeInfo.get("authors", [])
                         if authors:
                             self.authorName = authors[0].replace(".", "").title()
                         self.description = volumeInfo.get("description")
-                        self.googleID = parsedJson["items"][0].get("id")
+                        self.googleID = matching_item.get("id")
                         self.totalPages = volumeInfo.get("pageCount")
                         self.publishedDate = volumeInfo.get("publishedDate")
 
