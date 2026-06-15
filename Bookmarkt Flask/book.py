@@ -80,7 +80,7 @@ class Book(db.Model):
             # Normalize ISBN: remove hyphens and spaces
             normalized_isbn = str(self.isbn).replace("-", "").replace(" ", "")
 
-            apiKey = "AIzaSyBu5i0kpWKfoJ0Juhg5lhpYCU5Xonodo8g"
+            apiKey = "AIzaSyAYwN0pTwSuP3JtnxQSiKQOPE5MwN95Mb0"
             orderBy = "relevance"
 
             # Use only one request with the API key
