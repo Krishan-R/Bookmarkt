@@ -68,43 +68,56 @@ class Book(db.Model):
     def __scrapeBookDataISBN(self):
         """Adds relevant book fields from information retrieved by searching ISBN on Google Books API"""
 
-        if self.isbn is not None or self.isbn != "":
+        if self.isbn is not None and self.isbn != "":
 
             apiKey = "AIzaSyBu5i0kpWKfoJ0Juhg5lhpYCU5Xonodo8g"
             orderBy = "relevance"
 
+            # Use only one request with the API key
             r = requests.get(
                 f"https://www.googleapis.com/books/v1/volumes?q=isbn:{self.isbn}&orderBy={orderBy}&key={apiKey}")
 
-            r = requests.get(
-                f"https://www.googleapis.com/books/v1/volumes?q=ISBN:{self.isbn}&orderBy={orderBy}&key={apiKey}")
-
-            r = requests.get(
-                f"https://www.googleapis.com/books/v1/volumes?q=isbn:{self.isbn}&orderBy={orderBy}")
+            if r.status_code != 200:
+                print(f"Error from Google Books API: {r.status_code}")
+                # Fallback to no-key request if 429 or 400 (expired key)
+                if r.status_code in [400, 429]:
+                    r = requests.get(f"https://www.googleapis.com/books/v1/volumes?q=isbn:{self.isbn}&orderBy={orderBy}")
 
             parsedJson = r.json()
 
-            if parsedJson["totalItems"] > 0:
+            # Safely check for totalItems and items
+            if parsedJson.get("totalItems", 0) > 0 and "items" in parsedJson:
                 try:
-                    if parsedJson["items"][0]["volumeInfo"]["industryIdentifiers"][0]["identifier"] == self.isbn or \
-                            parsedJson["items"][0]["volumeInfo"]["industryIdentifiers"][1]["identifier"] == self.isbn:
-                        self.title = parsedJson["items"][0]["volumeInfo"]["title"]
-                        self.authorName = parsedJson["items"][0]["volumeInfo"]["authors"][0].replace(".", "").title()
-                        self.description = parsedJson["items"][0]["volumeInfo"]["description"]
-                        self.googleID = parsedJson["items"][0]["id"]
-                        self.totalPages = parsedJson["items"][0]["volumeInfo"]["pageCount"]
-                        self.publishedDate = parsedJson["items"][0]["volumeInfo"]["publishedDate"]
+                    volumeInfo = parsedJson["items"][0]["volumeInfo"]
+                    # Robust identifier check
+                    identifiers = [id_obj.get("identifier") for id_obj in volumeInfo.get("industryIdentifiers", [])]
+                    
+                    if str(self.isbn) in identifiers:
+                        self.title = volumeInfo.get("title")
+                        authors = volumeInfo.get("authors", [])
+                        if authors:
+                            self.authorName = authors[0].replace(".", "").title()
+                        self.description = volumeInfo.get("description")
+                        self.googleID = parsedJson["items"][0].get("id")
+                        self.totalPages = volumeInfo.get("pageCount")
+                        self.publishedDate = volumeInfo.get("publishedDate")
 
                         # standardise publishedDate
-                        if len(self.publishedDate) == 4:
-                            self.publishedDate = f"{self.publishedDate}-01-01"
-                        elif len(self.publishedDate) == 7:
-                            self.publishedDate = f"{self.publishedDate}-01"
+                        if self.publishedDate:
+                            if len(self.publishedDate) == 4:
+                                self.publishedDate = f"{self.publishedDate}-01-01"
+                            elif len(self.publishedDate) == 7:
+                                self.publishedDate = f"{self.publishedDate}-01"
 
                         # store image locally
-                        urllib.request.urlretrieve(parsedJson["items"][0]["volumeInfo"]["imageLinks"]["thumbnail"],
-                                                   f"Assets/Thumbnails/{self.isbn}.jpg")
-                        self.thumbnail = f"Assets/Thumbnails/{self.isbn}.jpg"
+                        imageLinks = volumeInfo.get("imageLinks")
+                        if imageLinks and "thumbnail" in imageLinks:
+                            try:
+                                urllib.request.urlretrieve(imageLinks["thumbnail"],
+                                                           f"Assets/Thumbnails/{self.isbn}.jpg")
+                                self.thumbnail = f"Assets/Thumbnails/{self.isbn}.jpg"
+                            except Exception as e:
+                                print(f"Error downloading thumbnail: {e}")
 
                         self.addBookToAuthor()
 
@@ -115,8 +128,8 @@ class Book(db.Model):
 
                     else:
                         print(f"book not found with isbn: {self.isbn}. Not scraping from Google Books")
-                except IndexError:
-                    print("There was an issue scraping from google")
+                except (IndexError, KeyError) as e:
+                    print(f"There was an issue scraping from google: {e}")
             else:
                 print(f"book not found with isbn: {self.isbn}")
                 if self.authorName is not None:
@@ -127,27 +140,48 @@ class Book(db.Model):
     def __scrapeBookDataGoogleID(self):
         """Adds relevant book fields from information retrieved by searching Google Books API on Google Books API"""
 
-        if self.googleID is not None or self.googleID != "":
+        if self.googleID is not None and self.googleID != "":
 
             apiKey = "AIzaSyBu5i0kpWKfoJ0Juhg5lhpYCU5Xonodo8g"
 
             r = requests.get(
-                f"https://www.googleapis.com/books/v1/volumes/{self.googleID}&key={apiKey}")
+                f"https://www.googleapis.com/books/v1/volumes/{self.googleID}?key={apiKey}")
 
-            r = requests.get(
-                f"https://www.googleapis.com/books/v1/volumes/{self.googleID}")
+            if r.status_code != 200:
+                print(f"Error from Google Books API: {r.status_code}")
+                if r.status_code in [400, 429]:
+                    r = requests.get(f"https://www.googleapis.com/books/v1/volumes/{self.googleID}")
 
             parsedJson = r.json()
 
             try:
-                self.title = parsedJson["items"][0]["volumeInfo"]["title"]
-                self.authorName = parsedJson["items"][0]["volumeInfo"]["authors"][0]
-                self.description = parsedJson["items"][0]["volumeInfo"]["description"]
-                self.isbn = parsedJson["volumeInfo"]["industryIdentifiers"][1]["identifier"]
+                volumeInfo = parsedJson.get("volumeInfo")
+                if not volumeInfo:
+                    print(f"book not found with google ID: {self.googleID}")
+                    return
+
+                self.title = volumeInfo.get("title")
+                authors = volumeInfo.get("authors", [])
+                if authors:
+                    self.authorName = authors[0]
+                self.description = volumeInfo.get("description")
+                
+                # Robust ISBN extraction
+                identifiers = volumeInfo.get("industryIdentifiers", [])
+                for ident in identifiers:
+                    if ident.get("type") == "ISBN_13":
+                        self.isbn = int(ident.get("identifier"))
+                        break
+                else:
+                    if identifiers:
+                        try:
+                            self.isbn = int(identifiers[0].get("identifier"))
+                        except ValueError:
+                            pass
 
                 self.addBookToAuthor()
-            except KeyError:
-                print(f"book not found with google ID: {self.googleID}")
+            except Exception as e:
+                print(f"Error processing Google Books response: {e}")
 
         else:
             print("google ID empty")
@@ -156,32 +190,49 @@ class Book(db.Model):
         """Adds relevant book fields from information retrieved from a direct link to a Google Books API response"""
 
         r = requests.get(self.selfLink)
+        if r.status_code != 200:
+            print(f"Error fetching selfLink: {r.status_code}")
+            return
+
         parsedJson = r.json()
+        volumeInfo = parsedJson.get("volumeInfo")
+        if not volumeInfo:
+            print("No volumeInfo found in selfLink response")
+            return
 
         # ISBN
-        for ident in parsedJson["volumeInfo"]["industryIdentifiers"]:
-            if ident["type"] == "ISBN_13":
-                self.isbn = int(ident["identifier"])
+        for ident in volumeInfo.get("industryIdentifiers", []):
+            if ident.get("type") == "ISBN_13":
+                try:
+                    self.isbn = int(ident.get("identifier"))
+                except (ValueError, TypeError):
+                    pass
 
-        self.title = parsedJson["volumeInfo"]["title"]
-        if parsedJson.get("volumeInfo").get("authors") is not None:
-            self.authorName = parsedJson["volumeInfo"]["authors"][0]
-        self.description = parsedJson.get("volumeInfo").get("description")
-        self.totalPages = parsedJson.get("volumeInfo").get("pageCount")
-        self.publishedDate = parsedJson.get("volumeInfo").get("publishedDate")
-        self.googleID = parsedJson["id"]
+        self.title = volumeInfo.get("title")
+        authors = volumeInfo.get("authors", [])
+        if authors:
+            self.authorName = authors[0]
+        self.description = volumeInfo.get("description")
+        self.totalPages = volumeInfo.get("pageCount")
+        self.publishedDate = volumeInfo.get("publishedDate")
+        self.googleID = parsedJson.get("id")
 
         # standardise publishedDate
-        if self.publishedDate is not None:
+        if self.publishedDate:
             if len(self.publishedDate) == 4:
                 self.publishedDate = f"{self.publishedDate}-01-01"
             elif len(self.publishedDate) == 7:
                 self.publishedDate = f"{self.publishedDate}-01"
 
         # store image locally
-        urllib.request.urlretrieve(parsedJson["volumeInfo"]["imageLinks"]["thumbnail"],
-                                   f"Assets/Thumbnails/{self.isbn}.jpg")
-        self.thumbnail = f"Assets/Thumbnails/{self.isbn}.jpg"
+        imageLinks = volumeInfo.get("imageLinks")
+        if imageLinks and "thumbnail" in imageLinks:
+            try:
+                urllib.request.urlretrieve(imageLinks["thumbnail"],
+                                           f"Assets/Thumbnails/{self.isbn}.jpg")
+                self.thumbnail = f"Assets/Thumbnails/{self.isbn}.jpg"
+            except Exception as e:
+                print(f"Error downloading thumbnail: {e}")
 
     def addBookToAuthor(self):
         """Add author to Author and AuthorToBook table"""
